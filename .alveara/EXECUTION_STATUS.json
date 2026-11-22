@@ -209,12 +209,12 @@
       "dependencies": ["ALV-N025"],
       "optional": false,
       "qualityGateContribution": ["Gate F"],
-      "status": "AWAITING_REVIEW",
+      "status": "COMPLETE",
       "attempt": "R06",
-      "acceptance": {"total": 5, "passed": 0},
+      "acceptance": {"total": 5, "passed": 5},
       "tests": {"status": "passed", "summary": "Attempt R06 (Stage 1) on implementation d2241c8, focused proof complete (proof tree 81a5078, code = d2241c8): W2 documents-library 13/13 (75 s), W3 documents 14/14 (43 s), W4 forms 10/10 (52 s); carried forward by review: P1 prescription/PDF 64/64 and P2 forms/documents 119/119 (R04 tree 85815a3 = 884a936), W1 prescription-workflow 15/15 (R05 tree c5b15fe = aa87419; server-PDF print proven, intercepted body 0 bytes vs Content-Length 33-35 KB and a valid authenticated follow-up). Review R01 items 1-4 proven (F-107 PDF date of birth; real-browser server-PDF print; real-browser missing/damaged file; signed forms follow ViewSignedForms with integrity). Test databases unchanged (AlveraTest_ 1/1, AlveraWalk_ 0/0). R01 focused evidence (660/660 etc.) stands. Evidence .alveara/handoffs/ALV-N026/R06-proof/PROOF_RESULTS.md. fullRegression DEFERRED_TO_ALV-N028; not release-certified."}, "demo": "real_backend_walkthroughs_W1_15_W2_13_W3_14_W4_10", "parentRegression": "n/a", "implementationCommit": "d2241c8b5773c24757d32d8100ef4af39a041493", "evidenceCommit": "2d4570ecebe3bb4fa2193dfb53aa6cb9cf237a12", "handoffPath": ".alveara/handoffs/ALV-N026/R06.md",
-      "review": {"decision": "pending", "decisionArtifact": null, "approvedAttempt": null, "reviewedImplementationCommit": null, "reviewedEvidenceCommit": null},
-      "blockingIssues": [], "revalidation": {"required": false, "reason": null}, "completedAt": null, "fullRegression": "DEFERRED_TO_ALV-N028", "releaseCertified": false, "regressionLedger": ".alveara/PROGRAM_REGRESSION_LEDGER.md"
+      "review": {"decision": "APPROVED", "scope": "attempt R06 (Stage 1 focused proof; final focused-proof approval; deferred-regression route)", "decisionArtifact": ".alveara/reviews/ALV-N026/R06.md", "approvedAttempt": "R06", "reviewedImplementationCommit": "d2241c8b5773c24757d32d8100ef4af39a041493", "reviewedEvidenceCommit": "2d4570ecebe3bb4fa2193dfb53aa6cb9cf237a12", "packageSha256": "593B151E6A45CA6C4884C25235FD730C177624FC642DC99B0DCC353EA7CD71B2"},
+      "blockingIssues": [], "revalidation": {"required": false, "reason": null}, "completedAt": "2026-11-22T23:48:58Z", "stage2": "NOT_REQUIRED_BY_REVIEW_R06", "fullRegression": "DEFERRED_TO_ALV-N028", "releaseCertified": false, "regressionLedger": ".alveara/PROGRAM_REGRESSION_LEDGER.md"
     },
     {
       "schemaVersion": "2",
