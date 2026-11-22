@@ -1,0 +1,43 @@
+﻿Database AlveraWalk_playwright_documents_library_config_3d6dab39 created in C:\.alvera-data\Test-Data\Database
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Architecture\Recall\UnscheduledTreatmentJobs.cs(121,79): warning CS8604: Possible null reference argument for parameter 'taskKey' in 'bool UnscheduledTreatmentRules.SameEpisode(string taskKey, Guid itemId, int sequence, int linkSequence, bool ended)'. [C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj]
+
+Build succeeded.
+
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Architecture\Recall\UnscheduledTreatmentJobs.cs(121,79): warning CS8604: Possible null reference argument for parameter 'taskKey' in 'bool UnscheduledTreatmentRules.SameEpisode(string taskKey, Guid itemId, int sequence, int linkSequence, bool ended)'. [C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj]
+    1 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:20.55
+Done.
+API healthy on http://localhost:5072; running playwright.documents-library.config.ts ...
+node.exe : [WebServer] (node:40376) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([WebServer] (no... env being set.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 13 tests using 1 worker
+
+(node:55764) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [chromium] › e2e\documents-library-real-backend.spec.ts:150:1 › SETUP: a patient with one encounter and an empty library (999ms)
+  ok  2 [chromium] › e2e\documents-library-real-backend.spec.ts:168:1 › IMPORT: documents are tied to an encounter, a tooth and an oral region through the screen, and the server holds exactly that (1.4s)
+  ok  3 [chromium] › e2e\documents-library-real-backend.spec.ts:186:1 › FILTERS: by tooth, region, encounter and a search word, with a bad range explained beside its box and Clear bringing everything back (3.7s)
+  ok  4 [chromium] › e2e\documents-library-real-backend.spec.ts:215:1 › THUMBNAILS: a picture is drawn small, anything else is named in words, and fetching a thumbnail leaves no trace in the log (2.5s)
+  ok  5 [chromium] › e2e\documents-library-real-backend.spec.ts:233:1 › PREVIEW: Preview shows the picture on the screen (376ms)
+  ok  6 [chromium] › e2e\documents-library-real-backend.spec.ts:241:1 › INACTIVATE: a reason is required; the document leaves the library but is kept, listed under Inactive with the reason, and reactivated (1.3s)
+  ok  7 [chromium] › e2e\documents-library-real-backend.spec.ts:272:1 › THE DENTIST reads but cannot make a document inactive, and the API refuses with 403 (371ms)
+  ok  8 [chromium] › e2e\documents-library-real-backend.spec.ts:282:1 › STORAGE: the office manager checks every stored file and all are intact (2.0s)
+  ok  9 [chromium] › e2e\documents-library-real-backend.spec.ts:293:1 › MISSING FILE: a file taken from disk is reported missing, the library says so, opening it is refused, and putting it back makes it intact (3.5s)
+  ok 10 [chromium] › e2e\documents-library-real-backend.spec.ts:326:1 › MISSING OR DAMAGED, AS STAFF SEE IT (ALV-N026 R02): opening an unchecked file that is gone explains it in the app; a file found missing or damaged offers no Open, Preview or Download and says why; nothing names where files are stored (5.9s)
+  ok 11 [chromium] › e2e\documents-library-real-backend.spec.ts:394:1 › UNREFERENCED FILES: a stray file is listed once it is old, a fresh one is never listed, removal needs a selection and a confirmation, and is logged (716ms)
+  ok 12 [chromium] › e2e\documents-library-real-backend.spec.ts:432:1 › THE LOG: every action is recorded with who and when, and none of it names a file, a reason or the patient (13ms)
+  ok 13 [chromium] › e2e\documents-library-real-backend.spec.ts:439:1 › ACCESS: the front desk and the dentist cannot reach the storage page or its API (525ms)
+
+  13 passed (33.3s)
+Database AlveraWalk_playwright_documents_library_config_3d6dab39 dropped (its files went with it).
+Output kept in 
+C:\.alvera-data\Test-Data\Temp\walkthrough-output\AlveraWalk_playwright_documents_library_config_3d6dab39

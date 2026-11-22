@@ -1,0 +1,36 @@
+﻿Database AlveraWalk_playwright_forms_config_93328d32 created in C:\.alvera-data\Test-Data\Database
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.56
+Done.
+API healthy on http://localhost:5072; running playwright.forms.config.ts ...
+node.exe : [WebServer] (node:130244) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([WebServer] (no... env being set.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 10 tests using 1 worker
+
+(node:117068) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [chromium] › e2e\forms-real-backend.spec.ts:108:1 › TEMPLATES: an office manager builds a versioned privacy template through the UI; the front desk cannot reach the administration page (2.9s)
+  ok  2 [chromium] › e2e\forms-real-backend.spec.ts:138:1 › COMPLETE: the front desk starts the form for a patient, answers, saves a draft that survives a reload, and the status is shown in words (3.4s)
+  ok  3 [chromium] › e2e\forms-real-backend.spec.ts:170:1 › TEMPLATE CHANGE DURING COMPLETION: a newer template version is offered but the draft stays on the version it started on (959ms)
+  ok  4 [chromium] › e2e\forms-real-backend.spec.ts:186:1 › SIGN: review shows exactly what will be signed; missing signer details are refused; a keyboard-only signature records the signer, relationship and version (4.3s)
+  ok  5 [chromium] › e2e\forms-real-backend.spec.ts:230:1 › TEMPLATE EDIT AFTER SIGNING: the office manager publishes version 3 with completely different wording (554ms)
+  ok  6 [chromium] › e2e\forms-real-backend.spec.ts:238:1 › IMMUTABLE: the signed copy still shows version 1 wording and the same fingerprint after two further template versions; the same submit again and another key create nothing new (362ms)
+  ok  7 [chromium] › e2e\forms-real-backend.spec.ts:262:1 › INTERRUPTED SIGNATURE: the response is lost after the server stored it; the screen says the outcome is unknown and Sign again records exactly one signature (2.7s)
+  ok  8 [chromium] › e2e\forms-real-backend.spec.ts:301:1 › VOID: the front desk cannot void a signed form; the office manager can, with a reason, and the signed copy stays visible; a corrected form can follow (5.1s)
+  ok  9 [chromium] › e2e\forms-real-backend.spec.ts:330:1 › ROLES: a dentist can start a form; billing can read forms but has no way to start, save or sign; both are refused by the API (2.1s)
+  ok 10 [chromium] › e2e\forms-real-backend.spec.ts:351:1 › PATIENT SWITCH: another patient's forms never appear under this patient, and a form id under the wrong patient is not shown (821ms)
+
+  10 passed (30.1s)
+Database AlveraWalk_playwright_forms_config_93328d32 dropped (its files went with it).
+Output kept in C:\.alvera-data\Test-Data\Temp\walkthrough-output\AlveraWalk_playwright_forms_config_93328d32
