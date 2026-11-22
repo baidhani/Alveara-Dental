@@ -3508,3 +3508,9 @@
   - What changed: prescription-workflow spec pdfFromClick/expectServerPdf: the user action must still give a tab or download and a 200 application/pdf browser-side response; the intercepted response's status, Content-Type, Content-Length and Playwright-observed byte count are recorded (diagnostics only); the PDF bytes are validated from one follow-up GET of the same issued PDF through the same signed-in session (200, application/pdf, non-empty, %PDF-, privacy checks), labelled PRODUCT failures. The R04 proof (P1 64/64, P2 119/119; W1 stopped: 200 application/pdf but Playwright's intercepted body empty) is carried forward; owner decision: P1/P2 are not rerun. Test-only
   - Verification: the changed specs type-check (tsc --strict, exit 0); no test run (code review first)
   - Notes: not pushed
+- [ ] ALV-N026 R06: document walkthroughs open the row's More menu before Edit, Inactivate and Reactivate (S2 F-171; missed by the R02 stale-spec repair)
+  - Date: 2026-11-22
+  - Session: CC-20261115-m7x2
+  - What changed: openMore helper in documents-library-real-backend.spec.ts (INACTIVATE: Inactivate, Reactivate) and documents-real-backend.spec.ts (EDIT: two Edit clicks); opens the menu only if it is closed. Swept all four walkthrough specs: no other row action moved (Preview and PDF Open stay in the row). The R05 proof: W1 15/15 (77 s; PDFs 33-35 KB by Content-Length and follow-up fetch, Playwright observed 0 bytes: an observation limit, not a product defect); W2 stopped (INACTIVATE clicked a button now under More); W3, W4 not run. Test-only
+  - Verification: the changed specs type-check (tsc --strict, exit 0); no test run (code review first)
+  - Notes: not pushed

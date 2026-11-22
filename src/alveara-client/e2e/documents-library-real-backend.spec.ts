@@ -93,6 +93,12 @@ const titles = async (page: Page, query = "") => (await entries(page, query)).fi
 const auditOf = async (type: string) => ((await api(admin, "get", "/api/auth/audit-log?take=1000")).body as any[]).filter((e) => e.eventType === type);
 const documentId = async (title: string) => (await entries(admin)).find((e) => e.title === title)?.id as string;
 
+/** ALV-N026 S2 (F-171): opens a row's "More" menu (Edit, Inactivate, Reactivate), leaving it open if it already is. */
+async function openMore(page: Page, name: string) {
+  const summary = rowOf(page, name).getByLabel(`More actions for ${name}`);
+  if (!(await summary.evaluate((s) => (s.parentElement as HTMLDetailsElement).open))) await summary.click();
+}
+
 async function gotoDocuments(page: Page) {
   await page.goto(`/patients/${ids.ann}/documents`);
   await expect(page.getByRole("heading", { name: "Documents", exact: true })).toBeVisible();
@@ -235,6 +241,8 @@ test("PREVIEW: Preview shows the picture on the screen", async () => {
 test("INACTIVATE: a reason is required; the document leaves the library but is kept, listed under Inactive with the reason, and reactivated", async () => {
   const page = sessions.OfficeManager.page;
   await gotoDocuments(page);
+  // ALV-N026 S2 (F-171): Edit, Inactivate and Reactivate are under the row's "More" menu
+  await openMore(page, "plain.pdf");
   await rowOf(page, "plain.pdf").getByRole("button", { name: "Inactivate plain.pdf" }).click();
   const form = page.getByRole("form", { name: "Inactivate document" });
   await form.getByRole("button", { name: "Make inactive" }).click();
@@ -253,6 +261,7 @@ test("INACTIVATE: a reason is required; the document leaves the library but is k
   await shot(page, "04-inactive-details.png");
   await page.getByRole("button", { name: "Close details" }).click();
 
+  await openMore(page, "plain.pdf");
   await rowOf(page, "plain.pdf").getByRole("button", { name: "Reactivate plain.pdf" }).click();
   await filterForm(page).getByRole("button", { name: "Clear filters" }).click();
   await expect(rowOf(page, "plain.pdf")).toBeVisible();

@@ -91,6 +91,12 @@ const libraryOf = async (page: Page) => (await api(page, "get", `/api/patients/$
 const documentsOf = async (page: Page) => (await libraryOf(page)).filter((e) => e.kind === "Document");
 const auditOf = async (type: string) => ((await api(admin, "get", "/api/auth/audit-log?take=1000")).body as any[]).filter((e) => e.eventType === type);
 
+/** ALV-N026 S2 (F-171): opens a row's "More" menu (Edit, Inactivate, Reactivate), leaving it open if it already is. */
+async function openMore(page: Page, name: string) {
+  const summary = rowOf(page, name).getByLabel(`More actions for ${name}`);
+  if (!(await summary.evaluate((s) => (s.parentElement as HTMLDetailsElement).open))) await summary.click();
+}
+
 async function gotoDocuments(page: Page) {
   await page.goto(`/patients/${ids.ann}/documents`);
   await expect(page.getByRole("heading", { name: "Documents", exact: true })).toBeVisible();
@@ -259,6 +265,8 @@ test("REFUSALS: a program, a blocked type, a mislabelled file and an empty file 
 test("EDIT: recategorizing and editing the description is saved with a history row and a log entry; a stale edit is explained and nothing is overwritten", async () => {
   const page = sessions.OfficeManager.page;
   await gotoDocuments(page);
+  // ALV-N026 S2 (F-171): Edit, Inactivate and Reactivate are under the row's "More" menu
+  await openMore(page, "notes.txt");
   await rowOf(page, "notes.txt").getByRole("button", { name: "Edit notes.txt" }).click();
   const form = page.getByRole("form", { name: "Edit document" });
   await form.getByLabel("Category").selectOption({ label: "Lab report" });
@@ -272,6 +280,8 @@ test("EDIT: recategorizing and editing the description is saved with a history r
   expect(await auditOf("DocumentCategorized")).toHaveLength(1);
 
   // another user changes it while this form is open
+  // ALV-N026 S2 (F-171): Edit, Inactivate and Reactivate are under the row's "More" menu
+  await openMore(page, "notes.txt");
   await rowOf(page, "notes.txt").getByRole("button", { name: "Edit notes.txt" }).click();
   const current = (await api(admin, "get", `/api/documents/${ids.txt}`)).body.document;
   const sneaky = await api(admin, "put", `/api/documents/${ids.txt}`, { categoryId: current.categoryId, documentDate: current.documentDate, description: "Changed by someone else.", rowVersion: current.rowVersion });
