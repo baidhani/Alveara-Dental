@@ -10,7 +10,7 @@ import {
 import type { DraftView, PrescriptionRecord, SafetyCheck, WorkflowOptions } from "../../../services/prescriptionWorkflowApi";
 import type { SafetyContext } from "../../../services/safetyApi";
 import { PrescriptionSafetyPanel } from "../PrescriptionSafetyPanel";
-import { needsReview, reviewLabel } from "../prescriptionText";
+import { frequencyLabel, needsReview, reviewLabel } from "../prescriptionText";
 import { FinalizeConfirmation } from "./FinalizeConfirmation";
 import { EMPTY_FIELDS, entryOf, fieldsOf } from "./workflowRules";
 import type { ComposerFields } from "./workflowRules";
@@ -283,7 +283,7 @@ export function DraftComposer({ patientId, options, draft, safety, onChanged, on
         <label htmlFor={ids.frequency}>How often</label>
         <select id={ids.frequency} value={fields.frequency} aria-invalid={invalid("frequency")} aria-describedby={described("frequency")} onChange={(e) => set("frequency", e.target.value)}>
           <option value="">Choose how often</option>
-          {options.frequencies.map((f) => <option key={f} value={f}>{f}</option>)}
+          {options.frequencies.map((f) => <option key={f} value={f}>{frequencyLabel(f)}</option>)}
         </select>
         {error("frequency")}
 

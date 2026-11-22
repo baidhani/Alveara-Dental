@@ -35,7 +35,7 @@ public static class ExportDomainCatalog
         new("treatment_plans", "Treatment plans", ["TreatmentPlans", "TreatmentPlanItems", "TreatmentPlanEvents", "TreatmentPlanRevisions", "TreatmentPlanRevisionPhases", "TreatmentPlanRevisionItems", "TreatmentPlanItemStates"], ["ProcedureDefinitions", "ProcedureVersions"]),
         new("completed_procedures", "Completed procedures", ["CompletionSets", "CompletedProcedures", "CompletedProcedureAmendments"]),
         new("billing", "Billing and financial documents", ["BillingAccounts", "BillingEntries", "BillingAllocations", "BillingResponsibilities", "BillingAllocationReleases", "FinancialDocuments"], ["BillingPaymentMethods"]),
-        new("prescriptions", "Prescriptions", ["Prescriptions", "PrescriptionDrafts", "PrescriptionDetails", "PrescriptionEvents"]),
+        new("prescriptions", "Prescriptions", ["Prescriptions", "PrescriptionDrafts", "PrescriptionDetails", "PrescriptionEvents", "PrescriptionIssues"]),
         new("documents", "Documents (scans, images, letters)", ["Documents", "DocumentEvents", "DocumentIntegrity", "DocumentStatusChanges"], ["DocumentCategories"]),
         new("messages", "Messages and notifications about the patient", ["Messages", "MessageRecipients", "Notifications"]),
         new("follow_ups", "Follow-up tasks", ["FollowUpTasks", "FollowUpTaskEvents", "FollowUpReminderDeliveries"]),

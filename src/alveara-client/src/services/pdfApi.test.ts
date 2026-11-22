@@ -22,6 +22,18 @@ describe("openPdf", () => {
     expect(tab.close).not.toHaveBeenCalled();
   });
 
+  it("runs the prepare step after the tab is open and fetches the url it returns (ALV-N026 S6)", async () => {
+    const tab = fakeTab();
+    const opened = vi.spyOn(window, "open").mockReturnValue(tab as unknown as Window);
+    const fetched = vi.fn().mockResolvedValue(new Response(new Blob(["%PDF-1.7"]), { status: 200, headers: { "Content-Type": "application/pdf" } }));
+    vi.stubGlobal("fetch", fetched);
+    vi.stubGlobal("URL", Object.assign(URL, { createObjectURL: vi.fn().mockReturnValue("blob:pdf-2"), revokeObjectURL: vi.fn() }));
+    const prepare = vi.fn(async () => { expect(opened).toHaveBeenCalled(); return "/api/prescription-issues/i1/pdf"; });
+    await openPdf(prepare);
+    expect(fetched).toHaveBeenCalledWith("/api/prescription-issues/i1/pdf", { credentials: "include" });
+    expect(tab.location.href).toBe("blob:pdf-2");
+  });
+
   it("closes the tab and throws the server's reason when no PDF comes back", async () => {
     const tab = fakeTab();
     vi.spyOn(window, "open").mockReturnValue(tab as unknown as Window);

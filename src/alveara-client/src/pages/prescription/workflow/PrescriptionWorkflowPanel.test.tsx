@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
 import type { PatientDetail } from "../../../services/patientsApi";
 import type { AllergyAssessment } from "../../../services/prescriptionApi";
-import type { DraftCheck, DraftView, PrescriptionRecord, PrintContent, SafetyCheck, WorkflowOptions } from "../../../services/prescriptionWorkflowApi";
+import type { DraftCheck, DraftView, PrescriptionRecord, SafetyCheck, WorkflowOptions } from "../../../services/prescriptionWorkflowApi";
 import type { SafetyContext, SafetyEntry } from "../../../services/safetyApi";
 import { parseQuantity, parseRefills } from "./workflowRules";
 import { PrescriptionWorkflowPanel } from "./PrescriptionWorkflowPanel";
@@ -41,12 +41,6 @@ const recordOf = (over: Partial<PrescriptionRecord> = {}): PrescriptionRecord =>
   supersedesPrescriptionId: null, supersededByPrescriptionId: null, hasDetails: true,
   events: [{ eventType: "Finalized", reason: null, actorName: "Dr. Okafor", occurredAtUtc: "2030-02-02T10:00:00Z", supersededByPrescriptionId: null }], ...over,
 });
-const printOf = (over: Partial<PrintContent> = {}): PrintContent => ({
-  prescriptionId: "rx1", status: "Active", practice: { name: "Alveara Dental", phone: "555-0100", addressLine: "1 Main St" }, patientName: "Ann Alder", patientDateOfBirth: "1985-03-09T00:00:00", prescriberName: "Dr. Okafor",
-  medication: "Amoxicillin", dose: "500 mg", frequency: "Three times daily", instructions: "Take one capsule with food.", quantity: "21 capsule", refills: 0, prescribedAtUtc: "2030-02-02T10:00:00Z",
-  allergyStatement: "At the time of prescribing no recorded allergy matched this medication's name. That is a name comparison, not a clearance.", limitationStatement: options.decisionSupportMessage,
-  supersedesPrescriptionId: null, supersededByPrescriptionId: null, contentHash: "abcdef012345abcdef", ...over,
-});
 const entry = (title: string): SafetyEntry => ({
   origin: "ClinicalRecord", id: `A-${title}`, category: "Allergy", title, detail: "Hives", severity: "High" as SafetyEntry["severity"], status: "Active", source: "Clinical record", sourceItemId: null,
   lastUpdatedAtUtc: "2030-01-01T10:00:00Z", lastUpdatedByName: "Dr. Okafor", needsAttention: false, attentionReason: null, acknowledgedByMe: false, acknowledgedAtUtc: null, revision: null, rowVersion: null,
@@ -61,7 +55,7 @@ interface Call { url: string; method: string; body: Record<string, unknown> | nu
 interface Script {
   drafts: DraftView[]; records: PrescriptionRecord[]; detail: { draft: DraftView; safety: SafetyCheck }; loadFails: boolean; safety?: SafetyContext;
   create: (b: Record<string, unknown>) => Response; update: (b: Record<string, unknown>) => Response; check: () => Response; ack: (b: Record<string, unknown>) => Response; finalize: (b: Record<string, unknown>) => Response;
-  discard: (b: Record<string, unknown>) => Response; amend: () => Response; cancel: (b: Record<string, unknown>) => Response; discontinue: (b: Record<string, unknown>) => Response; print: () => Response;
+  discard: (b: Record<string, unknown>) => Response; amend: () => Response; cancel: (b: Record<string, unknown>) => Response; discontinue: (b: Record<string, unknown>) => Response; issue: (b: Record<string, unknown>) => Response; pdf: () => Response;
 }
 const okCheck = (over: Partial<DraftCheck> = {}): DraftCheck => ({ problems: [], safety: safetyCheck(), canFinalize: true, doseLimitation: options.doseLimitation, quantityLimitation: options.quantityLimitation, allergyLimitation: options.allergyLimitation, decisionSupport: options.decisionSupportMessage, ...over });
 
@@ -70,7 +64,8 @@ function stub(over: Partial<Script> = {}) {
     drafts: [], records: [], detail: { draft: draftOf(), safety: safetyCheck() }, loadFails: false,
     create: () => json({ draft: draftOf(), replayed: false }), update: () => json(draftOf({ rowVersion: "rv2" })), check: () => json(okCheck()), ack: () => json(draftOf({ rowVersion: "rv3" })),
     finalize: () => json({ record: recordOf(), replayed: false }), discard: () => json(draftOf({ status: "Discarded" })), amend: () => json({ draft: draftOf({ id: "d9", supersedesPrescriptionId: "rx1" }), replayed: false }),
-    cancel: () => json({ record: recordOf({ status: "Cancelled" }), replayed: false }), discontinue: () => json({ record: recordOf({ status: "Discontinued" }), replayed: false }), print: () => json(printOf()), ...over,
+    cancel: () => json({ record: recordOf({ status: "Cancelled" }), replayed: false }), discontinue: () => json({ record: recordOf({ status: "Discontinued" }), replayed: false }), issue: (b) => json({ id: "iss1", prescriptionId: "rx1", kind: b.kind, status: "Active", templateVersion: "p2", issuedAtUtc: "2030-02-03T10:00:00Z", replayed: false }, 201),
+    pdf: () => new Response(new Blob(["%PDF-1.7"]), { status: 200, headers: { "Content-Type": "application/pdf" } }), ...over,
   };
   const calls: Call[] = [];
   vi.stubGlobal("fetch", vi.fn().mockImplementation((url: RequestInfo | URL, init?: RequestInit) => {
@@ -92,7 +87,8 @@ function stub(over: Partial<Script> = {}) {
     if (u.endsWith("/amend")) return Promise.resolve(script.amend());
     if (u.endsWith("/cancel")) return Promise.resolve(script.cancel(body!));
     if (u.endsWith("/discontinue")) return Promise.resolve(script.discontinue(body!));
-    if (u.endsWith("/print")) return Promise.resolve(script.print());
+    if (u.endsWith("/issues") && method === "POST") return Promise.resolve(script.issue(body!));
+    if (u.endsWith("/prescription-issues/iss1/pdf")) return Promise.resolve(script.pdf());
     if (u.includes("/api/prescription-drafts/") && method === "PUT") return Promise.resolve(script.update(body!));
     if (u.includes("/api/prescription-drafts/")) return Promise.resolve(json(script.detail));
     return Promise.resolve(json({}));
@@ -147,13 +143,14 @@ describe("who sees what", () => {
     expect(screen.getByRole("note")).toHaveTextContent("not configured in this application");
   });
 
-  it("gives a read-only role the finalized prescriptions and the print button but no composer and no action", async () => {
+  it("gives a read-only role the finalized prescriptions and the print buttons but no composer and no action", async () => {
     stub({ records: [recordOf()] });
     await open(false);
     expect(screen.queryByRole("button", { name: "New prescription draft" })).not.toBeInTheDocument();
     expect(screen.queryByText("Drafts")).not.toBeInTheDocument();
     expect(screen.getByText(/You can read and print these but your role cannot prescribe/)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Print Amoxicillin" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Print Amoxicillin (PDF)" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Record copy of Amoxicillin (PDF)" })).toBeInTheDocument();
     for (const name of ["Amend Amoxicillin", "Cancel Amoxicillin", "Discontinue Amoxicillin"]) expect(screen.queryByRole("button", { name })).not.toBeInTheDocument();
   });
 
@@ -423,8 +420,10 @@ describe("the finalized prescriptions", () => {
     expect(within(list).getByText(/Cancelled: it should not be taken or dispensed/)).toBeInTheDocument();
     expect(within(list).getByText(/Superseded: it was replaced by an amendment/)).toBeInTheDocument();
     expect(within(list).getByText(/Saved before instructions, quantity and refills were recorded/)).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Print Ibuprofen" })).not.toBeInTheDocument();             // nothing complete to print
-    expect(screen.getByRole("button", { name: "Print Naproxen" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Print Ibuprofen (PDF)" })).not.toBeInTheDocument();       // nothing complete to print
+    expect(screen.queryByRole("button", { name: "Record copy of Ibuprofen (PDF)" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Print Naproxen (PDF)" })).not.toBeInTheDocument();        // ALV-N026 S6: an ended one is never printed to dispense...
+    expect(screen.getByRole("button", { name: "Record copy of Naproxen (PDF)" })).toBeInTheDocument();     // ...only issued as a record copy
     expect(screen.queryByRole("button", { name: "Cancel Naproxen" })).not.toBeInTheDocument();             // an ended prescription cannot end again
     expect(screen.queryByRole("button", { name: "Amend Codeine" })).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Amend Amoxicillin" })).toBeInTheDocument();
@@ -469,52 +468,62 @@ describe("the finalized prescriptions", () => {
   });
 });
 
-describe("printing", () => {
-  it("shows the prescription as it prints, with the document reference and what is not checked, and opens the print dialog", async () => {
-    stub({ records: [recordOf()] });
-    const print = vi.spyOn(window, "print").mockImplementation(() => {});
+describe("printing (ALV-N026 S6: server-made PDFs)", () => {
+  function fakeTab() {
+    const tab = { opener: {} as unknown, location: { href: "" }, close: vi.fn() };
+    vi.spyOn(window, "open").mockReturnValue(tab as unknown as Window);
+    vi.stubGlobal("URL", Object.assign(URL, { createObjectURL: vi.fn().mockReturnValue("blob:rx"), revokeObjectURL: vi.fn() }));
+    return tab;
+  }
+
+  it("issues a print once with one key and opens the PDF the server made", async () => {
+    const s = stub({ records: [recordOf()] });
+    const tab = fakeTab();
     const user = userEvent.setup();
     await open();
-    await user.click(screen.getByRole("button", { name: "Print Amoxicillin" }));
-    const article = await screen.findByRole("article", { name: "Prescription" });
-    for (const text of ["Alveara Dental", /Ann Alder/, "500 mg, three times daily", "Take one capsule with food.", "21 capsule", /Document reference abcdef012345/, /Not checked:/]) expect(within(article).getAllByText(text).length).toBeGreaterThan(0);
-    await user.click(screen.getByRole("button", { name: "Print" }));
-    expect(print).toHaveBeenCalledTimes(1);
+    await user.click(screen.getByRole("button", { name: "Print Amoxicillin (PDF)" }));
+    expect(await screen.findByText("The prescription was issued and opened as a PDF.")).toBeInTheDocument();
+    const issued = s.posts("/issues");
+    expect(issued).toHaveLength(1);
+    expect(issued[0].url).toBe("/api/prescriptions/rx1/issues");
+    expect(issued[0].body).toEqual({ kind: "Print", idempotencyKey: expect.any(String) });
+    expect(tab.location.href).toBe("blob:rx");
   });
 
-  it("says so on the printed page when the prescription is cancelled", async () => {
-    stub({ records: [recordOf({ status: "Cancelled" })], print: () => json(printOf({ status: "Cancelled" })) });
+  it("issues a record copy of an ended prescription", async () => {
+    const s = stub({ records: [recordOf({ status: "Cancelled" })] });
+    fakeTab();
     const user = userEvent.setup();
     await open();
-    await user.click(screen.getByRole("button", { name: "Print Amoxicillin" }));
-    const article = await screen.findByRole("article", { name: "Prescription" });
-    expect(within(article).getByText(/Cancelled: it should not be taken or dispensed/)).toBeInTheDocument();                  // it says so on the page itself
+    await user.click(screen.getByRole("button", { name: "Record copy of Amoxicillin (PDF)" }));
+    expect(await screen.findByText("A record copy dated today was issued and opened as a PDF.")).toBeInTheDocument();
+    expect(s.posts("/issues")[0].body).toEqual({ kind: "RecordCopy", idempotencyKey: expect.any(String) });
   });
 
-  it("says nothing was printed when the print cannot be prepared", async () => {
-    stub({ records: [recordOf()], print: () => json({ error: "print_failed", message: "The prescription could not be prepared for printing, because the print could not be logged. Nothing was printed. Try again." }, 503) });
+  it("says nothing was printed and closes the tab when the server refuses", async () => {
+    stub({ records: [recordOf()], issue: () => json({ error: "print_incomplete", message: "The patient's address is missing, so the prescription cannot be printed. Add the address to the patient's details first." }, 409) });
+    const tab = fakeTab();
     const user = userEvent.setup();
     await open();
-    await user.click(screen.getByRole("button", { name: "Print Amoxicillin" }));
-    expect(await screen.findByText(/could not be prepared for printing/)).toBeInTheDocument();
-    expect(screen.queryByRole("article", { name: "Prescription" })).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Print" })).toBeDisabled();
+    await user.click(screen.getByRole("button", { name: "Print Amoxicillin (PDF)" }));
+    expect(await screen.findByText(/Nothing was printed. The patient's address is missing/)).toBeInTheDocument();
+    expect(tab.close).toHaveBeenCalled();
+    expect(tab.location.href).toBe("");
   });
 
-  it("says nothing was printed when the browser cannot open the print dialog", async () => {
-    stub({ records: [recordOf()] });
-    vi.spyOn(window, "print").mockImplementation(() => { throw new Error("blocked"); });
+  it("says nothing was printed when the PDF engine is unavailable", async () => {
+    stub({ records: [recordOf()], pdf: () => json({ error: "pdf_engine_unavailable", message: "PDFs cannot be produced right now." }, 503) });
+    const tab = fakeTab();
     const user = userEvent.setup();
     await open();
-    await user.click(screen.getByRole("button", { name: "Print Amoxicillin" }));
-    await screen.findByRole("article", { name: "Prescription" });
-    await user.click(screen.getByRole("button", { name: "Print" }));
-    expect(await screen.findByText("The print dialog could not be opened. Nothing was printed.")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Print Amoxicillin (PDF)" }));
+    expect(await screen.findByText("Nothing was printed. PDFs cannot be produced right now.")).toBeInTheDocument();
+    expect(tab.close).toHaveBeenCalled();
   });
 });
 
 describe("accessibility", () => {
-  it("has no violations in the composer with problems showing, the confirmation, the record list and the print preview", async () => {
+  it("has no violations in the composer with problems showing and the record list", async () => {
     stub({ records: [recordOf(), recordOf({ id: "b", medication: "Naproxen", status: "Cancelled" })],
       create: () => json({ error: "validation_failed", message: "x", problems: [{ field: "doseValue", code: "above_typing_ceiling", message: "The dose is above what this screen accepts." }] }, 400) });
     const user = userEvent.setup();
@@ -525,10 +534,6 @@ describe("accessibility", () => {
     await user.click(composer().getByRole("button", { name: "Save draft" }));
     await screen.findByText("Nothing was saved. Correct the entries marked below.");
     expect(await axe(view.container)).toHaveNoViolations();                                                // the composer with its problems
-    await user.click(composer().getByRole("button", { name: "Close" }));
-    await user.click(screen.getByRole("button", { name: "Print Amoxicillin" }));
-    await screen.findByRole("article", { name: "Prescription" });
-    expect(await axe(view.container)).toHaveNoViolations();                                                // the print preview
   });
 
   it("has no violations on the finalization confirmation", async () => {

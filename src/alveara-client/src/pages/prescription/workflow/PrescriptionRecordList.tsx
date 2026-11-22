@@ -1,5 +1,5 @@
 import { useId, useState } from "react";
-import type { PrescriptionRecord } from "../../../services/prescriptionWorkflowApi";
+import type { IssueKind, PrescriptionRecord } from "../../../services/prescriptionWorkflowApi";
 import { when } from "../../treatmentplan/treatmentPlanRules";
 import { allergyResultWords, doseWords } from "../prescriptionText";
 import { quantityWords, statusWords } from "./workflowRules";
@@ -8,7 +8,8 @@ interface Props {
   records: PrescriptionRecord[];
   /** Whether the signed-in person may change a prescription. It only decides which buttons are drawn (the server checks every call). */
   canPrescribe: boolean;
-  onPrint: (id: string) => void;
+  /** ALV-N026 S6: opens a server-made PDF - a print (Active only) or a record copy. */
+  onPrint: (id: string, kind: IssueKind) => void;
   onAmend: (id: string) => void;
   /** Ends a prescription with a reason. Resolves to a message to show when it was refused, or null when it was recorded. */
   onEnd: (kind: "cancel" | "discontinue", id: string, reason: string) => Promise<string | null>;
@@ -17,6 +18,7 @@ interface Props {
 /**
  * ALV-016-C01: the patient's finalized prescriptions, newest first, each with its status, what finalizing recorded (instructions, quantity, refills), who prescribed it and when, what the allergy check said at the time
  * and its history. A prescription is never edited or deleted here: it can be printed, amended (a new draft that replaces it when finalized), cancelled or discontinued (each with a reason that is kept).
+ * ALV-N026 S6: an Active one prints as a PDF; any one can be issued as a record copy (a new copy dated today with today's status; an ended one is marked "do not dispense").
  * One saved before instructions, quantity and refills were recorded says so, and cannot be printed until it is amended.
  */
 export function PrescriptionRecordList({ records, canPrescribe, onPrint, onAmend, onEnd }: Props) {
@@ -61,7 +63,8 @@ export function PrescriptionRecordList({ records, canPrescribe, onPrint, onAmend
             </details>
           )}
           <div className="alv-clinical__row-actions">
-            {p.hasDetails && <button type="button" className="btn btn-outline-primary btn-sm" onClick={() => onPrint(p.id)}>Print {p.medication}</button>}
+            {p.hasDetails && p.status === "Active" && <button type="button" className="btn btn-outline-primary btn-sm" onClick={() => onPrint(p.id, "Print")}>Print {p.medication} (PDF)</button>}
+            {p.hasDetails && <button type="button" className="btn btn-outline-secondary btn-sm" onClick={() => onPrint(p.id, "RecordCopy")}>Record copy of {p.medication} (PDF)</button>}
             {canPrescribe && p.status === "Active" && (
               <>
                 <button type="button" className="btn btn-outline-primary btn-sm" onClick={() => onAmend(p.id)}>Amend {p.medication}</button>

@@ -121,5 +121,27 @@ internal static class PrescriptionWorkflowModel
                 t.HasCheckConstraint("CK_PrescriptionEvents_Time", "[OccurredAtUtc] >= '2000-01-01' AND [OccurredAtUtc] < '2200-01-01'");
             });
         });
+
+        // ALV-N026 S6: owned through the prescription only (ownership decision: no PatientId, not in the merge registry); append-only by trigger.
+        modelBuilder.Entity<PrescriptionIssue>(e =>
+        {
+            e.Property(x => x.IssueKind).HasMaxLength(10);
+            e.Property(x => x.TemplateVersion).HasMaxLength(8);
+            e.Property(x => x.StatusAtIssue).HasMaxLength(14);
+            e.Property(x => x.RenderBundleId).HasMaxLength(200);
+            e.Property(x => x.ContentHash).HasMaxLength(64);
+            e.Property(x => x.IdempotencyKey).HasMaxLength(100);
+            e.HasOne<Prescription>().WithMany().HasForeignKey(x => x.PrescriptionId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<PrescriptionEvent>().WithMany().HasForeignKey(x => x.EventCutoffId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<UserAccount>().WithMany().HasForeignKey(x => x.IssuedByUserId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => new { x.PrescriptionId, x.IdempotencyKey }).IsUnique();
+            e.ToTable(t =>
+            {
+                t.HasTrigger("TR_PrescriptionIssues_Immutable");
+                t.HasCheckConstraint("CK_PrescriptionIssues_Kind", $"[IssueKind] COLLATE Latin1_General_CS_AS IN ({PrescriptionModel.In(PrescriptionIssueKinds.All)})");
+                t.HasCheckConstraint("CK_PrescriptionIssues_Template", "[TemplateVersion] = 'p2'");
+                t.HasCheckConstraint("CK_PrescriptionIssues_Print", $"[IssueKind] <> '{PrescriptionIssueKinds.Print}' OR [StatusAtIssue] = '{PrescriptionStatuses.Active}'");
+            });
+        });
     }
 }

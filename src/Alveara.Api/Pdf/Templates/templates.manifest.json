@@ -12,6 +12,9 @@
     },
     "financial-legacy/v1": {
       "main.typ": "b0bac43ed35c5d1629ee06f21d5c1d73fae40a93b6b925cf0376ad0f8c625546"
+    },
+    "prescription/p2": {
+      "main.typ": "6822dc58bbc6a8f52d2e48cd455d5836537bb22f9070ed475c806e5dbb9519d8"
     }
   }
 }

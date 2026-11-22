@@ -4,11 +4,13 @@ import { ApiError } from "./authApi";
  * ALV-N026: opens a server-produced PDF in a new tab - the browser prints that PDF, never the application page, so no address, title or blank sheet ends up on paper.
  * The tab is opened at once (so the browser does not block it) and filled only when the server has answered with a PDF; on a refusal it is closed and the server's message is thrown as an
  * ApiError for the screen to show (for example pdf_engine_unavailable or document_content_changed). The PDF is held as a temporary object URL in the browser, released after a minute.
+ * `target` is the PDF's url, or (S6) a step run after the tab is open that returns it - for example issuing a prescription first - so the browser still sees the tab opened by the click.
  */
-export async function openPdf(url: string): Promise<void> {
+export async function openPdf(target: string | (() => Promise<string>)): Promise<void> {
   const tab = window.open("", "_blank");
   if (tab) tab.opener = null;
   try {
+    const url = typeof target === "string" ? target : await target();
     const res = await fetch(url, { credentials: "include" });
     if (!res.ok || !(res.headers.get("Content-Type") ?? "").startsWith("application/pdf")) {
       const body = (await res.json().catch(() => ({}))) as { error?: string; message?: string };

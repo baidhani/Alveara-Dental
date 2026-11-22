@@ -4,7 +4,7 @@ import { ApiError } from "../../services/authApi";
 import { isNetworkFailure, newKey } from "../../services/clinicalApi";
 import { assessmentOf, checkPrescription, prescriptionProblemsOf, savePrescription } from "../../services/prescriptionApi";
 import type { AllergyAssessment, PrescriptionEntryInput, PrescriptionOptions, PrescriptionProblem, SavedPrescription } from "../../services/prescriptionApi";
-import { needsReview, reviewLabel } from "./prescriptionText";
+import { frequencyLabel, needsReview, reviewLabel } from "./prescriptionText";
 
 interface Draft { medication: string; dose: string; unit: string; frequency: string; note: string }
 const EMPTY: Draft = { medication: "", dose: "", unit: "", frequency: "", note: "" };
@@ -161,7 +161,7 @@ export function PrescriptionForm({ patientId, options, assessment, onAssessment,
       <label htmlFor={ids.frequency}>How often</label>
       <select id={ids.frequency} value={draft.frequency} aria-invalid={invalid("frequency")} aria-describedby={described("frequency")} onChange={(e) => set("frequency", e.target.value)}>
         <option value="">Choose how often</option>
-        {options.frequencies.map((f) => <option key={f} value={f}>{f}</option>)}
+        {options.frequencies.map((f) => <option key={f} value={f}>{frequencyLabel(f)}</option>)}
       </select>
       {error("frequency")}
 

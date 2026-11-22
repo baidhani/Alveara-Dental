@@ -46,6 +46,29 @@ public class StaffProviderService(AlveraDbContext db, IPracticeClock clock)
     }
 
     /// <summary>Updates name/title and the account link together; only a changed link is audited as one.</summary>
+    /// <summary>
+    /// ALV-N026 S6 (PD-11): the optional prescriber details copied into a prescription at issue. Each is optional; an NPI must be exactly 10 digits (no check-digit claim). Audited without the values.
+    /// A later edit never changes an issue already made: the issue keeps its own copy.
+    /// </summary>
+    public async Task<StaffProfile> SetPrescriberDetailsAsync(Guid id, string? credential, string? licenseNumber, string? licenseJurisdiction, string? npi, string? rowVersion, Guid actor, CancellationToken ct)
+    {
+        var c = ConfigurationWrite.OptionalText(credential, "Credential", 40);
+        var l = ConfigurationWrite.OptionalText(licenseNumber, "Licence number", 40);
+        var j = ConfigurationWrite.OptionalText(licenseJurisdiction, "Issuing jurisdiction", 40);
+        var n = npi?.Trim() is { Length: > 0 } trimmed ? trimmed : null;
+        if (n is not null && (n.Length != 10 || !n.All(char.IsAsciiDigit)))
+            throw new ConfigurationException("validation_failed", "An NPI is exactly 10 digits.");
+        var staff = await db.StaffProfiles.SingleOrDefaultAsync(s => s.Id == id, ct) ?? throw PracticeConfigurationService.NotFound("Staff profile");
+        ConfigurationWrite.ApplyExpectedVersion(db, staff, rowVersion);
+        staff.CredentialLabel = c;
+        staff.LicenseNumber = l;
+        staff.LicenseJurisdiction = j;
+        staff.Npi = n;
+        ConfigurationWrite.Audit(db, ConfigurationAuditEvents.Updated, nameof(StaffProfile), id, actor, "Staff prescriber details updated.");
+        await ConfigurationWrite.SaveAsync(db, nameof(StaffProfile), id, ct);
+        return staff;
+    }
+
     public async Task<StaffProfile> UpdateStaffAsync(Guid id, string? displayName, string? jobTitle, Guid? userAccountId, string? rowVersion, Guid actor, CancellationToken ct)
     {
         var name = ConfigurationWrite.RequireName(displayName, "Display name");

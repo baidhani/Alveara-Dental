@@ -1,6 +1,9 @@
 import type { AllergyOutcome, Prescription } from "../../services/prescriptionApi";
 
 /** The dose as it is read aloud: "500 mg", "1.5 tablet". The number comes from the server's decimal, so no trailing zeros are invented. */
+/** ALV-N026 (Q-5am): how a stored frequency reads in a list; the stored value is unchanged ("Once" reads "Once only (single dose)"). */
+export const frequencyLabel = (stored: string) => (stored === "Once" ? "Once only (single dose)" : stored);
+
 export const doseWords = (p: Pick<Prescription, "doseValue" | "doseUnit">) => `${p.doseValue} ${p.doseUnit}`;
 
 /** What a saved prescription's allergy result means, in words, never as a clearance. */

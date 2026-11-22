@@ -4539,6 +4539,10 @@ namespace Alveara.Api.Migrations
                     b.Property<DateTimeOffset>("CreatedAtUtc")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<string>("CredentialLabel")
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
                     b.Property<string>("DisplayName")
                         .IsRequired()
                         .HasMaxLength(120)
@@ -4552,6 +4556,18 @@ namespace Alveara.Api.Migrations
                     b.Property<string>("JobTitle")
                         .HasMaxLength(80)
                         .HasColumnType("nvarchar(80)");
+
+                    b.Property<string>("LicenseJurisdiction")
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<string>("LicenseNumber")
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<string>("Npi")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
@@ -4571,7 +4587,10 @@ namespace Alveara.Api.Migrations
                         .IsUnique()
                         .HasFilter("[UserAccountId] IS NOT NULL");
 
-                    b.ToTable("StaffProfiles");
+                    b.ToTable("StaffProfiles", t =>
+                        {
+                            t.HasCheckConstraint("CK_StaffProfiles_Npi", "[Npi] IS NULL OR ([Npi] NOT LIKE '%[^0-9]%' AND LEN([Npi]) = 10)");
+                        });
                 });
 
             modelBuilder.Entity("Alveara.Api.Architecture.Identity.UserAccount", b =>
@@ -7382,6 +7401,82 @@ namespace Alveara.Api.Migrations
                             t.HasCheckConstraint("CK_PrescriptionEvents_Time", "[OccurredAtUtc] >= '2000-01-01' AND [OccurredAtUtc] < '2200-01-01'");
 
                             t.HasCheckConstraint("CK_PrescriptionEvents_Type", "[EventType] COLLATE Latin1_General_CS_AS IN ('Finalized','Cancelled','Discontinued','Superseded')");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Prescribing.PrescriptionIssue", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ContentHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<Guid>("CorrelationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("EnvelopeJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("EventCutoffId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("IdempotencyKey")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("IssueKind")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<DateTimeOffset>("IssuedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("IssuedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PrescriptionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("RenderBundleId")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("StatusAtIssue")
+                        .IsRequired()
+                        .HasMaxLength(14)
+                        .HasColumnType("nvarchar(14)");
+
+                    b.Property<string>("TemplateVersion")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("nvarchar(8)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventCutoffId");
+
+                    b.HasIndex("IssuedByUserId");
+
+                    b.HasIndex("PrescriptionId", "IdempotencyKey")
+                        .IsUnique();
+
+                    b.ToTable("PrescriptionIssues", t =>
+                        {
+                            t.HasTrigger("TR_PrescriptionIssues_Immutable");
+
+                            t.HasCheckConstraint("CK_PrescriptionIssues_Kind", "[IssueKind] COLLATE Latin1_General_CS_AS IN ('Print','RecordCopy')");
+
+                            t.HasCheckConstraint("CK_PrescriptionIssues_Print", "[IssueKind] <> 'Print' OR [StatusAtIssue] = 'Active'");
+
+                            t.HasCheckConstraint("CK_PrescriptionIssues_Template", "[TemplateVersion] = 'p2'");
                         });
 
                     b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
@@ -10484,6 +10579,26 @@ namespace Alveara.Api.Migrations
                         .WithMany()
                         .HasForeignKey("SupersededByPrescriptionId")
                         .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Prescribing.PrescriptionIssue", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Prescribing.PrescriptionEvent", null)
+                        .WithMany()
+                        .HasForeignKey("EventCutoffId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("IssuedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Prescribing.Prescription", null)
+                        .WithMany()
+                        .HasForeignKey("PrescriptionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Alveara.Api.Architecture.Procedures.ProcedureEvent", b =>

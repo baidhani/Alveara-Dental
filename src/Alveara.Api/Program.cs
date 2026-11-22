@@ -156,6 +156,7 @@ builder.Services.AddScoped<Alveara.Api.Architecture.Prescribing.PrescriptionReco
 builder.Services.AddScoped<Alveara.Api.Architecture.Prescribing.PrescriptionDraftService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Prescribing.PrescriptionFinalizeService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Prescribing.PrescriptionLifecycleService>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Prescribing.PrescriptionIssueService>();   // ALV-N026 S6
 builder.Services.AddScoped<Alveara.Api.Architecture.Documents.DocumentImportService>();
 // ALV-N015: the notification center. The consumer is a hosted service (Notifications:ConsumerPollSeconds, 0 turns it off); the services are scoped.
 builder.Services.AddScoped<Alveara.Api.Architecture.Notifications.NotificationService>();

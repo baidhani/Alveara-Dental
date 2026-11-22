@@ -72,6 +72,13 @@ public class StaffProfile
     /// <summary>ALV-N003: free-text job title (e.g. "Front desk lead"); distinct from the login Role.</summary>
     public string? JobTitle { get; set; }
 
+    /// <summary>ALV-N026 S6 (PD-11): optional prescriber details, edited by an administrator and copied into a prescription issue at issue. Absent ones are left off the printout.</summary>
+    public string? CredentialLabel { get; set; }
+    public string? LicenseNumber { get; set; }
+    public string? LicenseJurisdiction { get; set; }
+    /// <summary>Exactly 10 digits when present (validated on save; no check-digit claim).</summary>
+    public string? Npi { get; set; }
+
     /// <summary>
     /// ALV-002-C01: SQL Server rowversion, configured via EF Core's <c>IsRowVersion()</c>
     /// (AlveraDbContext). StaffProfile is this story's representative currently-existing mutable

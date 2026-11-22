@@ -128,6 +128,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<Architecture.Prescribing.PrescriptionDraft> PrescriptionDrafts => Set<Architecture.Prescribing.PrescriptionDraft>();
     public DbSet<Architecture.Prescribing.PrescriptionDetail> PrescriptionDetails => Set<Architecture.Prescribing.PrescriptionDetail>();
     public DbSet<Architecture.Prescribing.PrescriptionEvent> PrescriptionEvents => Set<Architecture.Prescribing.PrescriptionEvent>();
+    public DbSet<Architecture.Prescribing.PrescriptionIssue> PrescriptionIssues => Set<Architecture.Prescribing.PrescriptionIssue>();
     public DbSet<Architecture.Documents.DocumentCategory> DocumentCategories => Set<Architecture.Documents.DocumentCategory>();
     public DbSet<Architecture.Documents.PatientDocument> Documents => Set<Architecture.Documents.PatientDocument>();
     public DbSet<Architecture.Documents.DocumentIntegrity> DocumentIntegrity => Set<Architecture.Documents.DocumentIntegrity>();
@@ -196,6 +197,12 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
             e.Property(s => s.IsActive).HasDefaultValue(true);
             e.Property(s => s.DisplayName).HasMaxLength(120);
             e.Property(s => s.JobTitle).HasMaxLength(80);
+            // ALV-N026 S6 (PD-11): optional prescriber details; an NPI is exactly 10 digits when present
+            e.Property(s => s.CredentialLabel).HasMaxLength(40);
+            e.Property(s => s.LicenseNumber).HasMaxLength(40);
+            e.Property(s => s.LicenseJurisdiction).HasMaxLength(40);
+            e.Property(s => s.Npi).HasMaxLength(10);
+            e.ToTable(t => t.HasCheckConstraint("CK_StaffProfiles_Npi", "[Npi] IS NULL OR ([Npi] NOT LIKE '%[^0-9]%' AND LEN([Npi]) = 10)"));
             e.HasIndex(s => s.DisplayName).IsUnique();
             e.HasIndex(s => s.UserAccountId).IsUnique().HasFilter("[UserAccountId] IS NOT NULL");
         });

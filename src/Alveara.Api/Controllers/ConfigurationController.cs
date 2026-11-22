@@ -16,6 +16,7 @@ public record SaveLocationRequest(string? Name, string? RowVersion);
 public record SaveOperatoryRequest(string? Name, string? RowVersion);
 public record SaveAppointmentTypeRequest(string? Name, int DefaultDurationMinutes, string? RowVersion);
 public record SaveStaffRequest(string? DisplayName, string? JobTitle, Guid? UserAccountId, string? RowVersion);
+public record SavePrescriberDetailsRequest(string? CredentialLabel, string? LicenseNumber, string? LicenseJurisdiction, string? Npi, string? RowVersion);   // ALV-N026 S6
 public record SaveProviderRequest(Guid? StaffProfileId, string? Specialty, string? RowVersion);
 public record SetActiveRequest(bool IsActive, string? RowVersion);
 public record UnlinkStaffAccountRequest(string? Reason, string? RowVersion);
@@ -181,7 +182,15 @@ public class ConfigurationController(
 
     // ---------- Staff ----------
 
-    private static object StaffDto(StaffProfile s) => new { s.Id, s.DisplayName, s.JobTitle, s.UserAccountId, s.IsActive, rowVersion = Version(s.RowVersion) };
+    private static object StaffDto(StaffProfile s) => new { s.Id, s.DisplayName, s.JobTitle, s.UserAccountId, s.IsActive, s.CredentialLabel, s.LicenseNumber, s.LicenseJurisdiction, s.Npi, rowVersion = Version(s.RowVersion) };
+
+    /// <summary>ALV-N026 S6 (PD-11): a staff member's optional prescriber details. Administrators only, by role.</summary>
+    [HttpPut("staff/{id:guid}/prescriber")]
+    [RequirePermission(Permission.ManagePracticeConfiguration)]
+    [Authorize(Roles = nameof(Role.Admin))]
+    [RequireCsrfToken]
+    public Task<IActionResult> SetPrescriberDetails(Guid id, [FromBody] SavePrescriberDetailsRequest request, CancellationToken ct) =>
+        Run(async () => Ok(StaffDto(await staffProviders.SetPrescriberDetailsAsync(id, request.CredentialLabel, request.LicenseNumber, request.LicenseJurisdiction, request.Npi, request.RowVersion, Actor, ct))));
 
     [HttpGet("staff")]
     [RequirePermission(Permission.ManagePracticeConfiguration)]

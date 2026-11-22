@@ -152,6 +152,13 @@ export const getDraft = (id: string, signal?: AbortSignal) => request<DraftDetai
 export const listRecords = (patientId: string, signal?: AbortSignal) => request<{ patientId: string; prescriptions: PrescriptionRecord[] }>(`/api/patients/${patientId}/prescription-records`, { signal });
 export const getPrint = (id: string) => request<PrintContent>(`/api/prescriptions/${id}/print`);
 
+/** ALV-N026 S6: a print (Active only) or a record copy (any status, watermarked when inactive). Once per key: a retry returns the same issue. */
+export type IssueKind = "Print" | "RecordCopy";
+export interface PrescriptionIssueView { id: string; prescriptionId: string; kind: IssueKind; status: string; templateVersion: string; issuedAtUtc: string; replayed: boolean }
+export const issuePrescription = (id: string, kind: IssueKind, idempotencyKey: string) =>
+  requestWithCsrf<PrescriptionIssueView>(`/api/prescriptions/${id}/issues`, "POST", { kind, idempotencyKey });
+export const prescriptionIssuePdfUrl = (issueId: string) => `/api/prescription-issues/${issueId}/pdf`;
+
 export const createDraft = (patientId: string, idempotencyKey: string, entry: WorkflowEntry) =>
   requestWithCsrf<SavedDraft>(`/api/patients/${patientId}/prescription-drafts`, "POST", { idempotencyKey, ...entry });
 export const updateDraft = (id: string, rowVersion: string, entry: WorkflowEntry) => requestWithCsrf<DraftView>(`${base}/${id}`, "PUT", { ...entry, rowVersion });

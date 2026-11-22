@@ -76,6 +76,7 @@ public class PrescriptionWorkflowApiTests : IAsyncLifetime
             (HttpMethod.Post, $"/api/patients/{_patient}/prescription-drafts"), (HttpMethod.Put, $"/api/prescription-drafts/{id}"), (HttpMethod.Post, $"/api/prescription-drafts/{id}/check"),
             (HttpMethod.Post, $"/api/prescription-drafts/{id}/acknowledge-safety"), (HttpMethod.Post, $"/api/prescription-drafts/{id}/finalize"), (HttpMethod.Post, $"/api/prescription-drafts/{id}/discard"),
             (HttpMethod.Post, $"/api/prescriptions/{id}/amend"), (HttpMethod.Post, $"/api/prescriptions/{id}/cancel"), (HttpMethod.Post, $"/api/prescriptions/{id}/discontinue"),
+            (HttpMethod.Post, $"/api/prescriptions/{id}/issues"), (HttpMethod.Get, $"/api/prescription-issues/{id}/pdf"),                                     // ALV-N026 S6
         })
             Assert.Equal(HttpStatusCode.Unauthorized, (await anon.SendAsync(new HttpRequestMessage(method, url))).StatusCode);
     }
@@ -91,8 +92,11 @@ public class PrescriptionWorkflowApiTests : IAsyncLifetime
         var draft = Str(await NewDraftAsync(dentist), "id");
         var by = await _api.SessionAsync(role);
         var expected = allowed ? HttpStatusCode.OK : HttpStatusCode.Forbidden;
-        foreach (var url in new[] { "/api/prescription-workflow/options", $"/api/patients/{_patient}/prescription-drafts", $"/api/patients/{_patient}/prescription-records", $"/api/prescription-drafts/{draft}", $"/api/prescriptions/{id}", $"/api/prescriptions/{id}/print" })
+        foreach (var url in new[] { "/api/prescription-workflow/options", $"/api/patients/{_patient}/prescription-drafts", $"/api/patients/{_patient}/prescription-records", $"/api/prescription-drafts/{draft}", $"/api/prescriptions/{id}" })
             Assert.Equal(expected, (await by.SendAsync(HttpMethod.Get, url)).Status);
+        // ALV-N026 S6: the readers may issue and open a record copy, as they could print before
+        var issued = await by.SendAsync(HttpMethod.Post, $"/api/prescriptions/{id}/issues", new { kind = "RecordCopy", idempotencyKey = $"role-{role}" });
+        Assert.Equal(allowed ? HttpStatusCode.Created : HttpStatusCode.Forbidden, issued.Status);
     }
 
     [Theory]
@@ -177,10 +181,8 @@ public class PrescriptionWorkflowApiTests : IAsyncLifetime
         var prescription = Str(record, "id");
         Assert.Equal(("Active", true, 1, "Take one capsule with food until finished."), (Str(record, "status"), record.GetProperty("hasDetails").GetBoolean(), record.GetProperty("refills").GetInt32(), Str(record, "instructions")));
 
-        var print = await dentist.SendAsync(HttpMethod.Get, $"/api/prescriptions/{prescription}/print");
-        Assert.Equal(HttpStatusCode.OK, print.Status);
-        Assert.Equal(("500 mg", "21 capsule", "Active"), (Str(print.Body, "dose"), Str(print.Body, "quantity"), Str(print.Body, "status")));
-        Assert.Matches("^[0-9a-f]{64}$", Str(print.Body, "contentHash"));
+        var print = await dentist.SendAsync(HttpMethod.Post, $"/api/prescriptions/{prescription}/issues", new { kind = "Print", idempotencyKey = "route-print" });   // ALV-N026 S6: a p2 issue
+        Assert.Equal((HttpStatusCode.Created, "Active", "p2"), (print.Status, Str(print.Body, "status"), Str(print.Body, "templateVersion")));
 
         var cancelled = await dentist.SendAsync(HttpMethod.Post, $"/api/prescriptions/{prescription}/cancel", new { reason = "Entered for the wrong patient." });
         Assert.Equal(("Cancelled", false), (Str(cancelled.Body.GetProperty("record"), "status"), cancelled.Body.GetProperty("replayed").GetBoolean()));
@@ -190,7 +192,7 @@ public class PrescriptionWorkflowApiTests : IAsyncLifetime
 
         await using var db = _fixture.CreateContext();
         var events = await db.AuditLogEntries.AsNoTracking().Where(a => a.EventType.StartsWith("Prescription")).Select(a => a.EventType).ToListAsync();
-        foreach (var expected in new[] { "PrescriptionDraftCreated", "PrescriptionDraftChanged", "PrescriptionRecorded", "PrescriptionPrinted", "PrescriptionCancelled" }) Assert.Contains(expected, events);
+        foreach (var expected in new[] { "PrescriptionDraftCreated", "PrescriptionDraftChanged", "PrescriptionRecorded", "PrescriptionIssued", "PrescriptionCancelled" }) Assert.Contains(expected, events);
     }
 
     [Fact]
@@ -269,7 +271,7 @@ public class PrescriptionWorkflowApiTests : IAsyncLifetime
         var legacy = await dentist.SendAsync(HttpMethod.Post, $"/api/patients/{_patient}/prescriptions",
             new { idempotencyKey = "legacy", medication = "Naproxen", doseValue = 250m, doseUnit = "mg", frequency = "Twice daily", reviewNote = (string?)null });
         var id = Str(legacy.Body.GetProperty("prescription"), "id");
-        var print = await dentist.SendAsync(HttpMethod.Get, $"/api/prescriptions/{id}/print");
+        var print = await dentist.SendAsync(HttpMethod.Post, $"/api/prescriptions/{id}/issues", new { kind = "RecordCopy", idempotencyKey = "legacy-copy" });
         Assert.Equal((HttpStatusCode.Conflict, "print_incomplete"), (print.Status, Error(print.Body)));
         var record = (await dentist.SendAsync(HttpMethod.Get, $"/api/prescriptions/{id}")).Body;
         Assert.Equal(("Active", false), (Str(record, "status"), record.GetProperty("hasDetails").GetBoolean()));
@@ -298,5 +300,163 @@ public class PrescriptionWorkflowApiTests : IAsyncLifetime
             Assert.Contains((await dentist.SendAsync(method, url, new { medication = "x" })).Status, new[] { HttpStatusCode.NotFound, HttpStatusCode.MethodNotAllowed });
         var counts = await CountsAsync();
         Assert.Equal((2, 1), (counts.Drafts, counts.Prescriptions));                                                 // the finalized draft and the open one; the prescription
+    }
+
+    // ---------- ALV-N026 S6: prescriptions as server-made PDFs (p2) ----------
+
+    /// <summary>The text a person sees in a PDF, read with a real PDF reader (PdfPig, a test-only dependency): never a byte comparison.</summary>
+    private static string PdfText(byte[] pdf)
+    {
+        using var document = UglyToad.PdfPig.PdfDocument.Open(pdf);
+        var text = string.Join("\n", document.GetPages().Select(p => UglyToad.PdfPig.DocumentLayoutAnalysis.TextExtractor.ContentOrderTextExtractor.GetText(p)));
+        return System.Text.RegularExpressions.Regex.Replace(text, @"\s+", " ");                                     // the words as read, not where a line happens to wrap
+    }
+
+    private async Task<string> IssueAsync(Session by, string prescription, string kind, string key, HttpStatusCode expected = HttpStatusCode.Created)
+    {
+        var r = await by.SendAsync(HttpMethod.Post, $"/api/prescriptions/{prescription}/issues", new { kind, idempotencyKey = key });
+        Assert.Equal(expected, r.Status);
+        return Str(r.Body, "id");
+    }
+
+    private async Task<string> IssueTextAsync(Session by, string issue)
+    {
+        var response = await by.Client.GetAsync($"/api/prescription-issues/{issue}/pdf");
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal("application/pdf", response.Content.Headers.ContentType?.MediaType);
+        return PdfText(await response.Content.ReadAsByteArrayAsync());
+    }
+
+    /// <summary>Links the dentist's login to a staff profile with the given prescriber details (as an administrator would record them).</summary>
+    private async Task PrescriberDetailsAsync(Session dentist, string? credential, string? license, string? jurisdiction, string? npi)
+    {
+        await using var db = _fixture.CreateContext();
+        var staff = await db.StaffProfiles.SingleOrDefaultAsync(s => s.UserAccountId == dentist.UserId);
+        if (staff is null) { staff = new Alveara.Api.Architecture.Identity.StaffProfile { Id = Guid.NewGuid(), DisplayName = $"Dentist {Guid.NewGuid():N}"[..20], UserAccountId = dentist.UserId, CreatedAtUtc = DateTimeOffset.UtcNow }; db.StaffProfiles.Add(staff); }
+        (staff.CredentialLabel, staff.LicenseNumber, staff.LicenseJurisdiction, staff.Npi) = (credential, license, jurisdiction, npi);
+        await db.SaveChangesAsync();
+    }
+
+    [Fact]
+    public async Task A_print_is_issued_once_per_key_and_its_pdf_shows_the_prescription_as_recorded_with_the_boundary_and_no_dea_field()
+    {
+        var dentist = await _api.SessionAsync("Dentist");
+        await AllergyListAsync(dentist);
+        await PrescriberDetailsAsync(dentist, "DDS", "D-12345", "Texas", "1234567893");
+        var prescription = await FinalizedAsync(dentist);
+        var issue = await IssueAsync(dentist, prescription, "Print", "p-1");
+        Assert.Equal(issue, await IssueAsync(dentist, prescription, "Print", "p-1", HttpStatusCode.OK));                                  // a retry returns the same issue
+        var reused = await dentist.SendAsync(HttpMethod.Post, $"/api/prescriptions/{prescription}/issues", new { kind = "RecordCopy", idempotencyKey = "p-1" });
+        Assert.Equal((HttpStatusCode.Conflict, "idempotency_key_reused"), (reused.Status, Error(reused.Body)));
+
+        long mrn;
+        await using (var db = _fixture.CreateContext())
+        {
+            Assert.Equal(1, await db.PrescriptionIssues.CountAsync());
+            mrn = (await db.Patients.AsNoTracking().SingleAsync(p => p.Id == Guid.Parse(_patient))).Mrn;
+        }
+        var text = await IssueTextAsync(dentist, issue);
+        foreach (var expected in new[] { "Amoxicillin", "500 mg", "Three times daily", "Take one capsule with food until finished.", "21 capsules", $"MRN", mrn.ToString(), "DDS", "D-12345 (Texas)", "1234567893",
+                     "Prescriber signature", "not a federal or state compliance profile", "does not determine whether a medication is a controlled substance", "template version p2" })
+            Assert.True(text.Contains(expected), $"missing \"{expected}\" in the PDF text: {text}");
+        foreach (var never in new[] { "DEA", "Strength", "Dosage form", "DO NOT DISPENSE" }) Assert.DoesNotContain(never, text);
+
+        await using var check = _fixture.CreateContext();
+        Assert.Equal(1, await check.AuditLogEntries.CountAsync(a => a.EventType == "PrescriptionIssued"));
+        Assert.Contains("typst-0.15.1+noto-sans-2.015+vcrt-", (await check.AuditLogEntries.AsNoTracking().SingleAsync(a => a.EventType == "PrescriptionPdfProduced")).Details);
+        Assert.Equal(1, await check.AuditLogEntries.CountAsync(a => a.EventType == Alveara.Api.Architecture.Auditing.PatientAccessEvents.MaterialPrinted && a.TargetUserAccountId == Guid.Parse(_patient)));
+    }
+
+    [Fact]
+    public async Task Absent_prescriber_details_are_left_off_without_empty_labels_and_never_refuse()
+    {
+        var dentist = await _api.SessionAsync("Dentist");
+        await AllergyListAsync(dentist);
+        var text = await IssueTextAsync(dentist, await IssueAsync(dentist, await FinalizedAsync(dentist), "Print", "bare"));
+        foreach (var label in new[] { "Credential", "Licence", "NPI" }) Assert.DoesNotContain(label, text);
+        Assert.Contains("Prescriber signature", text);
+    }
+
+    [Fact]
+    public async Task An_ended_prescription_is_not_printed_to_dispense_and_its_record_copy_carries_the_watermark_date_and_reason()
+    {
+        var dentist = await _api.SessionAsync("Dentist");
+        await AllergyListAsync(dentist);
+        var prescription = await FinalizedAsync(dentist);
+        Assert.Equal(HttpStatusCode.OK, (await dentist.SendAsync(HttpMethod.Post, $"/api/prescriptions/{prescription}/cancel", new { reason = "Entered for the wrong patient." })).Status);
+        var refused = await dentist.SendAsync(HttpMethod.Post, $"/api/prescriptions/{prescription}/issues", new { kind = "Print", idempotencyKey = "after-cancel" });
+        Assert.Equal((HttpStatusCode.Conflict, "prescription_not_active"), (refused.Status, Error(refused.Body)));
+
+        var text = await IssueTextAsync(dentist, await IssueAsync(dentist, prescription, "RecordCopy", "copy-1"));
+        Assert.Contains("CANCELLED — DO NOT DISPENSE", text);
+        Assert.Contains("Entered for the wrong patient.", text);
+        Assert.Contains("Prescription record copy", text);
+    }
+
+    [Fact]
+    public async Task A_reprint_shows_what_was_issued_not_later_patient_or_prescriber_edits()
+    {
+        var dentist = await _api.SessionAsync("Dentist");
+        await AllergyListAsync(dentist);
+        await PrescriberDetailsAsync(dentist, "DDS", "OLD-LICENCE", "Texas", null);
+        var issue = await IssueAsync(dentist, await FinalizedAsync(dentist), "Print", "before-edits");
+        await PrescriberDetailsAsync(dentist, "DMD", "NEW-LICENCE", "Ohio", null);
+        await using (var db = _fixture.CreateContext())
+            await db.Patients.Where(p => p.Id == Guid.Parse(_patient)).ExecuteUpdateAsync(u => u.SetProperty(p => p.City, "Renamedville"));
+        var text = await IssueTextAsync(dentist, issue);
+        Assert.Contains("OLD-LICENCE (Texas)", text);
+        Assert.DoesNotContain("NEW-LICENCE", text);
+        Assert.DoesNotContain("Renamedville", text);
+    }
+
+    [Fact]
+    public async Task A_missing_patient_address_refuses_with_print_incomplete_and_issues_nothing()
+    {
+        var dentist = await _api.SessionAsync("Dentist");
+        await AllergyListAsync(dentist);
+        var prescription = await FinalizedAsync(dentist);
+        await using (var db = _fixture.CreateContext())
+            await db.Patients.Where(p => p.Id == Guid.Parse(_patient)).ExecuteUpdateAsync(u => u.SetProperty(p => p.AddressLine1, ""));
+        var refused = await dentist.SendAsync(HttpMethod.Post, $"/api/prescriptions/{prescription}/issues", new { kind = "Print", idempotencyKey = "no-address" });
+        Assert.Equal((HttpStatusCode.Conflict, "print_incomplete"), (refused.Status, Error(refused.Body)));
+        Assert.Contains("address", Str(refused.Body, "message"));
+        await using var check = _fixture.CreateContext();
+        Assert.Equal(0, await check.PrescriptionIssues.CountAsync());
+    }
+
+    [Fact]
+    public async Task The_retired_browser_print_is_refused_as_unverifiable()
+    {
+        var dentist = await _api.SessionAsync("Dentist");
+        await AllergyListAsync(dentist);
+        var r = await dentist.SendAsync(HttpMethod.Get, $"/api/prescriptions/{await FinalizedAsync(dentist)}/print");
+        Assert.Equal((HttpStatusCode.Gone, "legacy_print_unverifiable"), (r.Status, Error(r.Body)));
+        Assert.Contains("record copy", Str(r.Body, "message"));
+    }
+
+    [Theory]
+    [InlineData("123456789")] [InlineData("12345678901")] [InlineData("12345678a0")]
+    public async Task An_npi_that_is_not_exactly_ten_digits_is_refused(string npi)
+    {
+        var admin = await _api.SessionAsync("Admin");
+        var staff = await admin.SendAsync(HttpMethod.Post, "/api/config/staff", new { displayName = $"Dr {npi}", jobTitle = (string?)null, userAccountId = (Guid?)null });
+        Assert.Equal(HttpStatusCode.Created, staff.Status);
+        var r = await admin.SendAsync(HttpMethod.Put, $"/api/config/staff/{Str(staff.Body, "id")}/prescriber", new { npi, rowVersion = Str(staff.Body, "rowVersion") });
+        Assert.Equal((HttpStatusCode.BadRequest, "validation_failed"), (r.Status, Error(r.Body)));
+    }
+
+    [Fact]
+    public async Task Only_an_administrator_records_prescriber_details_and_the_audit_keeps_no_values()
+    {
+        var admin = await _api.SessionAsync("Admin");
+        var staff = await admin.SendAsync(HttpMethod.Post, "/api/config/staff", new { displayName = "Dr Details", jobTitle = (string?)null, userAccountId = (Guid?)null });
+        var id = Str(staff.Body, "id");
+        Assert.Equal(HttpStatusCode.Forbidden, (await (await _api.SessionAsync("OfficeManager")).SendAsync(HttpMethod.Put, $"/api/config/staff/{id}/prescriber", new { npi = "1234567893", rowVersion = Str(staff.Body, "rowVersion") })).Status);
+        var saved = await admin.SendAsync(HttpMethod.Put, $"/api/config/staff/{id}/prescriber", new { credentialLabel = "DDS", licenseNumber = "LIC-777", licenseJurisdiction = "Texas", npi = "1234567893", rowVersion = Str(staff.Body, "rowVersion") });
+        Assert.Equal((HttpStatusCode.OK, "LIC-777", "1234567893"), (saved.Status, Str(saved.Body, "licenseNumber"), Str(saved.Body, "npi")));
+        await using var db = _fixture.CreateContext();
+        var audit = await db.AuditLogEntries.AsNoTracking().Where(a => a.TargetUserAccountId == Guid.Parse(id) && a.Details == "Staff prescriber details updated.").ToListAsync();
+        Assert.Single(audit);
+        Assert.DoesNotContain(await db.AuditLogEntries.AsNoTracking().Select(a => a.Details).ToListAsync(), d => d != null && (d.Contains("LIC-777") || d.Contains("1234567893")));
     }
 }

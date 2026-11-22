@@ -16,6 +16,7 @@
     <EmbeddedResource Include="Pdf\Templates\statement\v4\main.typ" LogicalName="Alveara.Api.PdfTemplates.statement.v4.main.typ" />
     <EmbeddedResource Include="Pdf\Templates\receipt\v4\main.typ" LogicalName="Alveara.Api.PdfTemplates.receipt.v4.main.typ" />
     <EmbeddedResource Include="Pdf\Templates\financial-legacy\v1\main.typ" LogicalName="Alveara.Api.PdfTemplates.financial-legacy.v1.main.typ" />
+    <EmbeddedResource Include="Pdf\Templates\prescription\p2\main.typ" LogicalName="Alveara.Api.PdfTemplates.prescription.p2.main.typ" />
   </ItemGroup>
 
   <ItemGroup>

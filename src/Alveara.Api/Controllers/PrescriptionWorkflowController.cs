@@ -15,6 +15,7 @@ public record AcknowledgeSafetyRequest(string? RowVersion, string? SeenFingerpri
 public record DiscardDraftRequest(string? RowVersion, string? Reason);
 public record ReasonRequest(string? Reason);
 public record AmendRequest(string? IdempotencyKey);
+public record IssuePrescriptionRequest(string? Kind, string? IdempotencyKey);   // ALV-N026 S6
 
 /// <summary>
 /// ALV-016-C01: the prescription workflow (drafts, finalization, cancellation, discontinuation, amendment and printing). It adds to STORY-016's <see cref="PrescriptionsController"/> without changing it. Reading needs
@@ -26,7 +27,8 @@ public record AmendRequest(string? IdempotencyKey);
 /// </summary>
 [ApiController]
 [Authorize]
-public class PrescriptionWorkflowController(PrescriptionDraftService drafts, PrescriptionFinalizeService finalizer, PrescriptionLifecycleService lifecycle, PrescriptionRecordReader records) : ControllerBase
+public class PrescriptionWorkflowController(PrescriptionDraftService drafts, PrescriptionFinalizeService finalizer, PrescriptionLifecycleService lifecycle, PrescriptionRecordReader records,
+    PrescriptionIssueService issues, Alveara.Api.Architecture.Pdf.PdfEngine pdf, Alveara.Api.Architecture.Time.IPracticeClock clock, Alveara.Api.Data.AlveraDbContext db) : ControllerBase
 {
     private Guid Actor => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
@@ -71,10 +73,60 @@ public class PrescriptionWorkflowController(PrescriptionDraftService drafts, Pre
     [RequirePermission(Permission.ViewPrescriptions)]
     public Task<IActionResult> GetRecord(Guid prescriptionId, CancellationToken ct) => Run(async () => Ok(await records.GetAsync(prescriptionId, ct)));
 
-    /// <summary>The prescription laid out to print. The print is logged with the user and the time; if the log cannot be written nothing is returned.</summary>
+    /// <summary>
+    /// ALV-N026 S6 (D2): the browser-laid-out p1 print is retired. A p1 printout was never recorded, so it cannot be reproduced as it was: 410 <c>legacy_print_unverifiable</c>. Issue a print or a
+    /// record copy (p2) instead.
+    /// </summary>
     [HttpGet("api/prescriptions/{prescriptionId:guid}/print")]
     [RequirePermission(Permission.ViewPrescriptions)]
-    public Task<IActionResult> Print(Guid prescriptionId, CancellationToken ct) => Run(async () => Ok(await lifecycle.PrintAsync(prescriptionId, Actor, ct)));
+    public IActionResult Print(Guid prescriptionId) => StatusCode(StatusCodes.Status410Gone, new
+    {
+        error = "legacy_print_unverifiable",
+        message = "An earlier printout of this prescription cannot be reproduced as it was. Issue a new record copy, dated today with today's status, instead.",
+    });
+
+    /// <summary>
+    /// ALV-N026 S6 (D1, D2): issues a prescription as a print (Active only) or a record copy (any status; inactive ones are watermarked). Once per idempotency key: a retry returns the same issue.
+    /// Reading staff may issue, as they could print before. 409 <c>print_incomplete</c> (missing patient address or details), <c>prescription_not_active</c>, <c>idempotency_key_reused</c>.
+    /// </summary>
+    [HttpPost("api/prescriptions/{prescriptionId:guid}/issues")]
+    [RequirePermission(Permission.ViewPrescriptions)]
+    [RequireCsrfToken]
+    public Task<IActionResult> Issue(Guid prescriptionId, [FromBody] IssuePrescriptionRequest request, CancellationToken ct) => Run(async () =>
+    {
+        var issued = await issues.IssueAsync(prescriptionId, request.Kind, request.IdempotencyKey, pdf.BundleId, Actor, ct);
+        var body = new { id = issued.Issue.Id, prescriptionId, kind = issued.Issue.IssueKind, status = issued.Issue.StatusAtIssue, templateVersion = issued.Issue.TemplateVersion, issuedAtUtc = issued.Issue.IssuedAtUtc, replayed = issued.Replayed };
+        return issued.Replayed ? Ok(body) : StatusCode(StatusCodes.Status201Created, body);
+    });
+
+    /// <summary>
+    /// ALV-N026 S6: an issue as a PDF, rebuilt from the immutable prescription, the status recorded at issue and the issue's envelope (never current patient, staff or practice data). The print is
+    /// recorded on the server against the patient resolved through the prescription. 503 <c>pdf_engine_unavailable</c> or <c>pdf_engine_untrusted</c> while PDFs cannot be made.
+    /// </summary>
+    [HttpGet("api/prescription-issues/{issueId:guid}/pdf")]
+    [RequirePermission(Permission.ViewPrescriptions)]
+    public Task<IActionResult> IssuePdf(Guid issueId, CancellationToken ct) => Run(async () =>
+    {
+        var (issue, patientId) = await issues.GetAsync(issueId, ct);
+        var now = clock.UtcNow;
+        var request = await issues.PdfAsync(issue, now, ct);
+        Alveara.Api.Architecture.Pdf.PdfRenderResult rendered;
+        try
+        {
+            rendered = await pdf.RenderAsync(request.TemplateId, request.TemplateVersion, request.InputJson, ct);
+        }
+        catch (Alveara.Api.Architecture.Pdf.PdfEngineException ex)
+        {
+            return StatusCode(ex.StatusCode, new { error = ex.Code, message = ex.Message });
+        }
+        await new Alveara.Api.Architecture.Auditing.PatientAccessRecorder(db).RecordPrintAsync(patientId, "Prescription", issue.PrescriptionId, Actor, now, ct);
+        Alveara.Api.Architecture.Auditing.AuditService.Record(db, "PrescriptionPdfProduced", nameof(PrescriptionIssue), issue.Id, Actor,
+            $"{issue.IssueKind} {request.TemplateId} {request.TemplateVersion} with {rendered.BundleId}.", correlationId: issue.CorrelationId);
+        await db.SaveChangesAsync(ct);
+        Response.Headers["Cache-Control"] = "private, no-store";
+        Response.Headers["X-Content-Type-Options"] = "nosniff";
+        return File(rendered.Pdf, "application/pdf", request.FileName);
+    });
 
     // ---------- drafts ----------
 

@@ -4,9 +4,10 @@ import { ApiError } from "../../../services/authApi";
 import { newKey } from "../../../services/clinicalApi";
 import type { PatientDetail } from "../../../services/patientsApi";
 import {
-  amendPrescription, cancelPrescription, discontinuePrescription, getWorkflowOptions, listDrafts, listRecords,
+  amendPrescription, cancelPrescription, discontinuePrescription, getWorkflowOptions, issuePrescription, listDrafts, listRecords, prescriptionIssuePdfUrl,
 } from "../../../services/prescriptionWorkflowApi";
-import type { DraftView, PrescriptionRecord, WorkflowOptions } from "../../../services/prescriptionWorkflowApi";
+import type { DraftView, IssueKind, PrescriptionRecord, WorkflowOptions } from "../../../services/prescriptionWorkflowApi";
+import { openPdf } from "../../../services/pdfApi";
 import { getSafety } from "../../../services/safetyApi";
 import type { SafetyContext } from "../../../services/safetyApi";
 import { when } from "../../treatmentplan/treatmentPlanRules";
@@ -14,7 +15,6 @@ import "../Prescription.css";
 import "./PrescriptionWorkflow.css";
 import { DraftComposer } from "./DraftComposer";
 import { PrescriptionRecordList } from "./PrescriptionRecordList";
-import { PrintPreview } from "./PrintPreview";
 
 interface Props {
   patient: PatientDetail;
@@ -38,7 +38,6 @@ export function PrescriptionWorkflowPanel({ patient, canPrescribe = false }: Pro
   const [failed, setFailed] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [composing, setComposing] = useState<Composing | null>(null);
-  const [printing, setPrinting] = useState<string | null>(null);
 
   const loadDrafts = useCallback((signal?: AbortSignal) => {
     if (!canPrescribe) return;
@@ -60,7 +59,7 @@ export function PrescriptionWorkflowPanel({ patient, canPrescribe = false }: Pro
   if (failed && (options === null || drafts === null || records === null)) return <ErrorState title="Could not load the prescriptions" description="Do not assume none are recorded. Check your connection and reload the page." />;
   if (options === null || drafts === null || records === null) return <LoadingState label="Loading the prescriptions…" />;
 
-  const open = (draft: DraftView | null) => { setPrinting(null); setComposing((c) => ({ session: (c?.session ?? 0) + 1, draft })); };
+  const open = (draft: DraftView | null) => { setComposing((c) => ({ session: (c?.session ?? 0) + 1, draft })); };
   const finished = (text: string) => { setStatus(text); setComposing(null); loadDrafts(); loadRecords(); };
 
   async function amend(id: string) {
@@ -71,6 +70,17 @@ export function PrescriptionWorkflowPanel({ patient, canPrescribe = false }: Pro
       open(started.draft);
     } catch (err) {
       setStatus(`The amendment could not be started: ${err instanceof ApiError ? err.message : "the connection dropped. Try again."}`);
+    }
+  }
+
+  /** ALV-N026 S6: issues the prescription on the server (once per click: one key) and opens the PDF it makes; a refusal is shown and nothing is printed. */
+  async function print(id: string, kind: IssueKind) {
+    const key = newKey();
+    try {
+      await openPdf(async () => prescriptionIssuePdfUrl((await issuePrescription(id, kind, key)).id));
+      setStatus(kind === "Print" ? "The prescription was issued and opened as a PDF." : "A record copy dated today was issued and opened as a PDF.");
+    } catch (err) {
+      setStatus(`Nothing was printed. ${err instanceof ApiError ? err.message : "The connection dropped. Try again."}`);
     }
   }
 
@@ -115,10 +125,8 @@ export function PrescriptionWorkflowPanel({ patient, canPrescribe = false }: Pro
         </>
       )}
 
-      {printing && <PrintPreview key={printing} prescriptionId={printing} patientId={patient.id} onClose={() => setPrinting(null)} />}
-
       <h3>Finalized prescriptions</h3>
-      <PrescriptionRecordList records={records} canPrescribe={canPrescribe} onPrint={(id) => { setComposing(null); setPrinting(id); }} onAmend={(id) => void amend(id)} onEnd={end} />
+      <PrescriptionRecordList records={records} canPrescribe={canPrescribe} onPrint={(id, kind) => void print(id, kind)} onAmend={(id) => void amend(id)} onEnd={end} />
     </section>
   );
 }
