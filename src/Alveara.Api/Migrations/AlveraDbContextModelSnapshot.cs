@@ -9112,6 +9112,8 @@ namespace Alveara.Api.Migrations
 
                             t.HasTrigger("TR_TPItemAppointmentLinks_SamePatient");
 
+                            t.HasTrigger("TR_TreatmentPlanItemAppointmentLinks_MergeScope");
+
                             t.HasCheckConstraint("CK_TPItemAppointmentLinks_Action", "[Action] COLLATE Latin1_General_CS_AS IN ('Linked','Unlinked')");
 
                             t.HasCheckConstraint("CK_TPItemAppointmentLinks_Reason", "([Action] = 'Unlinked' AND [Reason] IS NOT NULL AND LEN(LTRIM(RTRIM([Reason]))) > 0) OR ([Action] = 'Linked' AND [Reason] IS NULL)");

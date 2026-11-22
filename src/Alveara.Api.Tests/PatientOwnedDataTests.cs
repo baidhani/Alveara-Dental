@@ -19,7 +19,11 @@ public class PatientOwnedDataTests
     private static bool HoldsPatientId(IReadOnlyProperty p) => (p.ClrType == typeof(Guid) || p.ClrType == typeof(Guid?)) && p.Name.EndsWith("PatientId", StringComparison.Ordinal);
 
     private static IEnumerable<(IEntityType Entity, IProperty Property)> ModelColumns() =>
-        Model.GetEntityTypes().Where(e => e.GetTableName() is not null && !PatientOwnedData.Bookkeeping.Contains(e.GetTableName()!)).SelectMany(e => e.GetProperties().Where(p => HoldsPatientId(p)).Select(p => (e, p)));
+        Model.GetEntityTypes().Where(e => e.GetTableName() is not null && !PatientOwnedData.Bookkeeping.Contains(e.GetTableName()!)).SelectMany(e => e.GetProperties().Where(p => HoldsPatientId(p)).Select(p => (e, p)))
+            .Where(c => !Excepted(c.e.GetTableName()!, c.p.Name));
+
+    /// <summary>ALV-N026 S8 (U-022): a column declared in <see cref="PatientIdExceptions"/> is accounted for there (merge and export handling, reason), not in the registry.</summary>
+    private static bool Excepted(string table, string column) => PatientIdExceptions.All.Any(x => x.Table == table && x.Column == column);
 
     [Fact]
     public void The_registry_lists_exactly_the_columns_of_the_model_that_hold_a_patient_id()
@@ -36,7 +40,7 @@ public class PatientOwnedDataTests
         var model = ModelColumns().ToDictionary(c => $"{c.Entity.GetTableName()}.{c.Property.Name}",
             c => c.Entity.GetForeignKeys().Any(f => f.Properties.Count == 1 && f.Properties[0] == c.Property && f.PrincipalEntityType.ClrType == typeof(Patient)));
         foreach (var column in PatientOwnedData.All) Assert.True(model[$"{column.Table}.{column.Column}"] == column.ForeignKey, $"{column.Table}.{column.Column}: the registry says foreign key = {column.ForeignKey}, the model says {model[$"{column.Table}.{column.Column}"]}");
-        Assert.Equal(21, PatientOwnedData.All.Count(c => !c.ForeignKey));            // the child, version and event tables that copy their parent's patient id
+        Assert.Equal(22, PatientOwnedData.All.Count(c => !c.ForeignKey));   // ALV-N026 S8: + TreatmentPlanItemAppointmentLinks            // the child, version and event tables that copy their parent's patient id
     }
 
     [Fact]
@@ -52,7 +56,7 @@ public class PatientOwnedDataTests
     public void Every_uniqueness_rule_that_includes_a_patient_id_is_declared_with_how_a_merge_handles_a_collision()
     {
         var model = new List<string>();
-        foreach (var entity in Model.GetEntityTypes().Where(e => e.GetTableName() is not null && !PatientOwnedData.Bookkeeping.Contains(e.GetTableName()!)))
+        foreach (var entity in Model.GetEntityTypes().Where(e => e.GetTableName() is not null && !PatientOwnedData.Bookkeeping.Contains(e.GetTableName()!) && !PatientIdExceptions.Tables.Contains(e.GetTableName()!)))
         {
             foreach (var index in entity.GetIndexes().Where(i => i.IsUnique && i.Properties.Any(HoldsPatientId)))
                 model.Add($"{entity.GetTableName()}:{string.Join(",", index.Properties.Select(p => p.Name))}");
@@ -76,9 +80,9 @@ public class PatientOwnedDataTests
     }
 
     [Fact]
-    public void The_registry_names_fifty_five_tables_and_fifty_seven_columns_today()
+    public void The_registry_names_fifty_six_tables_and_fifty_eight_columns_today()
     {
         // not a limit: the first two tests are the guard. This pins what the merge story was designed against, so a change is noticed in review.
-        Assert.Equal((55, 57), (PatientOwnedData.Tables.Count, PatientOwnedData.All.Count));   // ALV-N026 S8: + ClinicalRecordCopyIssues.PatientId
+        Assert.Equal((56, 58), (PatientOwnedData.Tables.Count, PatientOwnedData.All.Count));   // ALV-N026 S8: + ClinicalRecordCopyIssues.PatientId, + TreatmentPlanItemAppointmentLinks.PatientId (U-022)
     }
 }

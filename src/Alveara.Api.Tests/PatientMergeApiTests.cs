@@ -89,7 +89,7 @@ public class PatientMergeApiTests : IAsyncLifetime
 
         var preview = await PreviewAsync(_ann, _anne);
         Assert.True(preview.GetProperty("canMerge").GetBoolean());
-        Assert.Equal(57, preview.GetProperty("moves").GetArrayLength());                                              // one per patient-id column (ALV-N026 S8: + ClinicalRecordCopyIssues)
+        Assert.Equal(58, preview.GetProperty("moves").GetArrayLength());                                              // one per patient-id column (ALV-N026 S8: + ClinicalRecordCopyIssues, + TreatmentPlanItemAppointmentLinks)
         Assert.Equal(0, await CountAsync("SELECT COUNT(*) AS [Value] FROM [PatientMerges]"));                          // a preview changes nothing
         Assert.Equal(HttpStatusCode.NotFound, (await _admin.SendAsync(HttpMethod.Get, $"/api/patient-merges/preview?sourceId={Guid.NewGuid()}&survivorId={_anne}")).Status);
         Assert.Equal(HttpStatusCode.BadRequest, (await _admin.SendAsync(HttpMethod.Get, $"/api/patient-merges/preview?sourceId={_ann}&survivorId={_ann}")).Status);

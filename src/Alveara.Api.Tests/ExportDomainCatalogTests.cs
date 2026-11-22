@@ -35,9 +35,12 @@ public class ExportDomainCatalogTests
 
         foreach (var table in PatientOwnedData.Tables.Concat(PatientOwnedData.Bookkeeping))
             Assert.True(carried.Contains(table), $"{table} holds a patient id but is not in a domain the package carries");
+        // ALV-N026 S8 (U-020/U-022): a patient-id column is carried, or it is a named exception whose export handling excludes it (and then it is in an excluded group: PatientIdExceptionTests)
+        var excluded = PatientIdExceptions.All.Where(x => x.Export == ExceptionExportHandling.ExcludeFromPatientExport).Select(x => $"{x.Table}.{x.Column}").ToHashSet();
         foreach (var entity in Model.GetEntityTypes().Where(e => e.GetTableName() is not null))
-            if (entity.GetProperties().Any(p => p.Name.EndsWith("PatientId", StringComparison.Ordinal)))
-                Assert.True(carried.Contains(entity.GetTableName()!), $"{entity.GetTableName()} has a patient id column but is not in a domain the package carries");
+            foreach (var column in entity.GetProperties().Where(p => p.Name.EndsWith("PatientId", StringComparison.Ordinal)))
+                Assert.True(carried.Contains(entity.GetTableName()!) != excluded.Contains($"{entity.GetTableName()}.{column.Name}"),
+                    $"{entity.GetTableName()}.{column.Name} must be either in a domain the package carries or a named exception excluded from export, not both and not neither");
     }
 
     [Fact]

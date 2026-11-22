@@ -23,7 +23,7 @@ public class RetiredRecordGuardTests : TreatmentPlanTestBase
 {
     private const string BeforeGuard = "20261025195735_AddPatientDuplicateDismissals";
     /// <summary>Patient-owned tables created by a migration after <see cref="BeforeGuard"/>: rolling back to it removes them with their merge-scope triggers (ALV-N026 S8).</summary>
-    private static readonly string[] AddedAfterGuard = ["ClinicalRecordCopyIssues"];
+    private static readonly string[] AddedAfterGuard = ["ClinicalRecordCopyIssues", "TreatmentPlanItemAppointmentLinks"];
 
     private async Task MergeAsync(Guid source, Guid survivor)
     {

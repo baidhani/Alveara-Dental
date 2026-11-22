@@ -92,6 +92,7 @@ public static class PatientOwnedData
         new("ToothFindingVersions", "PatientId", PatientDataRole.Owner, ForeignKey: false),
         new("ToothFindings", "PatientId", PatientDataRole.Owner, new UniqueRule[] { new("PatientId,ToothKey,Surface,Condition", MergeCollisionPolicy.NaturalKey) }),
         new("TreatmentPlanEvents", "PatientId", PatientDataRole.Owner, ForeignKey: false),
+        new("TreatmentPlanItemAppointmentLinks", "PatientId", PatientDataRole.Owner, ForeignKey: false),   // ALV-N026 S8 (U-022): ALV-N023's link history, missed until now
         new("TreatmentPlanItemStates", "PatientId", PatientDataRole.Owner, ForeignKey: false),
         new("TreatmentPlanItems", "PatientId", PatientDataRole.Owner, ForeignKey: false),
         new("TreatmentPlanRevisionItems", "PatientId", PatientDataRole.Owner, ForeignKey: false),

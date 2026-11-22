@@ -122,6 +122,7 @@ internal static class TreatmentPlanModel
             {
                 t.HasTrigger("TR_TPItemAppointmentLinks_SamePatient");
                 t.HasTrigger("TR_TPItemAppointmentLinks_AppendOnly");
+                t.HasTrigger("TR_TreatmentPlanItemAppointmentLinks_MergeScope");   // ALV-N026 S8 (U-022): the table joins the merge machinery
                 t.HasCheckConstraint("CK_TPItemAppointmentLinks_Sequence", "[Sequence] >= 1");
                 t.HasCheckConstraint("CK_TPItemAppointmentLinks_Action", $"[Action] COLLATE Latin1_General_CS_AS IN ({In(AppointmentLinkActions.All)})");
                 t.HasCheckConstraint("CK_TPItemAppointmentLinks_Reason",
