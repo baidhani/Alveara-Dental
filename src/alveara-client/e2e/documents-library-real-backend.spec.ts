@@ -3,7 +3,7 @@ import type { Browser, BrowserContext, Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { execFileSync } from "node:child_process";
 import { sqlServer } from "./support/sqlServer";
-import { existsSync, mkdirSync, renameSync, utimesSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, renameSync, utimesSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
 // ALV-010-C01 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real SQL Server -> real files on disk.
@@ -149,6 +149,14 @@ test("SETUP: a patient with one encounter and an empty library", async () => {
   expect(enc.status).toBe(201);
   ids.encounter = enc.body.id as string;
   expect(await entries(admin)).toHaveLength(0);
+
+  // ALV-N026 (PD-24): the office manager, this walkthrough's librarian, imports radiographs and a referral letter, which are Clinical categories. By default an office manager reads only
+  // NonClinical documents, so the practice grants them ViewClinicalDocumentation through the real permission policy (as a practice may). Without it the imports below are refused
+  // (category_not_permitted), which DocumentClassificationAccessApiTests proves directly.
+  const version = (await api(admin, "get", "/api/permissions/effective")).body.version as number;
+  const grant = await api(admin, "put", "/api/permissions/overrides", { role: "OfficeManager", permission: "ViewClinicalDocumentation", effect: "Grant", reason: "The office manager keeps the document library", expectedVersion: version, confirmed: true }, { "Idempotency-Key": `lib-grant-${stamp}` });
+  expect(grant.status).toBe(200);
+  evidence.officeManagerClinicalGrant = true;
 });
 
 test("IMPORT: documents are tied to an encounter, a tooth and an oral region through the screen, and the server holds exactly that", async () => {
@@ -304,6 +312,74 @@ test("MISSING FILE: a file taken from disk is reported missing, the library says
   await expect(page.locator("p.alv-documents__status")).toContainText("region.png is intact");
   await expect(page.getByText("No file needs attention")).toBeVisible();
   expect((await page.request.get(`/api/documents/${await documentId("region.png")}/content`)).status()).toBe(200);
+});
+
+test("MISSING OR DAMAGED, AS STAFF SEE IT (ALV-N026 R02): opening an unchecked file that is gone explains it in the app; a file found missing or damaged offers no Open, Preview or Download and says why; nothing names where files are stored", async () => {
+  const page = sessions.OfficeManager.page;
+  const storageWords = /alvera-data|walkthrough-|Test-Data|[A-Za-z]:\\|\\Storage|\.blob|SqlException|stack trace|"error":/i;
+  const row = (name: string) => rowOf(page, name);
+  const noFileActions = async (name: string) => {
+    for (const action of ["Open", "Preview", "Download"]) await expect(row(name).getByRole(action === "Download" ? "link" : "button", { name: `${action} ${name}` })).toHaveCount(0);
+  };
+
+  // 1. a file that disappears after its last check: the row still offers Open, and Open checks first, so the problem is explained in the app, not in a raw error tab
+  const pdfFile = blobFile("plain.pdf");
+  const parked = `${pdfFile}.parked`;
+  renameSync(pdfFile, parked);
+  try {
+    await gotoDocuments(page);
+    const tabsBefore = page.context().pages().length;
+    await row("plain.pdf").getByRole("button", { name: "Open plain.pdf" }).click();
+    await expect(page.getByText("plain.pdf cannot be opened: its file is missing from storage. The record is intact. Ask the practice administrator to check document storage.")).toBeVisible();
+    expect(page.context().pages().length).toBe(tabsBefore);                                                  // no tab with a raw server answer
+    expect(await page.locator("main").innerText()).not.toMatch(storageWords);
+    await shot(page, "07b-open-unchecked-missing.png");
+
+    // 2. once a check has found it missing, the row itself says so and offers no way to open it
+    await page.goto("/admin/document-storage");
+    await page.getByRole("button", { name: "Check all stored files" }).click();
+    await expect(page.locator("p.alv-documents__status")).toContainText("1 missing");
+    await gotoDocuments(page);
+    await expect(row("plain.pdf")).toContainText("The file is missing, so it cannot be opened. Ask the practice administrator to check document storage.");
+    await noFileActions("plain.pdf");
+    await expect(row("plain.pdf").getByRole("button", { name: "Details plain.pdf" })).toBeVisible();          // the record itself stays readable
+    expect(await page.locator("main").innerText()).not.toMatch(storageWords);
+    await shot(page, "07c-library-missing-no-actions.png");
+    await scanBothThemes(page, "library-missing");
+  } finally {
+    if (existsSync(parked)) renameSync(parked, pdfFile);
+  }
+
+  // 3. a damaged file (its bytes no longer match what was imported): the same, with "damaged"
+  const pngFile = blobFile("tooth16.png");
+  const original = readFileSync(pngFile);
+  writeFileSync(pngFile, Buffer.concat([original, Buffer.from("tampered")]));
+  try {
+    await page.goto("/admin/document-storage");
+    await page.getByRole("button", { name: "Check all stored files" }).click();
+    await expect(page.locator("p.alv-documents__status")).toContainText("1 damaged");
+    await gotoDocuments(page);
+    await expect(row("tooth16.png")).toContainText("The file is damaged, so it cannot be opened. Ask the practice administrator to check document storage.");
+    await expect(row("tooth16.png")).toContainText("File damaged");                                           // the thumbnail says it in words
+    await noFileActions("tooth16.png");
+    const id = await documentId("tooth16.png");
+    const served = await page.request.get(`/api/documents/${id}/content`);
+    expect(served.status()).not.toBe(200);
+    expect(await served.text()).not.toMatch(/alvera-data|walkthrough-|Test-Data|[A-Za-z]:\\|SqlException|stack trace/i);
+    expect(await page.locator("main").innerText()).not.toMatch(storageWords);
+    await shot(page, "07d-library-damaged-no-actions.png");
+  } finally {
+    writeFileSync(pngFile, original);
+  }
+
+  // both files are back: a fresh check finds every file intact and the actions return
+  await page.goto("/admin/document-storage");
+  await page.getByRole("button", { name: "Check all stored files" }).click();
+  await expect(page.getByText("No file needs attention")).toBeVisible();
+  await gotoDocuments(page);
+  await expect(row("plain.pdf").getByRole("button", { name: "Open plain.pdf" })).toBeVisible();
+  await expect(row("tooth16.png").getByRole("link", { name: "Download tooth16.png" })).toBeVisible();
+  evidence.missingOrDamagedAsSeen = { uncheckedOpenExplained: true, missingNoActions: true, damagedNoActions: true, restored: true };
 });
 
 test("UNREFERENCED FILES: a stray file is listed once it is old, a fresh one is never listed, removal needs a selection and a confirmation, and is logged", async () => {

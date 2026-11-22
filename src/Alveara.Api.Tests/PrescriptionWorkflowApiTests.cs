@@ -451,6 +451,24 @@ public class PrescriptionWorkflowApiTests : IAsyncLifetime
         Assert.DoesNotContain("asked to confirm", text);
     }
 
+    /// <summary>
+    /// ALV-N026 R02 (review item 1, F-107): the p2 PDF prints the stored date of birth as the same calendar date. The test host's practice zone is America/Chicago (UTC-6), so a date-only value
+    /// treated as midnight UTC and shown in practice time would print the day before; a year-end and a day-before-DST date are included so a slip across either boundary is visible too.
+    /// </summary>
+    [Theory]
+    [InlineData(1990, 1, 1, "1989-12-31")] [InlineData(1985, 12, 31, "1985-12-30")] [InlineData(2001, 3, 10, "2001-03-09")]
+    public async Task The_pdf_prints_the_stored_date_of_birth_as_the_same_calendar_date(int year, int month, int day, string slipped)
+    {
+        var dentist = await _api.SessionAsync("Dentist");
+        await AllergyListAsync(dentist);
+        var born = new DateOnly(year, month, day);
+        await using (var db = _fixture.CreateContext())
+            await db.Patients.Where(p => p.Id == Guid.Parse(_patient)).ExecuteUpdateAsync(u => u.SetProperty(p => p.DateOfBirth, born));
+        var text = await IssueTextAsync(dentist, await IssueAsync(dentist, await FinalizedAsync(dentist), "Print", $"dob-{born:yyyyMMdd}"));
+        Assert.Contains($"Date of birth {born:yyyy-MM-dd}", text);
+        Assert.DoesNotContain(slipped, text);
+    }
+
     [Fact]
     public async Task A_reprint_shows_what_was_issued_not_later_patient_or_prescriber_edits()
     {

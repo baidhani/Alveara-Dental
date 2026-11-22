@@ -136,6 +136,13 @@ test("SETUP: a patient exists and has no documents", async () => {
   expect(r.status).toBe(201);
   ids.ann = r.body.id as string;
   expect(await libraryOf(admin)).toHaveLength(0);
+
+  // ALV-N026 (PD-24): the office manager, this walkthrough's librarian, imports a radiograph, a referral letter and correspondence, which are Clinical categories. By default an office
+  // manager reads only NonClinical documents, so the practice grants them ViewClinicalDocumentation through the real permission policy (as a practice may).
+  const version = (await api(admin, "get", "/api/permissions/effective")).body.version as number;
+  const grant = await api(admin, "put", "/api/permissions/overrides", { role: "OfficeManager", permission: "ViewClinicalDocumentation", effect: "Grant", reason: "The office manager keeps the document library", expectedVersion: version, confirmed: true }, { "Idempotency-Key": `docs-grant-${stamp}` });
+  expect(grant.status).toBe(200);
+  evidence.officeManagerClinicalGrant = true;
 });
 
 test("THE SCREEN: the office manager sees an empty library, the size limit and the import form", async () => {
@@ -311,28 +318,54 @@ test("SIGNED FORM: a signed form appears in the library read-only and is unchang
   expect(after.snapshot.integrityVerified).toBe(true);
   await gotoDocuments(page);
   await expect(rowOf(page, "Privacy notice")).toContainText("Signed form");           // still listed under the title it was signed with
-  evidence.signedForm = { listedReadOnly: true, hashUnchangedAfterTemplateEdit: true };
+
+  // ALV-N026 R02 (owner decision 2026-11-22): a signed form follows ViewSignedForms, not PD-24's Clinical/NonClinical classes. The front desk reads no Clinical document here, yet holds
+  // ViewSignedForms by default, so it sees the signed form; once the practice revokes ViewSignedForms from the front desk, the library no longer lists it and the form itself is refused.
+  const front = sessions.FrontDesk.page;
+  await gotoDocuments(front);
+  await expect(rowOf(front, "Privacy notice")).toContainText("Signed form");
+  await expect(rowOf(front, "bitewing.png")).toHaveCount(0);                            // a Clinical document beside it stays hidden
+  const effective = async () => (await api(admin1, "get", "/api/permissions/effective")).body.version as number;
+  const revoke = await api(admin1, "put", "/api/permissions/overrides", { role: "FrontDesk", permission: "ViewSignedForms", effect: "Revoke", reason: "Front desk does not read signed forms here", expectedVersion: await effective(), confirmed: true }, { "Idempotency-Key": `docs-revoke-forms-${stamp}` });
+  expect(revoke.status).toBe(200);
+  try {
+    await gotoDocuments(front);
+    await expect(rowOf(front, "Privacy notice")).toHaveCount(0);
+    expect((await api(front, "get", `/api/forms/${formId}`)).status).toBe(403);
+    await shot(front, "05b-signed-form-hidden-without-permission.png");
+  } finally {
+    const revert = await api(admin1, "put", "/api/permissions/overrides", { role: "FrontDesk", permission: "ViewSignedForms", effect: "Revert", reason: "Back to the default", expectedVersion: await effective(), confirmed: true }, { "Idempotency-Key": `docs-revert-forms-${stamp}` });
+    expect(revert.status).toBe(200);
+  }
+  await gotoDocuments(front);
+  await expect(rowOf(front, "Privacy notice")).toContainText("Signed form");             // back with the default
+  evidence.signedForm = { listedReadOnly: true, hashUnchangedAfterTemplateEdit: true, frontDeskWithViewSignedForms: "listed", frontDeskRevoked: "hidden, form 403", reverted: "listed" };
 });
 
-test("PERMISSIONS: the dentist reads the library but has no import form and the API refuses an import (403); the front desk likewise; only the administrator reaches the settings", async () => {
-  for (const role of ["Dentist", "FrontDesk"]) {
-    const page = sessions[role].page;
-    await gotoDocuments(page);
-    await expect(importForm(page)).toHaveCount(0);
-    await expect(page.getByRole("button", { name: /^Edit / })).toHaveCount(0);
-    await expect(rowOf(page, "bitewing.png").getByRole("link", { name: "Download bitewing.png" })).toBeVisible();
-    const r = await page.request.post(`/api/patients/${ids.ann}/documents`, { headers: { "X-CSRF-Token": await csrf(page), "Idempotency-Key": `deny-${role}-${stamp}` }, multipart: { file: { name: "x.png", mimeType: "image/png", buffer: png("deny") }, categoryId: "00000000-0000-0000-0000-000000000000", documentDate: "2026-10-01" } });
-    expect(r.status(), `${role} import`).toBe(403);
-  }
+test("PERMISSIONS (ALV-N026 PD-24): the dentist reads clinical documents and may import but not manage them; the front desk reads no clinical document and cannot import; only the administrator reaches the settings", async () => {
+  const dentist = sessions.Dentist.page;
+  await gotoDocuments(dentist);
+  await expect(importForm(dentist)).toBeVisible();                                                           // ImportDocuments (ALV-N026: the dentist imports)
+  await expect(dentist.getByRole("button", { name: /^Edit / })).toHaveCount(0);                               // but has no ManageDocuments
+  await expect(rowOf(dentist, "bitewing.png").getByRole("link", { name: "Download bitewing.png" })).toBeVisible();
+
+  const front = sessions.FrontDesk.page;
+  await gotoDocuments(front);
+  await expect(importForm(front)).toHaveCount(0);
+  for (const name of ["bitewing.png", "referral.pdf", "notes.txt"]) await expect(rowOf(front, name)).toHaveCount(0);   // Clinical categories: not listed without ViewClinicalDocumentation
+  expect((await front.request.get(`/api/documents/${ids.png}/content`)).status()).toBe(404);                  // and answered as not found, never as forbidden-but-present
+  const r = await front.request.post(`/api/patients/${ids.ann}/documents`, { headers: { "X-CSRF-Token": await csrf(front), "Idempotency-Key": `deny-FrontDesk-${stamp}` }, multipart: { file: { name: "x.png", mimeType: "image/png", buffer: png("deny") }, categoryId: "d0c00000-0000-0000-0000-000000000006" } });
+  expect(r.status(), "FrontDesk import").toBe(403);
+
   const om = sessions.OfficeManager.page;
   expect((await api(om, "get", "/api/document-settings")).status).toBe(403);
   await om.goto("/admin/documents");
   await expect(om.getByRole("heading", { name: "Document settings" })).toHaveCount(0);
-  expect((await api(sessions.Dentist.page, "post", "/api/document-settings/blocked-extensions", { extension: "swf" })).status).toBe(403);
-  const noCsrf = await sessions.OfficeManager.page.request.post(`/api/patients/${ids.ann}/documents`, { headers: { "Idempotency-Key": `nocsrf-${stamp}` }, multipart: { file: { name: "x.png", mimeType: "image/png", buffer: png("nocsrf") } } });
+  expect((await api(dentist, "post", "/api/document-settings/blocked-extensions", { extension: "swf" })).status).toBe(403);
+  const noCsrf = await om.request.post(`/api/patients/${ids.ann}/documents`, { headers: { "Idempotency-Key": `nocsrf-${stamp}` }, multipart: { file: { name: "x.png", mimeType: "image/png", buffer: png("nocsrf") } } });
   expect(noCsrf.status()).toBe(400);
   expect((await documentsOf(admin)).length).toBe(4);
-  evidence.permissions = { dentistImport: 403, frontDeskImport: 403, officeManagerSettings: 403, missingCsrf: 400 };
+  evidence.permissions = { dentistImportForm: true, dentistManage: false, frontDeskClinicalListed: 0, frontDeskClinicalContent: 404, frontDeskImport: 403, officeManagerSettings: 403, missingCsrf: 400 };
 });
 
 test("SETTINGS: the administrator adds and renames categories, sets the size limit and blocks and unblocks a type; built-in types are locked", async () => {

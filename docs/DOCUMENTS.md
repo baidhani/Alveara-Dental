@@ -58,7 +58,7 @@ Every file is served as a **download**: `Content-Disposition: attachment`, a gen
 | Route | Purpose | Permission |
 |---|---|---|
 | `POST /api/patients/{id}/documents` | Import (multipart: file, category, date, description). `201` on create, `200` on an exact replay. | `ImportDocuments` |
-| `GET /api/patients/{id}/documents` | The patient's library: documents and signed forms, optional `categoryId` filter (which leaves signed forms out), and the current `maxUploadBytes`. `404` for an unknown patient. | `ViewDocuments` |
+| `GET /api/patients/{id}/documents` | The patient's library: documents and signed forms, optional `categoryId` filter (which leaves signed forms out), and the current `maxUploadBytes`. `404` for an unknown patient. Clinical documents need `ViewClinicalDocumentation` too (ALV-N026 PD-24); signed forms are listed only for holders of `ViewSignedForms` (ALV-N026 R02, owner decision 2026-11-22), the permission the forms routes that open them already require. | `ViewDocuments` |
 | `GET /api/documents/{id}` | One document's metadata and history. | `ViewDocuments` |
 | `GET /api/documents/{id}/content` | The file, under the serving rules above (`?download=true` forces a download of PDF, PNG and JPEG too). The open is logged first; if it cannot be logged nothing is returned. | `ViewDocuments` |
 | `PUT /api/documents/{id}` | Categorize / edit date and description (needs the row version). Moving needs the right to read both categories (ALV-N026). | `ManageDocuments` (ALV-N026; was `ImportDocuments`) |

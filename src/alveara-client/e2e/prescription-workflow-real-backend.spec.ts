@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import type { Browser, BrowserContext, Page } from "@playwright/test";
+import type { Browser, BrowserContext, Locator, Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { execFileSync } from "node:child_process";
 import { sqlServer } from "./support/sqlServer";
@@ -10,7 +10,8 @@ import path from "node:path";
 // Excluded from the default mocked run (playwright.config.ts) and run with playwright.prescription-workflow.config.ts against an API the caller started (see docs/testing/REAL_BACKEND_E2E.md).
 // A dentist writes a prescription as a draft (saved incomplete, kept across a reload), is told what is missing, finalizes it through a confirmation, and it is logged with who and when; a medication that matches a
 // recorded allergy waits for the dentist's own words; a patient whose allergies were never reviewed gets the same; an allergy added after the draft was started is shown and must be acknowledged; an amendment
-// replaces a prescription without editing it; a cancellation needs a reason; a print is prepared, logged and stable; when the log is unavailable nothing is finalized and the same click works once it is back;
+// replaces a prescription without editing it; a cancellation needs a reason; a print is issued on the server and opened as the server's PDF (ALV-N026: never the application page through
+// window.print), and an ended prescription only as a record copy; when the log is unavailable nothing is finalized and the same click works once it is back;
 // a hygienist reads and prints but cannot change anything; and nothing can be edited or deleted. Nothing on any screen claims interaction checking or dose appropriateness.
 
 test.describe.configure({ mode: "serial" });
@@ -86,6 +87,46 @@ const safetyPanel = (page: Page) => page.getByRole("complementary", { name: "Pat
 const record = (page: Page, status: string, medication: string) => page.locator(`li.alv-rx__item[data-status="${status}"]`).filter({ hasText: medication });
 const recordsOf = async (page: Page, patient: string) => (await api(page, "get", `/api/patients/${patient}/prescription-records`)).body.prescriptions as any[];
 const auditOf = async (type: string) => ((await api(admin, "get", "/api/auth/audit-log?take=1000")).body as any[]).filter((e) => e.eventType === type);
+
+/**
+ * ALV-N026 R02 (review item 2): clicks a print button and returns what the browser did. The button must issue on the server (POST .../issues) and then fetch the issue's PDF; the PDF must reach
+ * the user as a new tab or a download (either is accepted - the implemented flow opens a tab), and the application page must never call window.print().
+ */
+async function pdfFromClick(page: Page, button: Locator) {
+  await page.evaluate(() => { (window as any).__printed = 0; window.print = () => { (window as any).__printed++; }; });
+  const context = page.context();
+  const before = new Set(context.pages());
+  let downloads = 0;
+  const onDownload = () => { downloads++; };
+  page.on("download", onDownload);
+  try {
+    const issued = page.waitForResponse((r) => r.request().method() === "POST" && /\/api\/prescriptions\/[0-9a-f-]+\/issues$/.test(new URL(r.url()).pathname));
+    const pdf = page.waitForResponse((r) => r.request().method() === "GET" && /\/api\/prescription-issues\/[0-9a-f-]+\/pdf$/.test(new URL(r.url()).pathname));
+    await button.click();
+    const issue = await issued;
+    const response = await pdf;
+    const bytes = await response.body();
+    await expect.poll(() => context.pages().filter((p) => !before.has(p)).length + downloads, { message: "the PDF reached the user as a tab or a download" }).toBeGreaterThan(0);
+    const tabs = context.pages().filter((p) => !before.has(p)).length;
+    const printed = await page.evaluate(() => (window as any).__printed as number);
+    for (const p of context.pages()) if (!before.has(p)) await p.close();
+    return { issueStatus: issue.status(), issueId: ((await issue.json()) as { id: string }).id, status: response.status(), contentType: response.headers()["content-type"] ?? "", bytes, tabs, downloads, printed, pageUrl: page.url() };
+  } finally {
+    page.off("download", onDownload);
+  }
+}
+
+/** The safe server-PDF result: a real PDF from the server, no application page printed, and no application address or raw server detail inside it. */
+function expectServerPdf(result: Awaited<ReturnType<typeof pdfFromClick>>) {
+  expect(result.issueStatus).toBe(201);
+  expect(result.status).toBe(200);
+  expect(result.contentType).toMatch(/^application\/pdf/);
+  expect(result.bytes.subarray(0, 5).toString("latin1")).toBe("%PDF-");
+  expect(result.printed).toBe(0);                                                                                 // the application page was never printed
+  const raw = result.bytes.toString("latin1");
+  expect(raw).not.toContain(new URL(result.pageUrl).host);                                                        // no app address
+  expect(raw).not.toMatch(/localhost|\/api\/|Exception|stack trace/i);
+}
 
 async function gotoComposer(page: Page, patient = ids.ann) {
   await page.goto(`/patients/${patient}/prescription-composer`);
@@ -325,9 +366,11 @@ test("CANCELLING needs a reason: without one nothing is recorded, with one the p
   await expect(statusLine(page)).toContainText("Penicillin V Potassium cancelled and logged.");
   const cancelled = record(page, "Cancelled", "Penicillin V Potassium");
   await expect(cancelled).toContainText("Cancelled: it should not be taken or dispensed");
-  await cancelled.getByRole("button", { name: "Print Penicillin V Potassium" }).click();
-  await expect(page.getByRole("article", { name: "Prescription" })).toContainText("Cancelled: it should not be taken or dispensed");   // it says so on the page itself
-  await shot(page, "08-cancelled-print.png");
+  await expect(cancelled.getByRole("button", { name: "Print Penicillin V Potassium (PDF)" })).toHaveCount(0);       // an ended prescription is never printed to dispense
+  const copy = await pdfFromClick(page, cancelled.getByRole("button", { name: "Record copy of Penicillin V Potassium (PDF)" }));
+  expectServerPdf(copy);                                                                                         // its watermark text is proven on the rendered PDF server-side
+  await expect(statusLine(page)).toContainText("A record copy dated today was issued and opened as a PDF.");
+  await shot(page, "08-cancelled-record-copy.png");
   const events = (await recordsOf(page, ids.ann)).find((r) => r.medication === "Penicillin V Potassium").events;
   expect([events.at(-1).eventType, events.at(-1).reason]).toEqual(["Cancelled", "Entered for the wrong patient."]);
   const audit = (await auditOf("PrescriptionCancelled"))[0];
@@ -335,28 +378,31 @@ test("CANCELLING needs a reason: without one nothing is recorded, with one the p
   expect(JSON.stringify(audit)).not.toMatch(/wrong patient|Penicillin/);                                   // the reason is kept with the prescription, never in the log
 });
 
-test("PRINTING: the print is prepared on the server, logged with who and when, opens the print dialog and a reprint is identical", async () => {
+test("PRINTING: Print (PDF) issues the prescription on the server and opens the server's PDF; the application page is never printed and each issue is logged with who and when", async () => {
   const page = sessions.Dentist.page;
   await gotoComposer(page);
   const item = record(page, "Active", "Amoxicillin");
-  await item.getByRole("button", { name: "Print Amoxicillin" }).click();
-  const article = page.getByRole("article", { name: "Prescription" });
-  for (const text of ["Ann Alder", "250 mg, three times daily", "Take one with food until finished.", "21 capsule", "Not checked:", `${DENTIST_NAME} ${stamp}`]) await expect(article).toContainText(text);
-  const reference = await article.getByText(/Document reference/).textContent();
-  await page.evaluate(() => { (window as any).__printed = 0; window.print = () => { (window as any).__printed++; }; });
-  await page.getByRole("button", { name: "Print", exact: true }).click();
-  expect(await page.evaluate(() => (window as any).__printed)).toBe(1);
-  await shot(page, "09-print-preview.png");
-  await scanBothThemes(page, "print-preview");
+  await expect(item.getByRole("button", { name: "Print", exact: true })).toHaveCount(0);                          // no in-app print preview any more
+  const issuedBefore = (await auditOf("PrescriptionIssued")).length;
+  const first = await pdfFromClick(page, item.getByRole("button", { name: "Print Amoxicillin (PDF)" }));
+  expectServerPdf(first);
+  await expect(statusLine(page)).toContainText("The prescription was issued and opened as a PDF.");
+  await expect(page.getByRole("article", { name: "Prescription" })).toHaveCount(0);                               // nothing is laid out on the application page
+  await shot(page, "09-print-pdf-opened.png");
+  await scanBothThemes(page, "print-pdf");
 
-  await page.getByRole("button", { name: "Close preview" }).click();
-  await item.getByRole("button", { name: "Print Amoxicillin" }).click();
-  expect(await page.getByRole("article", { name: "Prescription" }).getByText(/Document reference/).textContent()).toBe(reference);
-  const prints = await auditOf("PrescriptionPrinted");
-  expect(prints.length).toBeGreaterThanOrEqual(3);
-  expect(prints.every((e) => e.performedByUserAccountId === ids.dentistUser && !Number.isNaN(Date.parse(e.timestampUtc)))).toBe(true);
-  expect(JSON.stringify(prints)).not.toMatch(/Amoxicillin|Ann|250/);
-  evidence.print = { prints: prints.length, stable: true };
+  const again = await pdfFromClick(page, item.getByRole("button", { name: "Print Amoxicillin (PDF)" }));          // a second click is a second issue, also a server PDF
+  expectServerPdf(again);
+  expect(again.issueId).not.toBe(first.issueId);
+  const pdf = await page.request.get(`/api/prescription-issues/${first.issueId}/pdf`);                          // the first issue reprints as a PDF
+  expect([pdf.status(), pdf.headers()["content-type"]?.startsWith("application/pdf")]).toEqual([200, true]);
+  expect((await api(page, "get", `/api/prescriptions/${ids.amoxicillin}/print`)).status).toBe(410);               // the old browser print is retired
+
+  const issued = await auditOf("PrescriptionIssued");
+  expect(issued.length).toBeGreaterThanOrEqual(issuedBefore + 2);
+  expect(issued.every((e) => e.performedByUserAccountId === ids.dentistUser && !Number.isNaN(Date.parse(e.timestampUtc)))).toBe(true);
+  expect(JSON.stringify(issued)).not.toMatch(/Amoxicillin|Ann|250/);
+  evidence.print = { flow: "server PDF", tabs: first.tabs + again.tabs, downloads: first.downloads + again.downloads, windowPrintCalls: first.printed + again.printed, issues: issued.length };
 });
 
 test("FAILURE PATH: when the log is unavailable nothing is finalized, no internals are shown, and the same finalization works once it is back", async () => {
@@ -402,7 +448,7 @@ test("A PRESCRIPTION SAVED BEFORE THE WORKFLOW says so, cannot be printed, and i
   const item = record(dentist, "Active", "Acetaminophen");
   await expect(item).toContainText("Saved before instructions, quantity and refills were recorded");
   await expect(item.getByRole("button", { name: /^Print / })).toHaveCount(0);
-  expect((await api(dentist, "get", `/api/prescriptions/${legacy.body.prescription.id}/print`)).body.error).toBe("print_incomplete");
+  expect((await api(dentist, "post", `/api/prescriptions/${legacy.body.prescription.id}/issues`, { kind: "RecordCopy", idempotencyKey: `legacy-copy-${stamp}` })).body.error).toBe("print_incomplete");
   await item.getByRole("button", { name: "Amend Acetaminophen" }).click();
   await expect(composer(dentist).getByLabel("Instructions for the patient")).toHaveValue("");
   await composer(dentist).getByRole("button", { name: "Finalize…" }).click();
@@ -418,7 +464,7 @@ test("READ-ONLY: a hygienist reads and prints but cannot change anything and is 
   const item = record(hyg, "Active", "Amoxicillin");
   await expect(item).toBeVisible();
   await expect(hyg.getByRole("button", { name: /^(Amend|Cancel|Discontinue) / })).toHaveCount(0);
-  await expect(item.getByRole("button", { name: "Print Amoxicillin" })).toBeVisible();
+  await expect(item.getByRole("button", { name: "Print Amoxicillin (PDF)" })).toBeVisible();
   await shot(hyg, "12-hygienist-read-only.png");
   const draft = { idempotencyKey: "ro", medication: "Ibuprofen", doseValue: 400, doseUnit: "mg", frequency: "Once daily", instructions: "x", quantityValue: 1, quantityUnit: "tablet", refills: 0 };
   expect((await api(hyg, "post", `/api/patients/${ids.ann}/prescription-drafts`, draft)).status).toBe(403);

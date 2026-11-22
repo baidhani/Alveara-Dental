@@ -154,6 +154,39 @@ public class FormsApiTests : IAsyncLifetime
         Assert.Equal(expected, result.Status);
     }
 
+    /// <summary>
+    /// ALV-N026 R02 (owner decision 2026-11-22; review item 4): a signed form in the document library follows its own permission, ViewSignedForms, like the forms routes that open it. Billing holds
+    /// ViewDocuments and ViewSignedForms by default and sees the signed form in the library; once a practice override revokes ViewSignedForms from Billing, the library (still readable with
+    /// ViewDocuments) no longer lists it, and the form itself and the signed-documents list are refused. PD-24's Clinical/NonClinical classes do not apply to signed forms.
+    /// </summary>
+    [Fact]
+    public async Task A_signed_form_is_listed_in_the_library_only_for_holders_of_view_signed_forms_including_after_an_override_revokes_it()
+    {
+        await using var factory = CreateFactory();
+        var (desk, _, template, patientId) = await ArrangeAsync(factory);
+        var ready = await ReadyFormAsync(desk, patientId, template.GetProperty("template").GetProperty("id").GetString()!);
+        var signed = await desk.SendAsync(HttpMethod.Post, $"/api/forms/{ready.GetProperty("summary").GetProperty("id").GetString()}/sign", SignBody(ready), "lib-sign-key-001");
+        Assert.Equal(HttpStatusCode.Created, signed.Status);
+        var formId = signed.Body.GetProperty("summary").GetProperty("id").GetString();
+        var billing = await SessionAsync(factory, "Billing");
+
+        static int SignedEntries(JsonElement library) => library.GetProperty("entries").EnumerateArray().Count(e => e.GetProperty("kind").GetString() == "SignedForm");
+        var allowed = await billing.SendAsync(HttpMethod.Get, $"/api/patients/{patientId}/documents");
+        Assert.Equal((HttpStatusCode.OK, 1), (allowed.Status, SignedEntries(allowed.Body)));                          // the default: Billing holds ViewSignedForms
+
+        var version = (await _admin!.SendAsync(HttpMethod.Get, "/api/permissions/effective")).Body.GetProperty("version").GetInt64();
+        var revoke = await _admin.SendAsync(HttpMethod.Put, "/api/permissions/overrides",
+            new { role = "Billing", permission = "ViewSignedForms", effect = "Revoke", reason = "Billing does not read signed forms here", expectedVersion = version, confirmed = true }, "lib-revoke-0001");
+        Assert.Equal(HttpStatusCode.OK, revoke.Status);
+
+        var revoked = await billing.SendAsync(HttpMethod.Get, $"/api/patients/{patientId}/documents");
+        Assert.Equal((HttpStatusCode.OK, 0), (revoked.Status, SignedEntries(revoked.Body)));                          // the library still opens (ViewDocuments) but lists no signed form
+        Assert.Equal(HttpStatusCode.Forbidden, (await billing.SendAsync(HttpMethod.Get, $"/api/forms/{formId}")).Status);
+        Assert.Equal(HttpStatusCode.Forbidden, (await billing.SendAsync(HttpMethod.Get, $"/api/patients/{patientId}/signed-documents")).Status);
+        var desks = await desk.SendAsync(HttpMethod.Get, $"/api/patients/{patientId}/documents");
+        Assert.Equal(1, SignedEntries(desks.Body));                                                                     // others are unaffected
+    }
+
     [Theory]
     [InlineData("FrontDesk", HttpStatusCode.OK)]
     [InlineData("Dentist", HttpStatusCode.OK)]

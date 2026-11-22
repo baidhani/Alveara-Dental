@@ -64,6 +64,13 @@ public class DocumentAccess(IEffectivePermissions permissions)
     }
 
     /// <summary>ALV-N026 (Q-5bs): whether the caller may read referral and lab cases, and so see that a document is linked to one.</summary>
+    /// <summary>
+    /// ALV-N026 R02 (owner decision 2026-11-22): whether the caller may see signed forms in the library. A signed form follows its own permission, <see cref="Permission.ViewSignedForms"/>, as the
+    /// forms screens do (opening one is a forms route, which already requires it); it is not listed merely because the caller reads ordinary documents, and PD-24's Clinical/NonClinical classes do not apply.
+    /// </summary>
+    public async Task<bool> ReadsSignedFormsAsync(ClaimsPrincipal user, CancellationToken ct) =>
+        Enum.TryParse<Role>(user.FindFirstValue(ClaimTypes.Role), out var role) && await permissions.HasAsync(role, Permission.ViewSignedForms, ct);
+
     public async Task<bool> ReadsCasesAsync(ClaimsPrincipal user, CancellationToken ct) =>
         Enum.TryParse<Role>(user.FindFirstValue(ClaimTypes.Role), out var role) && await permissions.HasAsync(role, Permission.ViewExternalCases, ct);
 }

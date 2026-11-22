@@ -80,7 +80,7 @@ public class DocumentsController(DocumentImportService importer, DocumentLibrary
         var filter = new DocumentLibraryFilter(ParseGuid(categoryId, "category", problems), ParseGuid(encounterId, "encounter", problems), toothKey, regionKey, ParseDate(from, "from", problems), ParseDate(to, "to", problems), text,
             status ?? (includeInactive ? DocumentLibraryFilter.StatusAll : null));
         if (problems.Count > 0) throw new DocumentException(DocumentErrorCodes.MetadataInvalid, "The filter has entries that need correcting.", 400, problems);
-        return Ok(new { patientId, entries = await library.ListAsync(patientId, filter, await Scope(ct), ct, await access.ReadsCasesAsync(User, ct)), maxUploadBytes = (await settings.GetSettingsAsync(ct)).MaxUploadBytes });
+        return Ok(new { patientId, entries = await library.ListAsync(patientId, filter, await Scope(ct), ct, await access.ReadsCasesAsync(User, ct), await access.ReadsSignedFormsAsync(User, ct)), maxUploadBytes = (await settings.GetSettingsAsync(ct)).MaxUploadBytes });
     });
 
     [HttpGet("api/documents/{documentId:guid}")]

@@ -40,8 +40,9 @@ public class DocumentLibraryService(AlveraDbContext db, PatientFormReader forms,
     /// (<c>metadata_invalid</c>, naming the field) rather than ignored; text is matched literally. Inactive documents are left out unless the status asks for them. Signed forms are listed only when nothing narrows to a
     /// document's own properties; the date range and the text apply to them as well (by signing date and form title).
     /// </summary>
-    /// <remarks>ALV-N026 (PD-24): only documents in categories <paramref name="scope"/> may read are listed; the others are left out as if absent.</remarks>
-    public async Task<IReadOnlyList<LibraryEntry>> ListAsync(Guid patientId, DocumentLibraryFilter filter, DocumentReadScope scope, CancellationToken ct, bool includeCaseLinks = false)
+    /// <remarks>ALV-N026 (PD-24): only documents in categories <paramref name="scope"/> may read are listed; the others are left out as if absent. ALV-N026 R02: signed forms are listed only when
+    /// <paramref name="includeSignedForms"/> (the caller holds ViewSignedForms; the API passes it from <see cref="DocumentAccess.ReadsSignedFormsAsync"/>).</remarks>
+    public async Task<IReadOnlyList<LibraryEntry>> ListAsync(Guid patientId, DocumentLibraryFilter filter, DocumentReadScope scope, CancellationToken ct, bool includeCaseLinks = false, bool includeSignedForms = true)
     {
         var f = CheckFilter(filter);
         var readable = await scope.ReadableCategoryIdsAsync(db, ct);
@@ -65,7 +66,7 @@ public class DocumentLibraryService(AlveraDbContext db, PatientFormReader forms,
                 v.DuplicateOfDocumentId is not null, v, v.Status == DocumentStatuses.Inactive)).ToList();
 
         var narrowsToDocuments = f.CategoryId is not null || f.EncounterId is not null || f.ToothKey is not null || f.RegionKey is not null || f.Status == DocumentLibraryFilter.StatusInactive;
-        if (!narrowsToDocuments)
+        if (!narrowsToDocuments && includeSignedForms)
             foreach (var form in await forms.SignedDocumentsAsync(patientId, ct))
             {
                 var date = DateOnly.FromDateTime(clock.ToPracticeLocal(form.SignedAtUtc).DateTime);
