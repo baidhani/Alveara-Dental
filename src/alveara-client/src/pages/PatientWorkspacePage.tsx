@@ -29,6 +29,7 @@ import { PatientHistoryPanel } from "./PatientHistoryPanel";
 import { MergeHistoryBanner } from "./patientmerge/MergeHistoryBanner";
 import { ExportPatientButton } from "./portability/ExportPatientButton";
 import { DownloadReadableRecordButton } from "./exports/DownloadReadableRecordButton";
+import { ClinicalRecordCopyButton } from "./exports/ClinicalRecordCopyButton";
 import "./PatientWorkspace.css";
 
 interface WorkspaceOutlet {
@@ -87,6 +88,7 @@ export function PatientWorkspacePage() {
           <>
             {hasPermission("ExportPatientData") && <ExportPatientButton patientId={patient.id} />}
             {hasPermission("ExportPatientReadableRecord") && <DownloadReadableRecordButton patientId={patient.id} />}
+            {hasPermission("ExportPatientReadableRecord") && <ClinicalRecordCopyButton patientId={patient.id} />}
           </>
         ) : undefined}
       />

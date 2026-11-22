@@ -18,6 +18,9 @@
     },
     "treatment-plan-copy/v2": {
       "main.typ": "4cad7ef536328abc62c3e8961c2fca9572806fe37679e1f7938a367996aef15d"
+    },
+    "clinical-record-copy/v1": {
+      "main.typ": "7ada381b1e2239d822bda3a370a7066806a8272adcc2b1a4b37e45c79c560276"
     }
   }
 }

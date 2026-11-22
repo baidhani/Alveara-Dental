@@ -38,7 +38,6 @@ public class PrescriptionWorkflowServiceTests : SafetyTestBase
     private Task<SavedRecord> FinalizeAsync(DraftView draft) => WithDb(db => Make(db).Finalizer.FinalizeAsync(draft.Id, draft.RowVersion, S.Actor, default));
     private Task<SavedRecord> CancelAsync(Guid id, string? reason = "Entered for the wrong patient.") => WithDb(db => Make(db).Lifecycle.CancelAsync(id, reason, S.Actor, default));
     private Task<SavedRecord> DiscontinueAsync(Guid id, string? reason = "Stopped after a reaction.") => WithDb(db => Make(db).Lifecycle.DiscontinueAsync(id, reason, S.Actor, default));
-    private Task<PrescriptionPrintContent> PrintAsync(Guid id) => WithDb(db => Make(db).Lifecycle.PrintAsync(id, S.Actor, default));
     private Task<SavedDraft> AmendAsync(Guid id, string? key = null) => WithDb(db => Make(db).Drafts.AmendAsync(id, key ?? $"amend-{Guid.NewGuid():N}", S.Actor, default));
     private Task<PrescriptionRecord> RecordAsync(Guid id) => WithDb(db => Make(db).Records.GetAsync(id, default));
 
@@ -509,51 +508,6 @@ END"); return 0; });
         Assert.Equal(PrescriptionStatuses.Active, (await RecordAsync(q.Id)).Status);
         await RestoreAuditAsync();
         Assert.Equal(PrescriptionStatuses.Discontinued, (await DiscontinueAsync(q.Id)).Record.Status);
-    }
-
-    // ---------- printing ----------
-
-    [Fact]
-    public async Task A_prescription_prints_from_the_immutable_record_the_print_is_logged_and_a_reprint_is_identical_until_the_status_changes()
-    {
-        var p = await FinalizedAsync();
-        var first = await PrintAsync(p.Id);
-        var second = await PrintAsync(p.Id);
-
-        Assert.Equal(("Amoxicillin", "500 mg", "Three times daily", "Take one capsule with food until finished.", "21 capsule", 0, "Dr. Okafor", PrescriptionStatuses.Active),
-            (first.Medication, first.Dose, first.Frequency, first.Instructions, first.Quantity, first.Refills, first.PrescriberName, first.Status));
-        Assert.NotEmpty(first.PatientName);
-        Assert.Contains("name comparison, not a clearance", first.AllergyStatement);
-        Assert.Contains("not configured", first.LimitationStatement);
-        Assert.Matches("^[0-9a-f]{64}$", first.ContentHash);
-        Assert.Equal(first.ContentHash, second.ContentHash);
-        var prints = (await AuditAsync(nameof(Prescription))).Where(a => a.Type == "PrescriptionPrinted").ToList();
-        Assert.Equal(2, prints.Count);
-        Assert.All(prints, a => { Assert.Equal((Guid?)S.Actor, a.By); Assert.DoesNotContain("Amoxicillin", a.Details); });
-
-        await CancelAsync(p.Id);
-        var cancelled = await PrintAsync(p.Id);
-        Assert.Equal(PrescriptionStatuses.Cancelled, cancelled.Status);                                              // it says so on its face
-        Assert.NotEqual(first.ContentHash, cancelled.ContentHash);
-    }
-
-    [Fact]
-    public async Task A_prescription_without_instructions_quantity_and_refills_cannot_be_printed_and_a_failed_log_prints_nothing()
-    {
-        var legacy = (await WithDb(db => new PrescriptionService(db, Clock, new SafetyContextService(db, Clock)).RecordAsync(Ann,
-            new PrescriptionInput("Naproxen", 250m, "mg", "Twice daily", "Asked the patient: no allergies.", "legacy"), S.Actor, default))).Prescription;
-        var e = await Refused(() => PrintAsync(legacy.Id));
-        Assert.Equal(("print_incomplete", 409), (e.Code, e.StatusCode));
-        Assert.Equal(0, await AuditCountAsync("PrescriptionPrinted"));
-
-        var p = await FinalizedAsync();
-        await FailAuditAsync("PrescriptionPrinted");
-        var failed = await Refused(() => PrintAsync(p.Id));
-        Assert.Equal(("print_failed", 503), (failed.Code, failed.StatusCode));
-        Assert.DoesNotContain("audit", failed.Message, StringComparison.OrdinalIgnoreCase);
-        await RestoreAuditAsync();
-        Assert.NotEmpty((await PrintAsync(p.Id)).ContentHash);
-        Assert.Equal("prescription_not_found", (await Refused(() => PrintAsync(Guid.NewGuid()))).Code);
     }
 
     // ---------- what is not claimed ----------

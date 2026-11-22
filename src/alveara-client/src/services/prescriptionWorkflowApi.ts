@@ -108,26 +108,6 @@ export interface PrescriptionRecord {
 
 export interface SavedRecord { record: PrescriptionRecord; replayed: boolean }
 
-export interface PrintContent {
-  prescriptionId: string;
-  status: PrescriptionStatus;
-  practice: { name: string; phone: string | null; addressLine: string | null } | null;
-  patientName: string;
-  patientDateOfBirth: string;
-  prescriberName: string;
-  medication: string;
-  dose: string;
-  frequency: string;
-  instructions: string;
-  quantity: string;
-  refills: number;
-  prescribedAtUtc: string;
-  allergyStatement: string;
-  limitationStatement: string;
-  supersedesPrescriptionId: string | null;
-  supersededByPrescriptionId: string | null;
-  contentHash: string;
-}
 
 /** The entry as the composer sends it. Numbers are null when their box is empty. */
 export interface WorkflowEntry {
@@ -150,7 +130,6 @@ export const getWorkflowOptions = (signal?: AbortSignal) => request<WorkflowOpti
 export const listDrafts = (patientId: string, signal?: AbortSignal) => request<{ patientId: string; drafts: DraftView[] }>(`/api/patients/${patientId}/prescription-drafts`, { signal });
 export const getDraft = (id: string, signal?: AbortSignal) => request<DraftDetail>(`${base}/${id}`, { signal });
 export const listRecords = (patientId: string, signal?: AbortSignal) => request<{ patientId: string; prescriptions: PrescriptionRecord[] }>(`/api/patients/${patientId}/prescription-records`, { signal });
-export const getPrint = (id: string) => request<PrintContent>(`/api/prescriptions/${id}/print`);
 
 /** ALV-N026 S6: a print (Active only) or a record copy (any status, watermarked when inactive). Once per key: a retry returns the same issue. */
 export type IssueKind = "Print" | "RecordCopy";

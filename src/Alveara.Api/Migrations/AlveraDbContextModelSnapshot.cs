@@ -6280,6 +6280,61 @@ namespace Alveara.Api.Migrations
                     b.ToTable("PatientRegistrationSettings");
                 });
 
+            modelBuilder.Entity("Alveara.Api.Architecture.Patients.Portability.Package.ClinicalRecordCopyIssue", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ContentHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<Guid>("CorrelationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("GeneratedAsOfUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("IdempotencyKey")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid>("IssuedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("RenderBundleId")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("TemplateVersion")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("nvarchar(8)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IssuedByUserId");
+
+                    b.HasIndex("PatientId", "IdempotencyKey")
+                        .IsUnique();
+
+                    b.ToTable("ClinicalRecordCopyIssues", t =>
+                        {
+                            t.HasTrigger("TR_ClinicalRecordCopyIssues_Immutable");
+
+                            t.HasTrigger("TR_ClinicalRecordCopyIssues_MergeScope");
+
+                            t.HasCheckConstraint("CK_ClinicalRecordCopyIssues_Template", "[TemplateVersion] = 'v1'");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
             modelBuilder.Entity("Alveara.Api.Architecture.Patients.Portability.Package.DataExportHistory", b =>
                 {
                     b.Property<Guid>("Id")
@@ -10445,6 +10500,21 @@ namespace Alveara.Api.Migrations
 
             modelBuilder.Entity("Alveara.Api.Architecture.Patients.PatientHistoryEntry", b =>
                 {
+                    b.HasOne("Alveara.Api.Architecture.Patients.Patient", null)
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Patients.Portability.Package.ClinicalRecordCopyIssue", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("IssuedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("Alveara.Api.Architecture.Patients.Patient", null)
                         .WithMany()
                         .HasForeignKey("PatientId")

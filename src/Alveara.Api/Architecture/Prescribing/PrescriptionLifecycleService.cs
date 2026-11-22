@@ -55,48 +55,4 @@ public class PrescriptionLifecycleService(AlveraDbContext db, IPracticeClock clo
         }
         return new SavedRecord(await records.GetAsync(prescriptionId, ct), false);
     }
-
-    /// <summary>
-    /// The prescription laid out for printing, built from the immutable record, and the fact that it was printed (PHI-free, with the user and the time) saved with it: if the log cannot be written nothing is
-    /// printed (<c>print_failed</c>, 503). A prescription saved before instructions, quantity and refills were recorded cannot be printed (<c>print_incomplete</c>, 409): amend it first.
-    /// </summary>
-    public async Task<PrescriptionPrintContent> PrintAsync(Guid prescriptionId, Guid actor, CancellationToken ct)
-    {
-        var r = await records.GetAsync(prescriptionId, ct);
-        if (!r.HasDetails || r.Instructions is null || r.QuantityValue is null || r.QuantityUnit is null || r.Refills is null)
-            throw new PrescriptionException("print_incomplete",
-                "This prescription was saved before instructions, quantity and refills were recorded, so there is nothing complete to print. Amend it to add them.", 409);
-        var patient = await db.Patients.AsNoTracking().SingleAsync(p => p.Id == r.PatientId, ct);
-        var practice = await db.PracticeSettings.AsNoTracking().FirstOrDefaultAsync(ct);
-        var name = string.Join(' ', new[] { patient.FirstName, patient.MiddleName, patient.LastName }.Where(x => !string.IsNullOrWhiteSpace(x)));
-        var inv = CultureInfo.InvariantCulture;
-        var dose = $"{r.DoseValue.ToString("0.###", inv)} {r.DoseUnit}";
-        var quantity = $"{r.QuantityValue.Value.ToString("0.##", inv)} {r.QuantityUnit}";
-        var allergy = r.AllergyOutcome switch
-        {
-            AllergyOutcomes.RecordedAllergyMatch => $"At the time of prescribing the medication matched a recorded allergy ({r.AllergyMatches}); the prescriber reviewed it.",
-            AllergyOutcomes.NotEstablished => "At the time of prescribing the patient's allergies were not established; the prescriber confirmed this in their own words.",
-            _ => "At the time of prescribing no recorded allergy matched this medication's name. That is a name comparison, not a clearance.",
-        };
-        var prescribedAt = r.PrescribedAtUtc.ToString("O", inv);
-        var canonical = string.Join('|', "p1", r.Id.ToString("N"), r.Status, name, patient.DateOfBirth.ToString("O", inv), r.PrescribedByName ?? "", r.Medication, dose, r.Frequency, r.Instructions, quantity, r.Refills.Value.ToString(inv), prescribedAt,
-            allergy, r.SupersedesPrescriptionId?.ToString("N") ?? "", r.SupersededByPrescriptionId?.ToString("N") ?? "");
-        var content = new PrescriptionPrintContent(r.Id, r.Status, practice is null ? null : new DocumentPractice(practice.Name, practice.Phone, practice.AddressLine), name, patient.DateOfBirth.ToString("O", inv),
-            r.PrescribedByName ?? "", r.Medication, dose, r.Frequency, r.Instructions, quantity, r.Refills.Value, prescribedAt, allergy, DecisionSupport.Message, r.SupersedesPrescriptionId, r.SupersededByPrescriptionId,
-            Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(canonical))).ToLowerInvariant());
-
-        var correlation = Guid.NewGuid();
-        AuditService.Record(db, "PrescriptionPrinted", nameof(Prescription), r.Id, actor, "A prescription was prepared for printing.", correlationId: correlation);
-        try
-        {
-            await db.SaveChangesAsync(ct);
-        }
-        catch (DbUpdateException ex)
-        {
-            db.ChangeTracker.Clear();
-            logger?.LogWarning("prescription_print_not_logged error_class={ErrorClass} correlation_id={CorrelationId}", ex.InnerException?.GetType().Name ?? ex.GetType().Name, correlation);
-            throw new PrescriptionException("print_failed", "The prescription could not be prepared for printing, because the print could not be logged. Nothing was printed. Try again.", 503);
-        }
-        return content;
-    }
 }

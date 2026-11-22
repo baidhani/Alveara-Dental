@@ -130,6 +130,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<Architecture.Prescribing.PrescriptionEvent> PrescriptionEvents => Set<Architecture.Prescribing.PrescriptionEvent>();
     public DbSet<Architecture.Prescribing.PrescriptionIssue> PrescriptionIssues => Set<Architecture.Prescribing.PrescriptionIssue>();
     public DbSet<Architecture.Treatment.TreatmentPlanCopyIssue> TreatmentPlanCopyIssues => Set<Architecture.Treatment.TreatmentPlanCopyIssue>();   // ALV-N026 S7
+    public DbSet<Architecture.Patients.Portability.Package.ClinicalRecordCopyIssue> ClinicalRecordCopyIssues => Set<Architecture.Patients.Portability.Package.ClinicalRecordCopyIssue>();   // ALV-N026 S8
     public DbSet<Architecture.Documents.DocumentCategory> DocumentCategories => Set<Architecture.Documents.DocumentCategory>();
     public DbSet<Architecture.Documents.PatientDocument> Documents => Set<Architecture.Documents.PatientDocument>();
     public DbSet<Architecture.Documents.DocumentIntegrity> DocumentIntegrity => Set<Architecture.Documents.DocumentIntegrity>();

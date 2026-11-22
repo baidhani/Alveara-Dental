@@ -76,9 +76,9 @@ public class PatientOwnedDataTests
     }
 
     [Fact]
-    public void The_registry_names_fifty_four_tables_and_fifty_six_columns_today()
+    public void The_registry_names_fifty_five_tables_and_fifty_seven_columns_today()
     {
         // not a limit: the first two tests are the guard. This pins what the merge story was designed against, so a change is noticed in review.
-        Assert.Equal((54, 56), (PatientOwnedData.Tables.Count, PatientOwnedData.All.Count));
+        Assert.Equal((55, 57), (PatientOwnedData.Tables.Count, PatientOwnedData.All.Count));   // ALV-N026 S8: + ClinicalRecordCopyIssues.PatientId
     }
 }

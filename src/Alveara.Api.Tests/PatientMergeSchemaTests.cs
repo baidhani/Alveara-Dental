@@ -284,7 +284,7 @@ public class PatientMergeSchemaTests : TreatmentPlanTestBase
         Assert.Empty(unpatched);                              // a new immutable-record trigger on one of these tables must carry the same line (see the AddPatientMerges migration)
         var patched = await NamesAsync($@"SELECT DISTINCT t.name AS [Value] FROM sys.triggers t JOIN sys.sql_modules m ON m.object_id = t.object_id
             WHERE t.parent_class = 1 AND OBJECT_NAME(t.parent_id) IN ({TableList}) AND t.name NOT LIKE 'TR[_]%[_]MergeScope' AND m.definition LIKE N'%alveara.patient_merge%'");
-        Assert.Equal(53, patched.Count);                      // 51 immutable-record triggers, TR_Patients_Merged (its own line) and, since ALV-N025 (U-017,
+        Assert.Equal(54, patched.Count);                      // 52 immutable-record triggers (ALV-N026 S8 adds TR_ClinicalRecordCopyIssues_Immutable), TR_Patients_Merged (its own line) and, since ALV-N025 (U-017,
                                                               // AddMergeTriggerIntegrityRepairs), TR_Clearances_DocumentSamePatient
         Assert.Contains("TR_Clearances_DocumentSamePatient", patched);
         Assert.Contains("TR_Patients_Merged", patched);
@@ -309,7 +309,7 @@ public class PatientMergeSchemaTests : TreatmentPlanTestBase
         await using (var db = Fixture.CreateContext())
         {
             Assert.Equal(4, await db.Database.SqlQuery<int>($"SELECT COUNT(*) AS [Value] FROM sys.tables WHERE name LIKE 'PatientMerge%'").SingleAsync());          // the lineage, its moves, its answers and its ledger
-            Assert.Equal(54, await db.Database.SqlQuery<int>($"SELECT COUNT(*) AS [Value] FROM sys.triggers WHERE name LIKE 'TR[_]%[_]MergeScope'").SingleAsync());
+            Assert.Equal(55, await db.Database.SqlQuery<int>($"SELECT COUNT(*) AS [Value] FROM sys.triggers WHERE name LIKE 'TR[_]%[_]MergeScope'").SingleAsync());   // ALV-N026 S8: + ClinicalRecordCopyIssues
         }
         Assert.Equal(51086, (await SqlRefusalAsync($"UPDATE [TreatmentPlans] SET [PatientId] = {Bo} WHERE [Id] = {plan.Id}")).Number);
 

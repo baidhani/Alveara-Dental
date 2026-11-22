@@ -55,11 +55,3 @@ public sealed record WorkflowOptions(
 
 /// <summary>What changed in the allergy and medication lists since the prescriber acknowledged them: the payload of a <c>safety_context_changed</c> refusal.</summary>
 public sealed record SafetyChange(string CurrentFingerprint, IReadOnlyList<string> Added, IReadOnlyList<string> Removed);
-
-/// <summary>
-/// A finalized prescription laid out to be printed, built on the server from the immutable record (nothing on the screen is added up or re-derived). <see cref="ContentHash"/> identifies exactly this content, so
-/// a reprint of an unchanged prescription is identical. A cancelled, discontinued or superseded prescription says so on its face.
-/// </summary>
-public sealed record PrescriptionPrintContent(
-    Guid PrescriptionId, string Status, DocumentPractice? Practice, string PatientName, string PatientDateOfBirth, string PrescriberName, string Medication, string Dose, string Frequency, string Instructions,
-    string Quantity, int Refills, string PrescribedAtUtc, string AllergyStatement, string LimitationStatement, Guid? SupersedesPrescriptionId, Guid? SupersededByPrescriptionId, string ContentHash);

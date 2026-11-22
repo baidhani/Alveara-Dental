@@ -43,5 +43,23 @@ internal static class DataExportHistoryModel
                 t.HasCheckConstraint("CK_DataExportHistory_ReadableRecord", "[Kind] <> 'ReadableRecord' OR ([Scope] = 'OnePatient' AND [IncludesDocumentFiles] = 0)");
             });
         });
+
+        // ALV-N026 S8: directly patient-owned (in PatientOwnedData; merge-scope and retired-record guards in the migration); append-only by trigger, standing aside only for a merge's PatientId move.
+        modelBuilder.Entity<ClinicalRecordCopyIssue>(e =>
+        {
+            e.Property(x => x.TemplateVersion).HasMaxLength(8);
+            e.Property(x => x.RenderBundleId).HasMaxLength(200);
+            e.Property(x => x.ContentHash).HasMaxLength(64);
+            e.Property(x => x.IdempotencyKey).HasMaxLength(100);
+            e.HasOne<Alveara.Api.Architecture.Patients.Patient>().WithMany().HasForeignKey(x => x.PatientId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<UserAccount>().WithMany().HasForeignKey(x => x.IssuedByUserId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => new { x.PatientId, x.IdempotencyKey }).IsUnique();
+            e.ToTable(t =>
+            {
+                t.HasTrigger("TR_ClinicalRecordCopyIssues_Immutable");
+                t.HasTrigger("TR_ClinicalRecordCopyIssues_MergeScope");
+                t.HasCheckConstraint("CK_ClinicalRecordCopyIssues_Template", "[TemplateVersion] = 'v1'");
+            });
+        });
     }
 }

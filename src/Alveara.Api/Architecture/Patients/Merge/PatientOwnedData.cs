@@ -51,6 +51,7 @@ public static class PatientOwnedData
         new("BillingResponsibilities", "ResponsiblePatientId", PatientDataRole.Reference),
         new("ClearanceVersions", "PatientId", PatientDataRole.Owner, ForeignKey: false),
         new("Clearances", "PatientId", PatientDataRole.Owner, new UniqueRule[] { new("PatientId,Kind,ReasonKey", MergeCollisionPolicy.NaturalKey) }),
+        new("ClinicalRecordCopyIssues", "PatientId", PatientDataRole.Owner, new UniqueRule[] { new("PatientId,IdempotencyKey", MergeCollisionPolicy.ReplayKey) }),   // ALV-N026 S8
         new("ClinicalRecordEvents", "PatientId", PatientDataRole.Owner),
         new("ClinicalRecordItemVersions", "PatientId", PatientDataRole.Owner, ForeignKey: false),
         new("ClinicalRecordItems", "PatientId", PatientDataRole.Owner, new UniqueRule[] { new("PatientId,Kind,Name", MergeCollisionPolicy.NaturalKey) }),

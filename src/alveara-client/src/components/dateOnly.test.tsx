@@ -1,9 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { render, screen } from "@testing-library/react";
 import { formatDateOnly } from "./dateOnly";
 import { sessionToday, setRenderZone } from "../time/practiceTime";
-import { PrescriptionPrint } from "../pages/prescription/workflow/PrintPreview";
-import type { PrintContent } from "../services/prescriptionWorkflowApi";
 
 /**
  * ALV-N021 A1 (F-107): a date-only value is the same day in every zone. Node honours a runtime change of TZ, so each case runs in a zone behind UTC (Chicago, Honolulu), at UTC and far ahead
@@ -13,12 +10,6 @@ const zones = ["America/Chicago", "Pacific/Honolulu", "UTC", "Pacific/Kiritimati
 let saved: string | undefined;
 beforeEach(() => { saved = process.env.TZ; });
 afterEach(() => { if (saved === undefined) delete process.env.TZ; else process.env.TZ = saved; });
-
-const content: PrintContent = {
-  prescriptionId: "rx-1", status: "Active", practice: null, patientName: "Ann Lee", patientDateOfBirth: "1985-03-14", prescriberName: "Dr. Dana", medication: "Amoxicillin 500 mg capsule",
-  dose: "500 mg", frequency: "Three times daily", instructions: "Take with food.", quantity: "21", refills: 0, prescribedAtUtc: "2026-11-03T15:00:00Z", allergyStatement: "No known allergies.",
-  limitationStatement: "Interactions.", supersedesPrescriptionId: null, supersededByPrescriptionId: null, contentHash: "abcdef0123456789",
-};
 
 describe("formatDateOnly", () => {
   it.each(zones)("keeps the calendar day in %s", (zone) => {
@@ -62,13 +53,5 @@ describe("sessionToday (date-of-birth limit and every other 'today'), ALV-N021 A
   it("is null without a practice zone (never the browser's day)", () => {
     setRenderZone(null);
     expect(sessionToday(new Date("2026-11-14T08:30:00Z"))).toBeNull();
-  });
-});
-
-describe("prescription print (F-107)", () => {
-  it.each(zones)("prints the date of birth the header shows, in %s", (zone) => {
-    process.env.TZ = zone;
-    render(<PrescriptionPrint content={content} />);
-    expect(screen.getByText(/For: Ann Lee/)).toHaveTextContent(`(born ${new Date(1985, 2, 14).toLocaleDateString()})`);
   });
 });

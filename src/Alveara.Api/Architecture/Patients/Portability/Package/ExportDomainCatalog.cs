@@ -23,7 +23,7 @@ public static class ExportDomainCatalog
 {
     public static readonly IReadOnlyList<ExportDomain> Domains =
     [
-        new("registration", "Registration and history of changes", ["Patients", "Households", "PatientHistory"]),
+        new("registration", "Registration and history of changes", ["Patients", "Households", "PatientHistory", "ClinicalRecordCopyIssues"]),
         new("appointments", "Appointments", ["Appointments", "AppointmentEvents"], ["PracticeLocations", "Operatories", "AppointmentTypes"]),
         new("forms", "Patient forms and signed copies", ["PatientForms", "SignedFormSnapshots", "PatientFormEvents"], ["FormTemplates", "FormTemplateVersions"]),
         new("encounters", "Visits and clinical notes", ["Encounters", "EncounterEntries", "EncounterSectionMarks", "EncounterAddenda", "EncounterEvents", "EncounterNotes", "EncounterVitals"], ["NoteTemplates", "NoteTemplateSections"]),

@@ -22,6 +22,8 @@ namespace Alveara.Api.Tests;
 public class RetiredRecordGuardTests : TreatmentPlanTestBase
 {
     private const string BeforeGuard = "20261025195735_AddPatientDuplicateDismissals";
+    /// <summary>Patient-owned tables created by a migration after <see cref="BeforeGuard"/>: rolling back to it removes them with their merge-scope triggers (ALV-N026 S8).</summary>
+    private static readonly string[] AddedAfterGuard = ["ClinicalRecordCopyIssues"];
 
     private async Task MergeAsync(Guid source, Guid survivor)
     {
@@ -133,7 +135,7 @@ public class RetiredRecordGuardTests : TreatmentPlanTestBase
         await using (var db = Fixture.CreateContext())
         {
             Assert.Equal(0, await db.Database.SqlQuery<int>($"SELECT COUNT(*) AS [Value] FROM sys.sql_modules WHERE definition LIKE N'%retired-record-guard%'").SingleAsync());
-            Assert.Equal(PatientOwnedData.Tables.Count, await db.Database.SqlQuery<int>($"SELECT COUNT(*) AS [Value] FROM sys.triggers WHERE name LIKE 'TR[_]%[_]MergeScope'").SingleAsync());          // the merge-scope triggers are back as they were
+            Assert.Equal(PatientOwnedData.Tables.Count(t => !AddedAfterGuard.Contains(t)), await db.Database.SqlQuery<int>($"SELECT COUNT(*) AS [Value] FROM sys.triggers WHERE name LIKE 'TR[_]%[_]MergeScope'").SingleAsync());          // the merge-scope triggers are back as they were
         }
         await AddAsync(Plan(gone));                                                                                        // before the guard existed, nothing refused it
         await using (var db = Fixture.CreateContext()) await db.Database.MigrateAsync();

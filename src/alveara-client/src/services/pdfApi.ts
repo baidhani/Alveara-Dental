@@ -5,13 +5,14 @@ import { ApiError } from "./authApi";
  * The tab is opened at once (so the browser does not block it) and filled only when the server has answered with a PDF; on a refusal it is closed and the server's message is thrown as an
  * ApiError for the screen to show (for example pdf_engine_unavailable or document_content_changed). The PDF is held as a temporary object URL in the browser, released after a minute.
  * `target` is the PDF's url, or (S6) a step run after the tab is open that returns it - for example issuing a prescription first - so the browser still sees the tab opened by the click.
+ * `init` (S8) gives the request itself, for a PDF that is made by the request that records it (a clinical record copy is a POST with the CSRF token); it is also run after the tab is open.
  */
-export async function openPdf(target: string | (() => Promise<string>)): Promise<void> {
+export async function openPdf(target: string | (() => Promise<string>), init?: () => Promise<RequestInit>): Promise<void> {
   const tab = window.open("", "_blank");
   if (tab) tab.opener = null;
   try {
     const url = typeof target === "string" ? target : await target();
-    const res = await fetch(url, { credentials: "include" });
+    const res = await fetch(url, { credentials: "include", ...(init ? await init() : {}) });
     if (!res.ok || !(res.headers.get("Content-Type") ?? "").startsWith("application/pdf")) {
       const body = (await res.json().catch(() => ({}))) as { error?: string; message?: string };
       throw new ApiError(res.status, body.error ?? "pdf_failed", body.message ?? "The document could not be produced as a PDF. Try again; if it keeps failing, ask the practice administrator to check System Status.", body as Record<string, unknown>);

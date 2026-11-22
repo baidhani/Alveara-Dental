@@ -10,6 +10,7 @@
  */
 import { ApiError, fetchCsrfToken, request } from "./authApi";
 import { fileNameFrom } from "./patientPortabilityApi";
+import { openPdf } from "./pdfApi";
 
 export type FolderNaming = "IdOnly" | "NameAndId";
 
@@ -134,3 +135,11 @@ export const exportErrorMessage = (e: unknown): string => {
   }
   return "That did not work. Try again, and tell an administrator if it keeps happening.";
 };
+
+/** ALV-N026 S8: issues a clinical record copy "generated as of" now and opens it as a PDF (one request records the issue and returns the PDF; a new key is a new issue). */
+export const openClinicalRecordCopy = (patientId: string, idempotencyKey: string) =>
+  openPdf(`/api/patients/${patientId}/clinical-record-copies`, async () => ({
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-CSRF-Token": await fetchCsrfToken() },
+    body: JSON.stringify({ idempotencyKey }),
+  }));
