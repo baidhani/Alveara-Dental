@@ -1,0 +1,39 @@
+{
+  "axe": {
+    "composer-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "composer-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "incomplete-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "incomplete-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "confirmation-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "confirmation-dark": {
+      "blocking": 0,
+      "violations": []
+    }
+  },
+  "stamp": 1795380910705,
+  "draft": {
+    "savedIncomplete": true,
+    "survivedReload": true,
+    "finalizedWhileIncomplete": 0
+  },
+  "finalized": {
+    "recorded": 1,
+    "loggedWithUser": true,
+    "containsNoClinicalContent": true
+  }
+}

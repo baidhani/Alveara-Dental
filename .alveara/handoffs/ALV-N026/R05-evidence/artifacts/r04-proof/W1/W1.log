@@ -1,0 +1,67 @@
+﻿Database AlveraWalk_playwright_prescription_workflow_config_2841328e created in C:\.alvera-data\Test-Data\Database
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.49
+Done.
+API healthy on http://localhost:5072; running playwright.prescription-workflow.config.ts ...
+node.exe : [WebServer] (node:33216) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([WebServer] (no... env being set.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 15 tests using 1 worker
+
+(node:79504) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [chromium] › e2e\prescription-workflow-real-backend.spec.ts:204:1 › SETUP: Ann has her allergies reviewed (penicillin and latex); Bo's allergies were never reviewed (1.4s)
+  ok  2 [chromium] › e2e\prescription-workflow-real-backend.spec.ts:223:1 › THE SCREEN: a prescriber gets the composer beside the safety panel and a banner that says no drug-knowledge source is configured (2.9s)
+  ok  3 [chromium] › e2e\prescription-workflow-real-backend.spec.ts:240:1 › A DRAFT is saved incomplete, kept across a reload, and an incomplete one is not finalized (every missing part is named) (3.6s)
+  ok  4 [chromium] › e2e\prescription-workflow-real-backend.spec.ts:269:1 › FINALIZING: a complete entry goes through a confirmation, is logged with the user and the time, and appears with its instructions, quantity and refills (4.4s)
+  ok  5 [chromium] › e2e\prescription-workflow-real-backend.spec.ts:310:1 › ALLERGY MATCH: penicillin waits for the dentist's own words, then finalizes with them kept (1.7s)
+  ok  6 [chromium] › e2e\prescription-workflow-real-backend.spec.ts:329:1 › UNREVIEWED ALLERGIES: Bo's list is never treated as clear: finalizing waits for the dentist's own words (1.5s)
+  ok  7 [chromium] › e2e\prescription-workflow-real-backend.spec.ts:344:1 › AMENDING replaces a prescription without editing it: the original stays as it was and shows Superseded (1.4s)
+  x   8 [chromium] › e2e\prescription-workflow-real-backend.spec.ts:368:1 › CANCELLING needs a reason: without one nothing is recorded, with one the prescription is cancelled and says so when printed (1.9s)
+  -   9 [chromium] › e2e\prescription-workflow-real-backend.spec.ts:395:1 › PRINTING: Print (PDF) issues the prescription on the server and opens the server's PDF; the application page is never printed and each issue is logged with who and when
+  -  10 [chromium] › e2e\prescription-workflow-real-backend.spec.ts:422:1 › FAILURE PATH: when the log is unavailable nothing is finalized, no internals are shown, and the same finalization works once it is back
+  -  11 [chromium] › e2e\prescription-workflow-real-backend.spec.ts:457:1 › A PRESCRIPTION SAVED BEFORE THE WORKFLOW says so, cannot be printed, and is amended by filling in the rest
+  -  12 [chromium] › e2e\prescription-workflow-real-backend.spec.ts:473:1 › READ-ONLY: a hygienist reads and prints but cannot change anything and is refused by the server; front desk has no tab and is refused
+  -  13 [chromium] › e2e\prescription-workflow-real-backend.spec.ts:496:1 › NOTHING CAN BE EDITED OR DELETED: no route does it and the database refuses it too
+  -  14 [chromium] › e2e\prescription-workflow-real-backend.spec.ts:509:1 › AN ALLERGY ADDED AFTER THE DRAFT WAS STARTED is shown and must be acknowledged before the prescription can be finalized
+  -  15 [chromium] › e2e\prescription-workflow-real-backend.spec.ts:541:1 › TRUST: every finalized prescription is in the audit log with the dentist's id and a time, and none of it names a medication, a dose or an allergy
+
+
+  1) [chromium] › e2e\prescription-workflow-real-backend.spec.ts:368:1 › CANCELLING needs a reason: without one nothing is recorded, with one the prescription is cancelled and says so when printed 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "%PDF-"
+    Received: ""
+
+      135 |   expect(result.status).toBe(200);
+      136 |   expect(result.contentType).toMatch(/^application\/pdf/);
+    > 137 |   expect(result.bytes.subarray(0, 5).toString("latin1")).toBe("%PDF-");
+          |                                                          ^
+      138 |   expect(result.printed).toBe(0);                                                                                 // the application page was never printed
+      139 |   const raw = result.bytes.toString("latin1");
+      140 |   expect(raw).not.toContain(new URL(result.pageUrl).host);                                                        // no app address
+        at expectServerPdf (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\e2e\prescription-workflow-real-backend.spec.ts:137:58)
+        at C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\e2e\prescription-workflow-real-backend.spec.ts:384:3
+
+    Error Context: test-results\prescription-workflow-real-6e6f9-ed-and-says-so-when-printed-chromium\error-context.md
+
+    Error Context: test-results\prescription-workflow-real-6e6f9-ed-and-says-so-when-printed-chromium\error-context.md
+
+  1 failed
+    [chromium] › e2e\prescription-workflow-real-backend.spec.ts:368:1 › CANCELLING needs a reason: without one nothing is recorded, with one the prescription is cancelled and says so when printed 
+  7 did not run
+  7 passed (30.6s)
+Database AlveraWalk_playwright_prescription_workflow_config_2841328e dropped (its files went with it).
+Output kept in 
+C:\.alvera-data\Test-Data\Temp\walkthrough-output\AlveraWalk_playwright_prescription_workflow_config_2841328e
