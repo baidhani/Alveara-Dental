@@ -83,16 +83,51 @@ describe("the patient copy", () => {
     expect(copy).toHaveTextContent("Deep cleaning");
   });
 
-  it("prints from one button and closes again, and can be opened by a reader who may not change plans", async () => {
+  it("prints from one button as a server PDF (ALV-N026 S7: issue, then open that issue's PDF; never the page) and closes again, and can be opened by a reader who may not change plans", async () => {
     const user = userEvent.setup();
     const print = vi.fn();
     vi.stubGlobal("print", print);
-    const copy = await open(forPatient(), false);
-    await user.click(within(copy).getByRole("button", { name: "Print this page" }));
-    expect(print).toHaveBeenCalledTimes(1);
+    const tab = { opener: {} as unknown, location: { href: "" }, close: vi.fn() };
+    vi.spyOn(window, "open").mockReturnValue(tab as unknown as Window);
+    vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:copy");
+    vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
+    const api = stubApi({ plans: [forPatient()], respond: {
+      "/copy-issues": () => new Response(JSON.stringify({ id: "iss1", planId: "p1", revisionNumber: 3, templateVersion: "v2", issuedAtUtc: "2030-01-01T00:00:00Z", replayed: false }), { status: 201, headers: { "Content-Type": "application/json" } }),
+      "/treatment-plan-copy-issues/iss1/pdf": () => new Response(new Blob(["%PDF"]), { status: 200, headers: { "Content-Type": "application/pdf" } }),
+    } });
+    render(<TreatmentPlansPanel patient={named} canWrite={false} />);
+    await screen.findByRole("heading", { name: "Plans on record" });
+    await user.click(screen.getByRole("button", { name: "Show patient copy" }));
+    const copy = screen.getByRole("region", { name: "Patient copy of Gum health plan" });
+    await user.click(within(copy).getByRole("button", { name: "Print (PDF)" }));
+    expect(await within(copy).findByRole("status")).toHaveTextContent("The patient copy was issued and opened as a PDF.");
+    const issue = api.calls.find((c) => c.url.includes("/copy-issues"));
+    expect(issue?.method).toBe("POST");
+    expect(typeof issue?.body?.idempotencyKey).toBe("string");
+    expect(api.calls.some((c) => c.url.includes("/treatment-plan-copy-issues/iss1/pdf"))).toBe(true);
+    expect(api.calls.some((c) => c.url.includes("/print-events"))).toBe(false);                                // the server records the print, not the browser
+    expect(tab.location.href).toBe("blob:copy");
+    expect(print).not.toHaveBeenCalled();
     await user.click(within(copy).getByRole("button", { name: "Close patient copy" }));
     expect(screen.queryByRole("region", { name: "Patient copy of Gum health plan" })).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Show patient copy" })).toBeInTheDocument();
+  });
+
+  it("shows the server's reason and prints nothing when the copy is refused", async () => {
+    const user = userEvent.setup();
+    const tab = { opener: {} as unknown, location: { href: "" }, close: vi.fn() };
+    vi.spyOn(window, "open").mockReturnValue(tab as unknown as Window);
+    stubApi({ plans: [forPatient()], respond: {
+      "/copy-issues": () => new Response(JSON.stringify({ id: "iss2", planId: "p1", revisionNumber: 3, templateVersion: "v2", issuedAtUtc: "2030-01-01T00:00:00Z", replayed: false }), { status: 201, headers: { "Content-Type": "application/json" } }),
+      "/treatment-plan-copy-issues/iss2/pdf": () => new Response(JSON.stringify({ error: "integrity_mismatch", message: "This patient copy cannot be reproduced exactly from the recorded plan, so it was not produced." }), { status: 409, headers: { "Content-Type": "application/json" } }),
+    } });
+    render(<TreatmentPlansPanel patient={named} canWrite={false} />);
+    await screen.findByRole("heading", { name: "Plans on record" });
+    await user.click(screen.getByRole("button", { name: "Show patient copy" }));
+    const copy = screen.getByRole("region", { name: "Patient copy of Gum health plan" });
+    await user.click(within(copy).getByRole("button", { name: "Print (PDF)" }));
+    expect(await within(copy).findByRole("status")).toHaveTextContent("Nothing was printed. This patient copy cannot be reproduced exactly from the recorded plan");
+    expect(tab.close).toHaveBeenCalled();
   });
 
   it("is not offered for a withdrawn plan, which is no longer the proposal", async () => {

@@ -264,6 +264,12 @@ export const scheduleItem = (planId: string, itemId: string, scheduled: boolean,
 /** ALV-N023 (F-183): the practice's name, phone and address for the patient copy. */
 export const getPracticeHeader = (signal?: AbortSignal) => request<{ name: string | null; phone: string | null; addressLine: string | null }>("/api/treatment-plans/practice-header", { signal });
 
+/** ALV-N026 S7: one issue of a plan's patient copy, recorded on the server (the PDF is rebuilt from it). */
+export interface PlanCopyIssueView { id: string; planId: string; revisionNumber: number; templateVersion: string; issuedAtUtc: string; replayed: boolean }
+export const issuePlanCopy = (planId: string, idempotencyKey: string) =>
+  requestWithCsrf<PlanCopyIssueView>(`/api/treatment-plans/${planId}/copy-issues`, "POST", { idempotencyKey });
+export const planCopyIssuePdfUrl = (issueId: string) => `/api/treatment-plan-copy-issues/${issueId}/pdf`;
+
 /** ALV-N023 (DR-1): the patient's still-scheduled appointments a procedure can be linked to. */
 export interface LinkableAppointment { appointmentId: string; startUtc: string; durationMinutes: number; providerName: string | null }
 export const getLinkableAppointments = (patientId: string, signal?: AbortSignal) =>

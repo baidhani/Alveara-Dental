@@ -114,5 +114,24 @@ internal static class TreatmentPlanRevisionModel
                 t.HasCheckConstraint("CK_DiagnosisPlanResolutions_Method", $"[Method] COLLATE Latin1_General_CS_AS IN ({In(ResolutionMethods.All)})");
             });
         });
+
+        // ALV-N026 S7: owned through the plan only (ownership decision: no PatientId, not in the merge registry); append-only by trigger.
+        modelBuilder.Entity<TreatmentPlanCopyIssue>(e =>
+        {
+            e.Property(x => x.ReferenceCodeAtIssue).HasMaxLength(TreatmentPlanRules.ReferenceCodeMax);
+            e.Property(x => x.TemplateVersion).HasMaxLength(8);
+            e.Property(x => x.RenderBundleId).HasMaxLength(200);
+            e.Property(x => x.ContentHash).HasMaxLength(64);
+            e.Property(x => x.IdempotencyKey).HasMaxLength(100);
+            e.HasOne<TreatmentPlan>().WithMany().HasForeignKey(x => x.PlanId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<Alveara.Api.Architecture.Identity.UserAccount>().WithMany().HasForeignKey(x => x.IssuedByUserId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => new { x.PlanId, x.IdempotencyKey }).IsUnique();
+            e.ToTable(t =>
+            {
+                t.HasTrigger("TR_TreatmentPlanCopyIssues_Immutable");
+                t.HasCheckConstraint("CK_TreatmentPlanCopyIssues_Template", "[TemplateVersion] = 'v2'");
+                t.HasCheckConstraint("CK_TreatmentPlanCopyIssues_Revision", "[RevisionNumber] >= 1");
+            });
+        });
     }
 }

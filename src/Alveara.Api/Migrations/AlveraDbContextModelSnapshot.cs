@@ -8762,6 +8762,76 @@ namespace Alveara.Api.Migrations
                     b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
+            modelBuilder.Entity("Alveara.Api.Architecture.Treatment.TreatmentPlanCopyIssue", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ContentHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<Guid>("CorrelationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("EnvelopeJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IdempotencyKey")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTimeOffset>("IssuedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("IssuedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ItemStateCutoffJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("PlanId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ReferenceCodeAtIssue")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("RenderBundleId")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("RevisionNumber")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TemplateVersion")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("nvarchar(8)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IssuedByUserId");
+
+                    b.HasIndex("PlanId", "IdempotencyKey")
+                        .IsUnique();
+
+                    b.ToTable("TreatmentPlanCopyIssues", t =>
+                        {
+                            t.HasTrigger("TR_TreatmentPlanCopyIssues_Immutable");
+
+                            t.HasCheckConstraint("CK_TreatmentPlanCopyIssues_Revision", "[RevisionNumber] >= 1");
+
+                            t.HasCheckConstraint("CK_TreatmentPlanCopyIssues_Template", "[TemplateVersion] = 'v2'");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
             modelBuilder.Entity("Alveara.Api.Architecture.Treatment.TreatmentPlanEvent", b =>
                 {
                     b.Property<Guid>("Id")
@@ -10811,6 +10881,21 @@ namespace Alveara.Api.Migrations
                     b.HasOne("Alveara.Api.Architecture.Patients.Patient", null)
                         .WithMany()
                         .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Treatment.TreatmentPlanCopyIssue", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("IssuedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Treatment.TreatmentPlan", null)
+                        .WithMany()
+                        .HasForeignKey("PlanId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });

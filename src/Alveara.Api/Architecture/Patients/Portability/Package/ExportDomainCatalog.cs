@@ -32,7 +32,7 @@ public static class ExportDomainCatalog
         new("dental_chart", "Dental chart (tooth findings)", ["ToothFindings", "ToothFindingVersions", "ToothFindingLinks"], ["ConditionTypes"]),
         new("diagnoses", "Diagnoses", ["Diagnoses", "DiagnosisVersions", "DiagnosisLinks", "DiagnosisPlanResolutions"]),
         new("periodontal", "Periodontal charting", ["PerioExams", "PerioReadings", "PerioToothRecords", "PerioSessions", "PerioSessionReadings", "PerioSessionTeeth", "PerioExamLinks"]),
-        new("treatment_plans", "Treatment plans", ["TreatmentPlans", "TreatmentPlanItems", "TreatmentPlanEvents", "TreatmentPlanRevisions", "TreatmentPlanRevisionPhases", "TreatmentPlanRevisionItems", "TreatmentPlanItemStates"], ["ProcedureDefinitions", "ProcedureVersions"]),
+        new("treatment_plans", "Treatment plans", ["TreatmentPlans", "TreatmentPlanItems", "TreatmentPlanEvents", "TreatmentPlanRevisions", "TreatmentPlanRevisionPhases", "TreatmentPlanRevisionItems", "TreatmentPlanItemStates", "TreatmentPlanCopyIssues"], ["ProcedureDefinitions", "ProcedureVersions"]),
         new("completed_procedures", "Completed procedures", ["CompletionSets", "CompletedProcedures", "CompletedProcedureAmendments"]),
         new("billing", "Billing and financial documents", ["BillingAccounts", "BillingEntries", "BillingAllocations", "BillingResponsibilities", "BillingAllocationReleases", "FinancialDocuments"], ["BillingPaymentMethods"]),
         new("prescriptions", "Prescriptions", ["Prescriptions", "PrescriptionDrafts", "PrescriptionDetails", "PrescriptionEvents", "PrescriptionIssues"]),

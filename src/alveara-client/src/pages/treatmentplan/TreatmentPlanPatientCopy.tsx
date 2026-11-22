@@ -1,11 +1,13 @@
 import { DEFAULT_NUMBERING, displayTooth } from "../odontogram/toothNumbering";
-import { recordPrint } from "../../services/patientsApi";
+import { ApiError } from "../../services/authApi";
+import { newKey } from "../../services/clinicalApi";
+import { openPdf } from "../../services/pdfApi";
 import type { PlanItem, TreatmentPlan } from "../../services/treatmentPlansApi";
 import { groupItems, phaseTitle, phaseWhen } from "./treatmentPlanLayout";
 import { dayOf, formatFee } from "./treatmentPlanRules";
 import { sessionToday, TIME_UNAVAILABLE } from "../../time/practiceTime";
 import { useEffect, useState } from "react";
-import { getPracticeHeader } from "../../services/treatmentPlansApi";
+import { getPracticeHeader, issuePlanCopy, planCopyIssuePdfUrl } from "../../services/treatmentPlansApi";
 
 /** ALV-N023 (F-183): the practice's name, address and phone for the printed copy (null until loaded, or if it cannot be read - the copy is still usable). */
 function usePracticeHeader() {
@@ -53,6 +55,17 @@ function Row({ item }: { item: PlanItem }) {
  */
 export function TreatmentPlanPatientCopy({ plan, patientName, onClose }: Props) {
   const practice = usePracticeHeader();
+  const [status, setStatus] = useState<string | null>(null);
+  /** ALV-N026 S7: issues the copy on the server (one key per click) and opens the PDF made from that issue; the server records the print. A refusal is shown and nothing is printed. */
+  async function printPdf() {
+    const key = newKey();
+    try {
+      await openPdf(async () => planCopyIssuePdfUrl((await issuePlanCopy(plan.id, key)).id));
+      setStatus("The patient copy was issued and opened as a PDF.");
+    } catch (err) {
+      setStatus(`Nothing was printed. ${err instanceof ApiError ? err.message : "The connection dropped. Try again."}`);
+    }
+  }
   const live = { ...plan, items: plan.items.filter((i) => !i.isWithdrawn) };
   const anyDone = live.items.some((i) => i.completion === "Completed");
   const groups = groupItems(live);
@@ -60,8 +73,9 @@ export function TreatmentPlanPatientCopy({ plan, patientName, onClose }: Props) 
   return (
     <section className="alv-tp__copy" aria-label={`Patient copy of ${plan.title}`}>
       <div className="alv-tp__copy-actions alv-tp__no-print">
-        <button type="button" className="btn btn-primary btn-sm" onClick={async () => { await recordPrint(plan.patientId, "TreatmentPlanPatientCopy", plan.id); window.print(); }}>Print this page</button>
+        <button type="button" className="btn btn-primary btn-sm" onClick={() => void printPdf()}>Print (PDF)</button>
         <button type="button" className="btn btn-outline-secondary btn-sm" onClick={onClose}>Close patient copy</button>
+        {status && <p className="alv-tp__copy-line" role="status">{status}</p>}
       </div>
       {practice?.name && (
         <div className="alv-tp__copy-practice" data-testid="copy-practice">
