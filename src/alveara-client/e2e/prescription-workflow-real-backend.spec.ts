@@ -89,16 +89,25 @@ const recordsOf = async (page: Page, patient: string) => (await api(page, "get",
 const auditOf = async (type: string) => ((await api(admin, "get", "/api/auth/audit-log?take=1000")).body as any[]).filter((e) => e.eventType === type);
 
 /**
- * ALV-N026 R02 (review item 2): clicks a print button and returns what the browser did. The button must issue on the server (POST .../issues) and then fetch the issue's PDF; the PDF must reach
- * the user as a new tab or a download (either is accepted - the implemented flow opens a tab), and the application page must never call window.print().
+ * ALV-N026 R02 (review item 2), corrected in R03: clicks a print button and returns what the browser did. The button must issue on the server (POST .../issues) and then fetch the issue's
+ * PDF; the PDF must reach the user as a new tab or a download (either is accepted - the implemented flow opens a tab and sends it to the PDF), and the application page must never call
+ * window.print(). R02's version counted only tabs still open and downloads on the application page, and so missed a headless browser that turns the new tab's navigation to a PDF into a
+ * download on that tab (and may close it): every tab opened during the click is now counted even if it closed, downloads are heard on every page, and where the PDF arrived is recorded.
  */
 async function pdfFromClick(page: Page, button: Locator) {
   await page.evaluate(() => { (window as any).__printed = 0; window.print = () => { (window as any).__printed++; }; });
   const context = page.context();
   const before = new Set(context.pages());
-  let downloads = 0;
-  const onDownload = () => { downloads++; };
-  page.on("download", onDownload);
+  const arrivals: string[] = [];
+  const opened: Page[] = [];
+  const onAppDownload = () => { arrivals.push("download on the application page"); };
+  const onPage = (tab: Page) => {
+    opened.push(tab);
+    arrivals.push("new tab");
+    tab.on("download", () => { arrivals.push("download on the new tab"); });
+  };
+  page.on("download", onAppDownload);
+  context.on("page", onPage);
   try {
     const issued = page.waitForResponse((r) => r.request().method() === "POST" && /\/api\/prescriptions\/[0-9a-f-]+\/issues$/.test(new URL(r.url()).pathname));
     const pdf = page.waitForResponse((r) => r.request().method() === "GET" && /\/api\/prescription-issues\/[0-9a-f-]+\/pdf$/.test(new URL(r.url()).pathname));
@@ -106,13 +115,17 @@ async function pdfFromClick(page: Page, button: Locator) {
     const issue = await issued;
     const response = await pdf;
     const bytes = await response.body();
-    await expect.poll(() => context.pages().filter((p) => !before.has(p)).length + downloads, { message: "the PDF reached the user as a tab or a download" }).toBeGreaterThan(0);
-    const tabs = context.pages().filter((p) => !before.has(p)).length;
+    await expect.poll(() => arrivals.length, { message: "the PDF reached the user as a tab or a download" }).toBeGreaterThan(0);
+    await page.waitForTimeout(500);                                                                                // let a tab's download, if any, be heard before recording how it arrived
     const printed = await page.evaluate(() => (window as any).__printed as number);
-    for (const p of context.pages()) if (!before.has(p)) await p.close();
-    return { issueStatus: issue.status(), issueId: ((await issue.json()) as { id: string }).id, status: response.status(), contentType: response.headers()["content-type"] ?? "", bytes, tabs, downloads, printed, pageUrl: page.url() };
+    for (const tab of opened) if (!tab.isClosed() && !before.has(tab)) await tab.close();
+    return {
+      issueStatus: issue.status(), issueId: ((await issue.json()) as { id: string }).id, status: response.status(), contentType: response.headers()["content-type"] ?? "", bytes,
+      tabs: opened.length, downloads: arrivals.filter((a) => a.startsWith("download")).length, arrivals: [...arrivals], printed, pageUrl: page.url(),
+    };
   } finally {
-    page.off("download", onDownload);
+    page.off("download", onAppDownload);
+    context.off("page", onPage);
   }
 }
 
@@ -369,6 +382,7 @@ test("CANCELLING needs a reason: without one nothing is recorded, with one the p
   await expect(cancelled.getByRole("button", { name: "Print Penicillin V Potassium (PDF)" })).toHaveCount(0);       // an ended prescription is never printed to dispense
   const copy = await pdfFromClick(page, cancelled.getByRole("button", { name: "Record copy of Penicillin V Potassium (PDF)" }));
   expectServerPdf(copy);                                                                                         // its watermark text is proven on the rendered PDF server-side
+  evidence.recordCopyArrivals = copy.arrivals;
   await expect(statusLine(page)).toContainText("A record copy dated today was issued and opened as a PDF.");
   await shot(page, "08-cancelled-record-copy.png");
   const events = (await recordsOf(page, ids.ann)).find((r) => r.medication === "Penicillin V Potassium").events;
@@ -402,7 +416,7 @@ test("PRINTING: Print (PDF) issues the prescription on the server and opens the 
   expect(issued.length).toBeGreaterThanOrEqual(issuedBefore + 2);
   expect(issued.every((e) => e.performedByUserAccountId === ids.dentistUser && !Number.isNaN(Date.parse(e.timestampUtc)))).toBe(true);
   expect(JSON.stringify(issued)).not.toMatch(/Amoxicillin|Ann|250/);
-  evidence.print = { flow: "server PDF", tabs: first.tabs + again.tabs, downloads: first.downloads + again.downloads, windowPrintCalls: first.printed + again.printed, issues: issued.length };
+  evidence.print = { flow: "server PDF", arrivals: { first: first.arrivals, again: again.arrivals, recordCopy: evidence.recordCopyArrivals }, windowPrintCalls: first.printed + again.printed, issues: issued.length };
 });
 
 test("FAILURE PATH: when the log is unavailable nothing is finalized, no internals are shown, and the same finalization works once it is back", async () => {
