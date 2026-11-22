@@ -3502,3 +3502,9 @@
   - What changed: scripts/Invoke-RealBackendWalkthrough.ps1 sets Pdf__EngineDirectory and Pdf__FontDirectory from Test-Data\PdfEngine (as AlveraTestEnvironment.cs and Start-DevApi.ps1 do) and stops at once if typst.exe is not provisioned there. The restarted R03 proof (P1 64/64, P2 119/119) stopped at W1 with GET /api/prescription-issues/{id}/pdf answering 503 (engine unavailable); the R02 stop was almost certainly the same (the app closes its tab on a refused PDF), so R03's helper diagnosis was wrong. Shared-infrastructure change: additive only
   - Verification: the script parses (PowerShell parser, 0 errors); no test run (a new attempt is reviewed before the proof restarts)
   - Notes: not pushed
+- [ ] ALV-N026 R05: W1 helper validates the issued PDF by an authenticated follow-up fetch; the intercepted browser response is kept for diagnostics
+  - Date: 2026-11-22
+  - Session: CC-20261115-m7x2
+  - What changed: prescription-workflow spec pdfFromClick/expectServerPdf: the user action must still give a tab or download and a 200 application/pdf browser-side response; the intercepted response's status, Content-Type, Content-Length and Playwright-observed byte count are recorded (diagnostics only); the PDF bytes are validated from one follow-up GET of the same issued PDF through the same signed-in session (200, application/pdf, non-empty, %PDF-, privacy checks), labelled PRODUCT failures. The R04 proof (P1 64/64, P2 119/119; W1 stopped: 200 application/pdf but Playwright's intercepted body empty) is carried forward; owner decision: P1/P2 are not rerun. Test-only
+  - Verification: the changed specs type-check (tsc --strict, exit 0); no test run (code review first)
+  - Notes: not pushed

@@ -93,6 +93,9 @@ const auditOf = async (type: string) => ((await api(admin, "get", "/api/auth/aud
  * PDF; the PDF must reach the user as a new tab or a download (either is accepted - the implemented flow opens a tab and sends it to the PDF), and the application page must never call
  * window.print(). R02's version counted only tabs still open and downloads on the application page, and so missed a headless browser that turns the new tab's navigation to a PDF into a
  * download on that tab (and may close it): every tab opened during the click is now counted even if it closed, downloads are heard on every page, and where the PDF arrived is recorded.
+ * R05 (owner decision 2026-11-22): the intercepted browser response is kept for diagnostics only (status, Content-Type, Content-Length if sent, and the byte count Playwright observed,
+ * which can be empty once the page has taken the body as a blob). The PDF's bytes are validated from one follow-up fetch of the same, already-issued PDF through the same signed-in
+ * session; an empty or non-PDF follow-up is a product failure.
  */
 async function pdfFromClick(page: Page, button: Locator) {
   await page.evaluate(() => { (window as any).__printed = 0; window.print = () => { (window as any).__printed++; }; });
@@ -114,13 +117,19 @@ async function pdfFromClick(page: Page, button: Locator) {
     await button.click();
     const issue = await issued;
     const response = await pdf;
-    const bytes = await response.body();
+    let observedBytes: number | string;
+    try { observedBytes = (await response.body()).length; } catch (e) { observedBytes = `unavailable: ${(e as Error).message.split("\n")[0]}`; }
+    const intercepted = { status: response.status(), contentType: response.headers()["content-type"] ?? "", contentLength: response.headers()["content-length"] ?? null, observedBytes };
     await expect.poll(() => arrivals.length, { message: "the PDF reached the user as a tab or a download" }).toBeGreaterThan(0);
     await page.waitForTimeout(500);                                                                                // let a tab's download, if any, be heard before recording how it arrived
     const printed = await page.evaluate(() => (window as any).__printed as number);
     for (const tab of opened) if (!tab.isClosed() && !before.has(tab)) await tab.close();
+    const issueId = ((await issue.json()) as { id: string }).id;
+    const followUp = await page.request.get(`/api/prescription-issues/${issueId}/pdf`);                         // the same issued PDF, once, same signed-in session
+    const bytes = await followUp.body();
     return {
-      issueStatus: issue.status(), issueId: ((await issue.json()) as { id: string }).id, status: response.status(), contentType: response.headers()["content-type"] ?? "", bytes,
+      issueStatus: issue.status(), issueId, status: response.status(), contentType: intercepted.contentType, intercepted,
+      followUpStatus: followUp.status(), followUpContentType: followUp.headers()["content-type"] ?? "", bytes,
       tabs: opened.length, downloads: arrivals.filter((a) => a.startsWith("download")).length, arrivals: [...arrivals], printed, pageUrl: page.url(),
     };
   } finally {
@@ -129,12 +138,19 @@ async function pdfFromClick(page: Page, button: Locator) {
   }
 }
 
-/** The safe server-PDF result: a real PDF from the server, no application page printed, and no application address or raw server detail inside it. */
+/**
+ * The safe server-PDF result: the user's click got a 200 application/pdf in the browser and reached a tab or a download; the same issued PDF, fetched once more through the same session,
+ * is a real PDF (an empty or non-PDF follow-up is a product failure); no application page was printed; and no application address or raw server detail is inside it.
+ */
 function expectServerPdf(result: Awaited<ReturnType<typeof pdfFromClick>>) {
   expect(result.issueStatus).toBe(201);
-  expect(result.status).toBe(200);
+  expect(result.status).toBe(200);                                                                               // the browser-side request
   expect(result.contentType).toMatch(/^application\/pdf/);
-  expect(result.bytes.subarray(0, 5).toString("latin1")).toBe("%PDF-");
+  expect(result.arrivals.length).toBeGreaterThan(0);
+  expect(result.followUpStatus, "PRODUCT: the authenticated follow-up fetch of the issued PDF").toBe(200);
+  expect(result.followUpContentType, "PRODUCT: the follow-up is a PDF").toMatch(/^application\/pdf/);
+  expect(result.bytes.length, "PRODUCT: the follow-up PDF is not empty").toBeGreaterThan(0);
+  expect(result.bytes.subarray(0, 5).toString("latin1"), "PRODUCT: the follow-up starts with the PDF signature").toBe("%PDF-");
   expect(result.printed).toBe(0);                                                                                 // the application page was never printed
   const raw = result.bytes.toString("latin1");
   expect(raw).not.toContain(new URL(result.pageUrl).host);                                                        // no app address
@@ -383,6 +399,7 @@ test("CANCELLING needs a reason: without one nothing is recorded, with one the p
   const copy = await pdfFromClick(page, cancelled.getByRole("button", { name: "Record copy of Penicillin V Potassium (PDF)" }));
   expectServerPdf(copy);                                                                                         // its watermark text is proven on the rendered PDF server-side
   evidence.recordCopyArrivals = copy.arrivals;
+  evidence.recordCopyIntercepted = copy.intercepted;                                                              // diagnostics: what Playwright saw of the browser's own response
   await expect(statusLine(page)).toContainText("A record copy dated today was issued and opened as a PDF.");
   await shot(page, "08-cancelled-record-copy.png");
   const events = (await recordsOf(page, ids.ann)).find((r) => r.medication === "Penicillin V Potassium").events;
@@ -416,7 +433,9 @@ test("PRINTING: Print (PDF) issues the prescription on the server and opens the 
   expect(issued.length).toBeGreaterThanOrEqual(issuedBefore + 2);
   expect(issued.every((e) => e.performedByUserAccountId === ids.dentistUser && !Number.isNaN(Date.parse(e.timestampUtc)))).toBe(true);
   expect(JSON.stringify(issued)).not.toMatch(/Amoxicillin|Ann|250/);
-  evidence.print = { flow: "server PDF", arrivals: { first: first.arrivals, again: again.arrivals, recordCopy: evidence.recordCopyArrivals }, windowPrintCalls: first.printed + again.printed, issues: issued.length };
+  evidence.print = { flow: "server PDF", arrivals: { first: first.arrivals, again: again.arrivals, recordCopy: evidence.recordCopyArrivals },
+    intercepted: { first: first.intercepted, again: again.intercepted, recordCopy: evidence.recordCopyIntercepted }, followUpBytes: { first: first.bytes.length, again: again.bytes.length },
+    windowPrintCalls: first.printed + again.printed, issues: issued.length };
 });
 
 test("FAILURE PATH: when the log is unavailable nothing is finalized, no internals are shown, and the same finalization works once it is back", async () => {
