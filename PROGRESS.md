@@ -3478,3 +3478,9 @@
   - What changed: no code; marks the tree the package's focused proof runs on (slices 56fe7c9, 95a321d, 16cdc17, c41520c, afafd76, 68c926a, 03831e5, 1ab6962, f75e33e)
   - Verification: per-slice focused results in the entries above; the sweep result goes in the package evidence
   - Notes: not pushed
+- [ ] ALV-N026 S8 restoration: the allergy-check statement printed on the p2 prescription PDF again (owner decision 2026-11-22)
+  - Date: 2026-11-22
+  - Session: CC-20261115-m7x2
+  - What changed: found by the package sweep on 77caf04 (node --test: tests/allergy-wording-guard.test.mjs failed because S8 deleted the old browser print, the only place the statement was printed; the p2 PDF from S6 had silently dropped it). IssueAllergy (outcome, matching names only for a recorded match) captured into the PrescriptionIssue envelope at issue (PrescriptionPdf.AllergyOf, from the outcome recorded when the prescription was written, never the current chart; issues made before this fall back to the prescription's recorded outcome); p2 template prints "Allergy check:" with the established three wordings as plain strings (markup turned the apostrophes into typographic quotes); p2 pin 6822dc58... -> daa31289c3a0...; the repository guard now inspects the p2 template instead of the deleted PrescriptionLifecycleService print code; 3 new PrescriptionWorkflowApiTests (no recorded match with the caveat and unchanged after a later chart change, reviewed recorded match with the name only and no severity, reaction or note, not established)
+  - Verification: prescription + PdfEngine focused 90/90 (1 min 36 s; first run 88/90: the two apostrophe wordings, fixed in the template); node --test tests/*.test.mjs 58/58; API and tests build clean
+  - Notes: a narrowly scoped restoration of existing prescription information (ALV-N022 F-105/OD-08 wording), not a new clinical decision feature. Not pushed.

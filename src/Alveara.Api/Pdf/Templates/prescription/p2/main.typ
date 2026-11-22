@@ -52,6 +52,16 @@
   [Quantity], data.quantity,
   [Refills], str(data.refills))
 
+// ALV-N026 S8 restoration (owner decision 2026-11-22): the allergy-check outcome recorded when the prescription was written, with the established wording.
+// The no-match sentence stays on one line: tests/allergy-wording-guard.test.mjs checks it says "not a clearance".
+#let al = data.allergy
+// Plain strings, not markup, so the wording prints exactly as established (markup would turn the apostrophes into typographic quotes).
+#let allergyText = if al.outcome == "RecordedAllergyMatch" { "At the time of prescribing the medication matched a recorded allergy (" + al.matches + "); the prescriber reviewed it." } else if al.outcome == "NotEstablished" { "At the time of prescribing the patient's allergies were not established; the prescriber confirmed this in their own words." } else if al.outcome == "NoRecordedMatch" { "At the time of prescribing no recorded allergy matched this medication's name. That is a name comparison, not a clearance." } else { none }
+#if allergyText != none [
+  #v(2pt)
+  #text(size: 9pt)[*Allergy check:* #allergyText]
+]
+
 == Prescriber
 #table(columns: (auto, 1fr), stroke: none, inset: 3pt,
   [Name], [*#pr.name*],

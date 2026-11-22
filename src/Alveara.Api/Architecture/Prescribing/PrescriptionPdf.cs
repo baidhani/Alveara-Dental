@@ -27,6 +27,13 @@ public static class PrescriptionPdf
     public static string Quantity(decimal value, string unit) =>
         $"{value.ToString("0.##", CultureInfo.InvariantCulture)} {(value != 1m && Plurals.TryGetValue(unit, out var plural) ? plural : unit)}";
 
+    /// <summary>
+    /// ALV-N026 S8 restoration: the allergy-check outcome the prescription recorded when it was written (never the current allergy chart). The printed wording lives in the p2 template, where
+    /// the repository guard (tests/allergy-wording-guard.test.mjs) checks the no-match line says "not a clearance". Matches are kept only for a recorded match, as the old print did.
+    /// </summary>
+    public static IssueAllergy AllergyOf(PrescriptionRecord r) =>
+        new(r.AllergyOutcome, r.AllergyOutcome == AllergyOutcomes.RecordedAllergyMatch ? r.AllergyMatches : null);
+
     private static readonly JsonSerializerOptions Json = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
     public sealed record Request(string TemplateId, string TemplateVersion, string InputJson, string FileName);
@@ -38,6 +45,7 @@ public static class PrescriptionPdf
         string Minute(DateTimeOffset utc) => clock.ToPracticeLocal(utc).ToString("yyyy-MM-dd HH:mm", inv);
         var inactive = issue.StatusAtIssue != PrescriptionStatuses.Active;
         var p = envelope.Patient;
+        var allergy = envelope.Allergy ?? AllergyOf(r);                                                       // an issue made before the restoration: the outcome recorded on the prescription
         var input = new
         {
             kind = issue.IssueKind == PrescriptionIssueKinds.Print ? "Prescription" : "Prescription record copy",
@@ -62,6 +70,7 @@ public static class PrescriptionPdf
             status = issue.StatusAtIssue,
             watermark = inactive ? $"{issue.StatusAtIssue.ToUpperInvariant()} — DO NOT DISPENSE" : null,
             statusLine = inactive ? $"{issue.StatusAtIssue}{(endedAtUtc is { } at ? " on " + Day(at) : "")}{(string.IsNullOrWhiteSpace(endedReason) ? "" : ": " + endedReason)}" : null,
+            allergy = new { outcome = allergy.Outcome, matches = allergy.Matches },
             boundary = Boundary,
         };
         return new Request("prescription", issue.TemplateVersion, JsonSerializer.Serialize(input, Json), $"Prescription-{issue.Id.ToString("N")[..8]}.pdf");

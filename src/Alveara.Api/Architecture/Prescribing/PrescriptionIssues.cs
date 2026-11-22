@@ -48,7 +48,13 @@ public sealed record IssuePatient(string Name, string DateOfBirth, long Mrn, str
 /// <summary>The prescriber as the staff profile said at issue. Optional fields are null when absent and are then left off the page (no empty labels, never a refusal).</summary>
 public sealed record IssuePrescriber(string Name, string? Credential, string? LicenseNumber, string? LicenseJurisdiction, string? Npi);
 public sealed record IssuePractice(string Name, string? Phone, string? AddressLine);
-public sealed record PrescriptionIssueEnvelope(IssuePatient Patient, IssuePrescriber Prescriber, IssuePractice? Practice);
+/// <summary>
+/// ALV-N026 S8 restoration (owner decision 2026-11-22): the allergy-check outcome recorded when the prescription was written (<see cref="AllergyOutcomes"/>), captured into the issue so the
+/// statement printed with it never follows a later change to the allergy chart. <see cref="Matches"/> is the recorded matching allergy names, only for a recorded match (as the old print showed).
+/// </summary>
+public sealed record IssueAllergy(string Outcome, string? Matches);
+/// <summary>The text printed with an issue. <see cref="Allergy"/> is null only in an issue made before the restoration; its PDF then uses the outcome recorded on the prescription itself.</summary>
+public sealed record PrescriptionIssueEnvelope(IssuePatient Patient, IssuePrescriber Prescriber, IssuePractice? Practice, IssueAllergy? Allergy = null);
 
 /// <summary>The answer to issuing: the issue, and whether it already existed for that key.</summary>
 public sealed record IssuedPrescription(PrescriptionIssue Issue, bool Replayed);
@@ -92,7 +98,8 @@ public class PrescriptionIssueService(AlveraDbContext db, PrescriptionRecordRead
             new IssuePatient(string.Join(' ', new[] { patient.FirstName, patient.MiddleName, patient.LastName }.Where(x => !string.IsNullOrWhiteSpace(x))), patient.DateOfBirth.ToString("O", CultureInfo.InvariantCulture),
                 patient.Mrn, patient.AddressLine1, Blank(patient.AddressLine2), patient.City, patient.State, patient.PostalCode, patient.Country),
             new IssuePrescriber(r.PrescribedByName ?? staff?.DisplayName ?? "", Blank(staff?.CredentialLabel), Blank(staff?.LicenseNumber), Blank(staff?.LicenseJurisdiction), Blank(staff?.Npi)),
-            practice is null ? null : new IssuePractice(practice.Name, Blank(practice.Phone), Blank(practice.AddressLine)));
+            practice is null ? null : new IssuePractice(practice.Name, Blank(practice.Phone), Blank(practice.AddressLine)),
+            PrescriptionPdf.AllergyOf(r));
 
         var events = await EventsAsync(prescriptionId, ct);
         var ending = events.LastOrDefault(e => PrescriptionEventTypes.Ending.Contains(e.EventType));

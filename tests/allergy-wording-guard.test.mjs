@@ -14,7 +14,8 @@ const root = path.resolve(import.meta.dirname, "..");
 /** The surfaces, and how to find the no-match text in each (a line that words the no-match outcome). */
 export const SURFACES = [
   { file: "src/Alveara.Api/Architecture/Prescribing/AllergyCheck.cs", marker: /AllergyOutcomes\.NoRecordedMatch, \[\]/ },
-  { file: "src/Alveara.Api/Architecture/Prescribing/PrescriptionLifecycleService.cs", marker: /no recorded allergy matched this medication's name/ },
+  // ALV-N026 S8: the printed prescription is the p2 PDF template (the browser print in PrescriptionLifecycleService was removed); its allergy-check statement is checked there.
+  { file: "src/Alveara.Api/Pdf/Templates/prescription/p2/main.typ", marker: /no recorded allergy matched this medication's name/ },
   { file: "src/alveara-client/src/pages/prescription/prescriptionText.ts", marker: /No recorded allergy matched this medication's name/ },
 ];
 

@@ -393,6 +393,64 @@ public class PrescriptionWorkflowApiTests : IAsyncLifetime
         Assert.Contains("Prescription record copy", text);
     }
 
+    // ---------- ALV-N026 S8 restoration (owner decision 2026-11-22): the allergy-check statement on the p2 PDF ----------
+
+    private const string NoMatchStatement = "Allergy check: At the time of prescribing no recorded allergy matched this medication's name. That is a name comparison, not a clearance.";
+
+    /// <summary>Finalizes a draft with the given body (a review note where the allergy outcome needs one) and returns the prescription id.</summary>
+    private async Task<string> FinalizedAsync(Session dentist, object body)
+    {
+        var d = await NewDraftAsync(dentist, body);
+        var r = await dentist.SendAsync(HttpMethod.Post, $"/api/prescription-drafts/{Str(d, "id")}/finalize", new { rowVersion = Str(d, "rowVersion") });
+        Assert.Equal(HttpStatusCode.OK, r.Status);
+        return Str(r.Body.GetProperty("record"), "id");
+    }
+
+    [Fact]
+    public async Task The_pdf_states_no_recorded_match_as_a_name_comparison_and_a_later_allergy_chart_change_does_not_rewrite_it()
+    {
+        var dentist = await _api.SessionAsync("Dentist");
+        await AllergyListAsync(dentist);
+        var prescription = await FinalizedAsync(dentist);
+        var issue = await IssueAsync(dentist, prescription, "Print", "allergy-before");
+        Assert.Contains(NoMatchStatement, await IssueTextAsync(dentist, issue));
+        await using (var db = _fixture.CreateContext())                                                                  // captured into the issue itself
+            Assert.Contains("\"Outcome\":\"NoRecordedMatch\"", (await db.PrescriptionIssues.SingleAsync(i => i.Id == Guid.Parse(issue))).EnvelopeJson);
+
+        await AllergyListAsync(dentist, "Reviewed", ("Amoxicillin", "Severe"));                                          // the chart now names the medication
+        var reprint = await IssueTextAsync(dentist, issue);
+        var later = await IssueTextAsync(dentist, await IssueAsync(dentist, prescription, "RecordCopy", "allergy-after"));
+        Assert.All(new[] { reprint, later }, text =>
+        {
+            Assert.Contains(NoMatchStatement, text);                                                                    // what was true when it was written
+            Assert.DoesNotContain("matched a recorded allergy", text);
+            Assert.DoesNotContain("Severe", text);
+        });
+    }
+
+    [Fact]
+    public async Task The_pdf_states_a_reviewed_recorded_match_with_the_matching_name_only()
+    {
+        var dentist = await _api.SessionAsync("Dentist");
+        await AllergyListAsync(dentist, "Reviewed", ("Penicillin", "Severe"));
+        var text = await IssueTextAsync(dentist, await IssueAsync(dentist, await FinalizedAsync(dentist, DraftBody("Penicillin V Potassium", note: "Tolerated before.")), "Print", "match"));
+        Assert.Contains("Allergy check: At the time of prescribing the medication matched a recorded allergy (Penicillin); the prescriber reviewed it.", text);
+        Assert.DoesNotContain("not a clearance", text);
+        Assert.DoesNotContain("Severe", text);                                                                          // no clinical detail beyond the name (as the old print)
+        Assert.DoesNotContain("Hives", text);
+        Assert.DoesNotContain("Tolerated before.", text);
+    }
+
+    [Fact]
+    public async Task The_pdf_states_allergies_not_established_without_a_verdict()
+    {
+        var dentist = await _api.SessionAsync("Dentist");                                                               // the allergy list was never reviewed
+        var text = await IssueTextAsync(dentist, await IssueAsync(dentist, await FinalizedAsync(dentist, DraftBody(note: "Patient unsure; asked to confirm with their doctor.")), "Print", "not-established"));
+        Assert.Contains("Allergy check: At the time of prescribing the patient's allergies were not established; the prescriber confirmed this in their own words.", text);
+        Assert.DoesNotContain("no recorded allergy matched", text);
+        Assert.DoesNotContain("asked to confirm", text);
+    }
+
     [Fact]
     public async Task A_reprint_shows_what_was_issued_not_later_patient_or_prescriber_edits()
     {
