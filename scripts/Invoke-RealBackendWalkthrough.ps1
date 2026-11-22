@@ -57,6 +57,10 @@ $hostProject  = Join-Path $RepoRoot 'src\Alveara.Api.ChainHost\Alveara.Api.Chain
 $clientDir    = Join-Path $RepoRoot 'src\alveara-client'
 $runFolders   = @('Storage', 'Keys', 'Backup') | ForEach-Object { Join-Path (Join-Path $TestData $_) "walkthrough-$Database" }
 if (-not $OutputDir) { $OutputDir = Join-Path $TestData "Temp\walkthrough-output\$Database" }
+# ALV-N026 R04: the API renders printed materials with the PDF engine provisioned in Test-Data (scripts/Install-PdfEngine.ps1), as the API tests and Start-DevApi.ps1 configure it.
+# Without these settings every PDF request answers 503 (pdf_engine_unavailable), so a missing engine stops the run here instead of failing a walkthrough later.
+$pdfEngineDir = Join-Path $TestData 'PdfEngine'
+if (-not (Test-Path -LiteralPath (Join-Path $pdfEngineDir 'typst.exe'))) { throw "The PDF engine is not provisioned in $pdfEngineDir; run scripts/Install-PdfEngine.ps1 for Test-Data first." }
 
 if (Test-PortInUse 5072) { throw 'Port 5072 is already in use (a dev API?). Stop it first; a walkthrough needs the port.' }
 if ($Database -notmatch '^[A-Za-z0-9_]{1,100}$') { throw "Unsafe database name '$Database'." }
@@ -107,6 +111,8 @@ try {
     $psi.EnvironmentVariables['StorageRoot'] = $runFolders[0]
     $psi.EnvironmentVariables['DataProtectionKeysPath'] = $runFolders[1]
     $psi.EnvironmentVariables['Backup__Root'] = $runFolders[2]
+    $psi.EnvironmentVariables['Pdf__EngineDirectory'] = $pdfEngineDir                       # ALV-N026 R04
+    $psi.EnvironmentVariables['Pdf__FontDirectory'] = Join-Path $pdfEngineDir 'fonts'
     $api = [System.Diagnostics.Process]::Start($psi)
 
     $healthy = $false

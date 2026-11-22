@@ -3496,3 +3496,9 @@
   - What changed: prescription-workflow spec pdfFromClick counts every tab opened during the click even if it closed, hears downloads on every page (the new tab as well as the application page) and records where the PDF arrived (evidence arrivals); hypothesis for the R02 failure: headless Chromium turns the new tab's navigation to the PDF into a download on that tab, which R02's helper did not listen to. Test-only; no product change
   - Verification: the three changed specs type-check (tsc --strict, exit 0); no test run (the review requires a new attempt to be reviewed before the proof restarts). R02 proof before the stop: P1 64/64 (88 s), P2 119/119 (149 s), W1 7 passed 1 failed (50 s), W2-W4 not run
   - Notes: not pushed
+- [ ] ALV-N026 R04: walkthrough runner passes the Test-Data PDF engine to the API (the cause of both stopped W1 runs)
+  - Date: 2026-11-22
+  - Session: CC-20261115-m7x2
+  - What changed: scripts/Invoke-RealBackendWalkthrough.ps1 sets Pdf__EngineDirectory and Pdf__FontDirectory from Test-Data\PdfEngine (as AlveraTestEnvironment.cs and Start-DevApi.ps1 do) and stops at once if typst.exe is not provisioned there. The restarted R03 proof (P1 64/64, P2 119/119) stopped at W1 with GET /api/prescription-issues/{id}/pdf answering 503 (engine unavailable); the R02 stop was almost certainly the same (the app closes its tab on a refused PDF), so R03's helper diagnosis was wrong. Shared-infrastructure change: additive only
+  - Verification: the script parses (PowerShell parser, 0 errors); no test run (a new attempt is reviewed before the proof restarts)
+  - Notes: not pushed
