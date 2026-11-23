@@ -3514,3 +3514,10 @@
   - What changed: openMore helper in documents-library-real-backend.spec.ts (INACTIVATE: Inactivate, Reactivate) and documents-real-backend.spec.ts (EDIT: two Edit clicks); opens the menu only if it is closed. Swept all four walkthrough specs: no other row action moved (Preview and PDF Open stay in the row). The R05 proof: W1 15/15 (77 s; PDFs 33-35 KB by Content-Length and follow-up fetch, Playwright observed 0 bytes: an observation limit, not a product defect); W2 stopped (INACTIVATE clicked a button now under More); W3, W4 not run. Test-only
   - Verification: the changed specs type-check (tsc --strict, exit 0); no test run (code review first)
   - Notes: not pushed
+
+- [x] Dev API PDF font path fix (found while preparing the owner's manual walkthrough)
+  - Date: 2026-11-23
+  - Session: CC-20261115-m7x2
+  - What changed: scripts/Start-DevApi.ps1 line 35 held a literal form-feed byte instead of , so Pdf__FontDirectory pointed at "PdfEngine<FF>onts"; now PdfEngineonts. Dev engine provisioned with Install-PdfEngine.ps1 (data folder, not repo).
+  - Verification: dev API log event=pdf_engine_ready outcome=success after restart
+  - Notes: introduced in ALV-N026 S4; walkthroughs were unaffected (their runner sets its own paths)
