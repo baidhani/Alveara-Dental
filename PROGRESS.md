@@ -3521,3 +3521,10 @@
   - What changed: scripts/Start-DevApi.ps1 line 35 held a literal form-feed byte instead of , so Pdf__FontDirectory pointed at "PdfEngine<FF>onts"; now PdfEngineonts. Dev engine provisioned with Install-PdfEngine.ps1 (data folder, not repo).
   - Verification: dev API log event=pdf_engine_ready outcome=success after restart
   - Notes: introduced in ALV-N026 S4; walkthroughs were unaffected (their runner sets its own paths)
+
+- [x] ALV-N027 step 1: read-only finding survey
+  - Date: 2026-11-23
+  - Session: CC-20261123-q4vn
+  - What changed: docs/design/ALV-N027_FINDING_SURVEY.md (70 PKG-13/PKG-14 register rows surveyed in code; 13 owner decisions listed, PD-04 security escalation)
+  - Verification: documents only; read-only code reading at 173a4dd, no test run, no database touched
+  - Notes: not pushed; no code before the brief is approved
