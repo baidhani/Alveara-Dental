@@ -3528,3 +3528,10 @@
   - What changed: docs/design/ALV-N027_FINDING_SURVEY.md (70 PKG-13/PKG-14 register rows surveyed in code; 13 owner decisions listed, PD-04 security escalation)
   - Verification: documents only; read-only code reading at 173a4dd, no test run, no database touched
   - Notes: not pushed; no code before the brief is approved
+
+- [x] Record the owner's ALV-N025/N026 manual walkthrough findings
+  - Date: 2026-11-23
+  - Session: CC-20261123-q4vn
+  - What changed: docs/stabilization/UNASSIGNED_FINDINGS.md U-023..U-032 (U-023 is an ALV-N026 gap: unchecked missing file Download opens raw JSON)
+  - Verification: documents only; each finding checked against the code
+  - Notes: not pushed; fixes wait for the owner to assign them
