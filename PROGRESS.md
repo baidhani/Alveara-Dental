@@ -3591,3 +3591,10 @@
   - What changed: ACCT_PRE_IMPLEMENTATION_BRIEF.md section 16 (startup modes, no auto-migrate, exit code 75 restart, S18-S21, slice 7); PD-38 owner rulings recorded
   - Verification: documents only
   - Notes: R04 approval stands for sections 1-15; review of section 16 requested
+
+- [x] ALV-N030 brief R06 (answers review BRIEFING-R05 CR-7, CR-8)
+  - Date: 2026-11-24
+  - Session: CC-20261123-q4vn
+  - What changed: section 16: static files and /api/setup/status in all modes (minimal bodies), three rendered states in S21; exit code 75 via Environment.ExitCode in Response.OnCompleted, runner/dev-script propagation (S20 real process, S22), ALV-N013 supervisor contract and proof; review R05 stored
+  - Verification: documents only
+  - Notes: no code before approval

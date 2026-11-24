@@ -13,7 +13,10 @@
 - **CR-2:** a separate `Alveara.Api.TestHost` executable replaces the `--test-support` startup path.
 - **CR-3:** path 1 chosen. With several profile-less administrators, no Deployment Administrator is selected, and an administrator designates the owner directly.
 - **Section 14:** questions resolved by the review.
-- **R05 addendum (2026-11-24, owner-requested, PD-38):** section 16 adds setup mode with a controlled restart. The R04 approval stands for sections 1 to 15; **R05 asks for review of section 16 only**, plus its test rows S18 to S21 and slice 7.
+- **R05 addendum (2026-11-24, owner-requested, PD-38):** section 16 adds setup mode with a controlled restart. The R04 approval stands for sections 1 to 15; review covers section 16 only, plus its test rows S18 to S22 and slice 7.
+- **R06 (after `BRIEFING-R05.md`, CHANGES_REQUIRED):**
+  - **CR-7:** section 16.2a sets the behaviour of the client files and the status route in every mode;
+  - **CR-8:** the restart is an exit-code mechanism with a defined handoff to the supervisor (16.2b), proven by S20 and S22, with the production proof assigned to ALV-N013 (16.5).
 - **Story id:** **ALV-N030** (owner, 2026-11-24; plan item 63a; working name ACCT). **Approved for implementation:** `.alveara/reviews/ACCT/BRIEFING-R04.md`.
 - **Session:** CC-20261123-q4vn, 2026-11-23.
 - **Surveyed tree:** `d459025` (read-only).
@@ -301,16 +304,41 @@ PD-38 (`docs/design/OWNER_REQUEST_FIRST_RUN_SETUP.md`) asked that a person never
 
 | Condition | Mode | What answers |
 |---|---|---|
-| Database unreachable or does not exist | `NotInstalled` | Every route answers **503** `{error:"installation_incomplete"}`. The client shows "DentalKeep is not installed yet. Run the installer." No hosted service is registered. |
-| Database exists, and EF reports pending migrations (`GetPendingMigrations`, read-only) | `UpgradeRequired` | Every route answers **503** `{error:"upgrade_required"}`. The client shows "An upgrade is waiting. An administrator must run the upgrade tool." No hosted service is registered. **The API never calls `Migrate()`.** |
-| Current schema, no Deployment Administrator, **and** no `BootstrapState` | `Setup` | Only `GET /api/setup/status`, `POST /api/setup/deployment-administrator`, `GET /api/auth/csrf-token` and the static client files. Every other route answers **503** `{error:"setup_required"}`. **No hosted service is registered**: notifications, follow-ups, the backup scheduler, background jobs, audit expiry, the policy drain, the invariant monitor and the rest. |
+| Database unreachable or does not exist | `NotInstalled` | Every **API** route (`/api/*`) answers **503** `{error:"installation_incomplete"}`. Static client files still load (see 16.2a). The client shows "DentalKeep is not installed yet. Run the installer." No hosted service is registered. |
+| Database exists, and EF reports pending migrations (`GetPendingMigrations`, read-only) | `UpgradeRequired` | Every **API** route answers **503** `{error:"upgrade_required"}`. Static client files still load. The client shows "An upgrade is waiting. An administrator must run the upgrade tool." No hosted service is registered. **The API never calls `Migrate()`.** |
+| Current schema, no Deployment Administrator, **and** no `BootstrapState` | `Setup` | Only `GET /api/setup/status`, `POST /api/setup/deployment-administrator`, `GET /api/auth/csrf-token` and the static client files. Every other API route answers **503** `{error:"setup_required"}`. **No hosted service is registered**: notifications, follow-ups, the backup scheduler, background jobs, audit expiry, the policy drain, the invariant monitor and the rest. |
 | Current schema, and set up | `Normal` | Today's behaviour, unchanged |
 
 - The mode is chosen **before** `builder.Build()`, and hosted services and routes are registered for that mode only. Nothing switches inside a running process, which is the owner's reason for the restart.
 - `NotInstalled` and `UpgradeRequired` only make the API refuse to run without the installer. ALV-N013 builds what resolves them (provisioning, the upgrade command, the backup). The API needs the check anyway to tell setup mode apart from a broken install.
 
+**16.2a Client files and the status route in every mode (CR-7).**
+- **Static client files and the single-page-app fallback** (every non-`/api` path serves `index.html`) are mapped **in all four modes**. They hold no data, so the browser can always load the app and show the right screen. Only `/api/*` routes are subject to the mode's 503.
+- **`GET /api/setup/status`** is mapped deliberately **in all four modes**, anonymous, rate-limited, never cached (`Cache-Control: no-store`). Its whole body is one of:
+
+| Mode | Status | Body |
+|---|---|---|
+| `NotInstalled` | 503 | `{ "mode": "installation_incomplete" }` |
+| `UpgradeRequired` | 503 | `{ "mode": "upgrade_required" }` |
+| `Setup` | 200 | `{ "mode": "setup", "setupAvailable": true }` |
+| `Normal` | 200 | `{ "mode": "normal", "setupAvailable": false }` |
+
+  - Nothing else is ever in it: no database name, server, connection detail, migration names or counts, versions or credentials. A test asserts the exact key sets.
+- **On start, the client calls the status route first** and renders one of three screens (installation incomplete, upgrade required, or setup) before any sign-in. The `/api/*` 503 bodies elsewhere carry only `error`, with no detail.
+
+**16.2b Controlled restart: mechanism and supervisor handoff (CR-8).**
+- **Restart request.** After a successful setup, the route registers `HttpContext.Response.OnCompleted(...)`, so it fires only once the 201 response has been sent. That callback:
+  1. sets the process-level restart request: `Environment.ExitCode = 75` (the constant `StartupMode.RestartRequestedExitCode`);
+  2. then calls `IHostApplicationLifetime.StopApplication()`.
+- **How the code reaches the process.** `Program` ends with `await app.RunAsync();` and returns nothing, so .NET exits the process with `Environment.ExitCode`. The TestHost's `Program` does the same. A guard test asserts both entry points keep that shape: a `Main` that returns its own value would silently drop the code.
+- **A failed setup** never registers the callback: the exit code stays 0 and the host keeps running.
+- **Propagation:**
+  - **TestHost:** the process exits with 75. The two runners watch for exit 75, restart it on the same loopback URL and database, and treat any other exit as a failure of the run.
+  - **`Start-DevApi.ps1`:** runs the API in a loop, restarting **only** on exit code 75 and stopping on any other code, and passing that code on as its own exit code.
+  - **Production (ALV-N013):** see 16.5.
+
 **Controlled restart.**
-- After `POST /api/setup/deployment-administrator` commits and its 201 response has been sent, the API calls `IHostApplicationLifetime.StopApplication()` and exits with the documented code **75** ("restart requested"). Shutdown is graceful, and there is no work in flight because no hosted service ran.
+- After `POST /api/setup/deployment-administrator` commits and its 201 response has been sent, the process exits with code **75** ("restart requested") through the mechanism in 16.2b. Shutdown is graceful, and there is no work in flight because no hosted service ran.
 - The process supervisor starts it again, and it comes up `Normal`:
   - in production, the Windows service recovery that ALV-N013's installer configures;
   - in dev, a restart loop in `Start-DevApi.ps1`, only on code 75;
@@ -330,11 +358,16 @@ PD-38 (`docs/design/OWNER_REQUEST_FIRST_RUN_SETUP.md`) asked that a person never
 | # | Test | Layer |
 |---|---|---|
 | S18 | Mode decision: no database gives `NotInstalled`. A pending migration (a test database migrated to the second-to-last migration) gives `UpgradeRequired`, and **the migration is still pending afterwards** (the API never migrates). A current schema with no Deployment Administrator gives `Setup`. A set-up install gives `Normal`. | API, DB |
-| S19 | In `Setup`, `NotInstalled` and `UpgradeRequired`: the built host has no hosted services, a sample of 10 normal routes answers 503 with that mode's error, and in `Setup` the setup and status routes work | API |
-| S20 | Controlled restart: a successful setup stops the host with exit code 75 (TestHost harness), a failed setup does not stop it, and a new host on the same database starts `Normal` | API |
-| S21 | Browser: setup page, then "restarting…", then the status checks, then sign-in, with the runner restarting the TestHost on code 75. Against an unreachable server, the readiness check gives up within its timeout and retry bound and the API answers `NotInstalled`. | Playwright, API |
+| S19 | In `Setup`, `NotInstalled` and `UpgradeRequired`:<ul><li>the built host has no hosted services;</li><li>a sample of 10 normal API routes answers 503 with that mode's error;</li><li>`/` and a deep link such as `/patients/x` serve the client's `index.html` (200);</li><li>`GET /api/setup/status` answers exactly the 16.2a body for each of the four modes, with exact key sets, no detail, and `no-store`;</li><li>in `Setup`, the setup route works.</li></ul> | API |
+| S20 | Controlled restart, run as a **real TestHost process** (not in-memory):<ul><li>a successful setup returns 201 to the client **first**, then the process exits with code exactly **75**;</li><li>a failed setup (wrong token) returns 400 and the process is still running 5 s later, with no restart request;</li><li>a new process on the same database starts `Normal`;</li><li>a guard test keeps both `Program` entry points returning nothing.</li></ul> | API, process |
+| S21 | Browser, **all three rendered states**:<ul><li>**installation incomplete:** the TestHost pointed at a database that does not exist; the screen shows the installer message and no sign-in;</li><li>**upgrade required:** a database one migration behind; the upgrade message shows;</li><li>**setup, restarting to normal:** setup page, then "restarting…", then sign-in, with the runner restarting the TestHost on code 75.</li></ul>Against an unreachable server, the readiness check gives up within its timeout and retry bound. | Playwright, API |
+| S22 | `Start-DevApi.ps1` restart loop: a stub that exits 75 once and then 0 is restarted exactly once; exit 1 is not restarted; the script's own exit code is the last one | script |
 
 ### 16.5 Slice and scope
-- **Slice 7** (after slice 6): the readiness check, mode-based registration, the restart, the dev script's restart loop and the client's restart page; then tests S18 to S21.
-- **Owned by ALV-N013** (recorded there, not built here): database creation and its snapshot options, applying migrations, the least-privilege identity, the upgrade command with its backup checkpoint, Windows service recovery on code 75, and calling the setup-token command at install.
+- **Slice 7** (after slice 6): the readiness check, mode-based registration, the restart, the dev script's restart loop and the client's restart page; then tests S18 to S22.
+- **Owned by ALV-N013** (recorded there, not built here): database creation and its snapshot options, applying migrations, the least-privilege identity, the upgrade command with its backup checkpoint, and calling the setup-token command at install.
+- **ALV-N013 dependency contract (CR-8).** ALV-N013 configures the production supervisor to **restart the service on the controlled exit code 75**. Other exits follow its own deployment recovery policy: code 0 is a deliberate stop with no restart; any other non-zero code is a crash, with a bounded restart count and an alert.
+  - Windows service recovery actions cannot tell exit codes apart and, by default, ignore a clean non-zero exit. So ALV-N013 must state its mechanism, for example a small service host or wrapper that reads the code, or recovery actions with "failure actions on non-crash failures" enabled plus a recovery policy that is safe for any code.
+  - **Required ALV-N013 proof:** on the installed Windows service, a setup completed through the page leads to an automatic restart into `Normal` mode with no operator step. An injected non-75 exit follows the crash policy and does not count as a controlled restart.
+  - ALV-N030 delivers the exit code and its tests (S20 to S22). The production-supervisor proof is ALV-N013's acceptance.
 - **Dev:** `Initialize-DevDatabase.ps1` keeps provisioning AlveraDev as the dev stand-in for the installer, unchanged.
