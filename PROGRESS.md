@@ -3633,3 +3633,10 @@
   - What changed: StaffMemberService + StaffMembersController (POST /api/config/staff-members, POST /api/config/staff/{id}/legacy-login; one transaction, 16-char temporary password once, Idempotency-Key replay, ALV-N018 subset role rule, ManageUsers + ManagePracticeConfiguration); PracticeOwnerService + PracticeOwnerController (GET /api/practice-owner, POST /initial once ever); POST /api/config/staff and GET linkable-accounts removed, PUT staff refuses UserAccountId (link_not_editable); ClinicalNames names the DA by kind; DA excluded from follow-up assignees and message recipients; /api/auth/users adds accountKind and mustChangePassword
   - Verification: focused StaffMemberAndOwnerTests (11) + PasswordChangeGateTests + DeploymentSetup tests + StaffProviderServiceTests + ExportDomainCatalogTests + PatientOwnedDataTests 58/58 passed (48 s)
   - Notes: first run 57/58 - test bug (seeded a second DA, refused by UX_UserAccounts_OneDeploymentAdministrator), fixed in the test; link-picker test removed with the feature; CreateStaffAsync/UpdateStaffAsync(link) internal for fixtures until slice 5; message recipients treated as a person picker
+
+- [x] ALV-N030 brief R07 addendum: test-support hosting on ChainHost (documents only)
+  - Date: 2026-11-24
+  - Session: CC-20261123-q4vn
+  - What changed: ACCT brief section 17 replaces section 8's TestHost/startup-split design with Alveara.Api.TestSupport on the existing ChainHost (PD-32 kept), under the owner's seven boundaries; explicit CHAIN_CLOCK_MODE; guards G1-G8 retargeted; harness migration recounted (49/48/33 spec files); slice 5 split into 5a/5b/5c
+  - Verification: documents only; awaiting review of section 17 before slice 5 code
+  - Notes: slice 5 finding - runners already use ChainHost; the product's only environment-dependent settings are cookie SecurePolicy and OpenAPI (Program.cs:315, :428)

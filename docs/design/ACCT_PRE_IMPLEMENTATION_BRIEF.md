@@ -17,6 +17,7 @@
 - **R06 (after `BRIEFING-R05.md`, CHANGES_REQUIRED):**
   - **CR-7:** section 16.2a sets the behaviour of the client files and the status route in every mode;
   - **CR-8:** the restart is an exit-code mechanism with a defined handoff to the supervisor (16.2b), proven by S20 and S22, with the production proof assigned to ALV-N013 (16.5).
+- **R07 addendum (2026-11-24, owner-requested, slice 5 finding):** section 17 replaces section 8's hosting with test support on the existing `Alveara.Api.ChainHost`: no product start-up split and no second test executable, under the owner's seven boundaries. It also retargets guards G1 to G8, the harness migration and the TestHost wording in sections 12 and 16; everything else stands. **Slice 5 waits for review of section 17.**
 - **Story id:** **ALV-N030** (owner, 2026-11-24; plan item 63a; working name ACCT). **Approved for implementation:** `.alveara/reviews/ACCT/BRIEFING-R04.md`.
 - **Session:** CC-20261123-q4vn, 2026-11-23.
 - **Surveyed tree:** `d459025` (read-only).
@@ -371,3 +372,103 @@ PD-38 (`docs/design/OWNER_REQUEST_FIRST_RUN_SETUP.md`) asked that a person never
   - **Required ALV-N013 proof:** on the installed Windows service, a setup completed through the page leads to an automatic restart into `Normal` mode with no operator step. An injected non-75 exit follows the crash policy and does not count as a controlled restart.
   - ALV-N030 delivers the exit code and its tests (S20 to S22). The production-supervisor proof is ALV-N013's acceptance.
 - **Dev:** `Initialize-DevDatabase.ps1` keeps provisioning AlveraDev as the dev stand-in for the installer, unchanged.
+
+## 17. R07 addendum: test-support hosting on ChainHost (owner-requested, 2026-11-24)
+
+**Why this addendum.** Slice 5 found that section 8 rests on a wrong premise. It assumed the walkthrough and chain runners start the product API, so it planned a split of the product's start-up (`AlvearaApplication.CreateBuilder` / `Configure`) and a new `Alveara.Api.TestHost` executable. In fact both runners already start a separate test executable, **`src/Alveara.Api.ChainHost`** (ALV-N019 R02, decisions O-1 and **PD-32**: "the UNCHANGED production application ... Program.cs untouched"). ChainHost hosts the product through `WebApplicationFactory<Program>` on a real Kestrel port and adds its test-only routes (clock mode, clock advance) through startup filters. The runners start the product API itself only in their "real clock" mode. Following section 8 literally would break PD-32 and leave two test hosts that drift apart.
+
+**Owner ruling (2026-11-24):** extend ChainHost; build **no** second TestHost executable; review this addendum before any slice 5 code. Non-negotiable boundaries, as the owner stated them:
+1. `Alveara.Api` remains unchanged and contains no test-support route, setting, or start-up branch.
+2. `Alveara.Api.TestSupport` is created as a test-only library.
+3. Only `Alveara.Api.ChainHost` and backend-test infrastructure may reference it.
+4. ChainHost refuses to enable the route unless **all** are true: test environment, explicit `TestSupport:Enabled`, and loopback binding.
+5. The account-creation route must not be reachable in a normal API process or a non-loopback deployment.
+6. ChainHost's real-clock mode is explicit and used where the walkthrough needs real time; the existing injected-clock behaviour stays available for chain scenarios that need it.
+7. G1 to G8 are retargeted so they prove these boundaries, including negative checks against the production application.
+
+**What this supersedes.** Section 17 replaces section 8 (hosting, guards, harness migration) and the "TestHost" wording in section 12 (slice 5) and section 16 (S20, S21, 16.5 "Dev"). The test-only route's **contract** (section 8, "The route") is unchanged. Everything else stands.
+
+### 17.1 Projects and references
+| Project | Kind | References | Holds |
+|---|---|---|---|
+| `Alveara.Api` | product executable | no test project | **Unchanged by slice 5.** No test-support code, setting, argument or branch; `Program.cs` is not split. |
+| `Alveara.Api.TestSupport` (new) | class library | `Alveara.Api` | `TestAccountsController` (`POST /api/test-support/accounts`), its service, and `TestSupportRegistration`, the single place that decides whether the route is mapped (17.2). |
+| `Alveara.Api.ChainHost` | test executable (existing) | `Alveara.Api`, `Alveara.Api.TestSupport` | Gains the TestSupport application part through `TestSupportRegistration`, and an explicit clock mode (17.3). |
+| `Alveara.Api.Tests` | test project (existing) | `Alveara.Api`, `Alveara.Api.ChainHost`, `Alveara.Api.TestSupport` | Guard tests G1 to G8 and the backend tests (17.4). |
+
+No other project may reference `Alveara.Api.TestSupport`; G2 scans every `.csproj`.
+
+### 17.2 When the route exists (boundaries 4 and 5)
+`TestSupportRegistration` adds the TestSupport assembly as an MVC application part **only if all three conditions hold**. Otherwise it adds nothing, so `POST /api/test-support/accounts` is an unmapped path (404, or 405 from the GET-only SPA fallback).
+1. **Test environment:** the host environment name is exactly `Test`.
+2. **Explicit opt-in:** `TestSupport:Enabled` is `true`. The runners set `TestSupport__Enabled=true`.
+3. **Loopback binding:** every configured listen address has the host `127.0.0.1`, `::1` or `localhost`. The addresses checked are `urls`, `ASPNETCORE_URLS`, `Kestrel:Endpoints:*:Url`, `--urls` and ChainHost's own `CHAIN_URL`.
+   - `0.0.0.0`, `*`, `+`, `[::]`, a LAN address or another host name fail the check.
+   - In-memory `TestServer` (the backend tests) has no socket, so it passes.
+
+**Start-up refusal.** ChainHost does not run half-configured:
+- with `TestSupport:Enabled=true`, if condition 1 or 3 fails, ChainHost **refuses to start**: non-zero exit and a clear message naming the failed condition;
+- if `TestSupport:Enabled` is absent or false, ChainHost starts as it does today, without the route;
+- ChainHost binds `CHAIN_URL` itself. Its default changes from `http://localhost:5072` to **`http://127.0.0.1:5072`**, and it refuses a non-loopback `CHAIN_URL` in every case, because it is a test host (boundary 5).
+
+**The `Test` environment and the product's environment-dependent settings.**
+- **The two settings:** the product has exactly two (`Program.cs:315` and `:428`, both `IsDevelopment()`):
+  - the sign-in cookie's `SecurePolicy` is `SameAsRequest` only in Development (`Always` otherwise);
+  - the OpenAPI document is mapped only in Development.
+- **What ChainHost does under `Test`** (it runs as `Development` today):
+  - it **post-configures** the cookie options to `SameAsRequest`, because it serves plain HTTP on loopback; without this no session cookie would be sent back. This is a ChainHost registration, not a product change;
+  - the OpenAPI document is not mapped. G6 then holds trivially; it is also checked against the product in Development, where it is mapped;
+  - ChainHost sets the logging levels of `appsettings.Development.json` for `Test`, so walkthrough output stays as quiet as today.
+- **Nothing else changes:** no other product code reads the environment name. Survey of `IsDevelopment`, `IsEnvironment`, `IsProduction` and `EnvironmentName` in `src/Alveara.Api`, at slice 5.
+
+### 17.3 Clock modes (boundary 6)
+- **`CHAIN_CLOCK_MODE` is required** and is `injected` or `real`. A missing or other value exits 2 with a message.
+  - **`injected`** keeps today's behaviour exactly: the `ChainPracticeClock`, the clock-mode report, and the clock-advance route behind `CHAIN_CONTROL_TOKEN`.
+  - **`real`** swaps nothing: the product's own `IPracticeClock` runs, the clock-advance route is not mapped, and the clock-mode report says `real`.
+- **Runners:** `Invoke-RealBackendWalkthrough.ps1` and `Invoke-AccumulatedChain.ps1` start **ChainHost in both of their modes**; today their real-clock mode starts the product API.
+  - They pass `CHAIN_CLOCK_MODE` from their existing `-ClockMode` parameter, plus `ASPNETCORE_ENVIRONMENT=Test`, `TestSupport__Enabled=true` and `CHAIN_URL=http://127.0.0.1:<port>`.
+  - They stop setting `AdminBootstrapSecret`.
+  - The Vite proxy targets `http://127.0.0.1:<port>`.
+- **Dev and production** (`Start-DevApi.ps1`, publish, the future installer) run only `Alveara.Api`. Nothing changes there.
+
+### 17.4 Harness migration
+- **Backend tests** create accounts **directly in the test database** through `IdentityTestHelpers`, as slices 2 to 4 already do, not through the test-only route.
+  - They keep `WebApplicationFactory<Alveara.Api.Program>`. The route is exercised only by the guard tests (G4) and the browser runners.
+  - Fixtures that need a profile linked to an account write both rows through the helper.
+  - Once no test uses them, these internal leftovers are **deleted**: `AccountService.RegisterAsync` and `BootstrapFirstAdminAsync`, `LegacyAccountRequests.cs`, the profile-only `StaffProviderService.CreateStaffAsync`, and the link-editing `UpdateStaffAsync`.
+  - Tests whose subject was sign-up, the bootstrap secret or the link picker are removed or rewritten to prove the removal (S1, S16).
+- **Browser specs** use a new shared `e2e/support/testAccounts.ts`. The survey at slice 5 found 49 files that call `register`, 48 that call `bootstrap-admin` and 33 that call the removed `POST /api/config/staff`; section 8's 77 and 59 counted occurrences, not files.
+  - `createAccount(request, { username, password, role, kind?, withStaffProfile?, mustChangePassword? })` calls `POST /api/test-support/accounts`.
+  - Staff fixtures that used the profile-only create call the **product** route `POST /api/config/staff-members` through `addStaffMember(...)`. They then exercise the real create; the spec ignores the login it makes.
+  - The edit is mechanical: flows and scenarios stay as they are.
+  - `auth-real-backend.spec.ts` is rewritten as section 8 said: sign-up is 404, and setup and the forced change work.
+- **Chain scenarios** (`chain/`) get the same helper.
+
+### 17.5 Guards, retargeted (boundary 7)
+| # | Proof | Layer |
+|---|---|---|
+| G1 | The **product** host, `WebApplicationFactory<Alveara.Api.Program>`, under `Development`, `Production` and `Test`, with `TestSupport:Enabled=true` and the argument `--test-support`, answers 404 or 405 on `POST /api/test-support/accounts` and creates no account. | API |
+| G2 | Project-file scan: `Alveara.Api.csproj` references no test project, and `Alveara.Api.TestSupport` is referenced only by `Alveara.Api.ChainHost.csproj` and `Alveara.Api.Tests.csproj`. A repository scan finds no `TestSupport` type or namespace in `src/Alveara.Api`. | build, repo scan |
+| G3 | `dotnet publish src/Alveara.Api` output contains no `Alveara.Api.TestSupport.dll` and no `Alveara.Api.ChainHost.dll`. | build |
+| G4 | ChainHost's `TestSupportRegistration` maps the route only when all three conditions hold; each of the 7 other combinations gives 404 or 405 and no account. With `Enabled=true` and an environment other than `Test`, ChainHost refuses to start. Under all three, the route creates exactly the requested account. | API |
+| G5 | Repository scan: `TestSupport__Enabled` and `Alveara.Api.ChainHost` appear only in the two runners, the tests and ChainHost itself. They never appear in `Start-DevApi.ps1`, `New-DevAdmin.ps1`, deployment or installer scripts, the product's `appsettings*.json`, or any Docker or publish file. | repo scan |
+| G6 | The product's OpenAPI document (Development) does not list `/api/test-support/*`. | API |
+| G7 | Loopback. ChainHost refuses to start (non-zero exit, message) when `CHAIN_URL`, `--urls` or `ASPNETCORE_URLS` is `0.0.0.0`, `*`, `+`, `[::]`, a LAN address or a host name. It starts with `127.0.0.1`, `::1` or `localhost`, and the default `CHAIN_URL` is `127.0.0.1`. Every form is checked through the decision function, plus one real process start with `0.0.0.0` that must exit non-zero. | API, process |
+| G8 | Script test: both runners start ChainHost with `ASPNETCORE_ENVIRONMENT=Test`, `TestSupport__Enabled=true`, an explicit `CHAIN_CLOCK_MODE` and a `127.0.0.1` `CHAIN_URL`, and the Vite proxy targets the same address. Neither runner starts `Alveara.Api.dll` any more or sets `AdminBootstrapSecret`. | script |
+
+### 17.6 Section 16 retargeting
+- S20 and S21 run against a **ChainHost** process with `CHAIN_CLOCK_MODE=real`, not a TestHost.
+- Setup mode (slice 7) is decided by the **product's** start-up code, so ChainHost exercises it unchanged.
+- The restart on exit code 75 stays the runner's job, as before.
+
+### 17.7 Test cost and slice order
+Slice 5 is split so that each step ends green on a focused group under 5 minutes:
+- **5a:** `Alveara.Api.TestSupport`, the ChainHost registration and clock modes, and guards G1 to G7. G3 runs one `dotnet publish`, about 1 minute.
+- **5b:** the backend test migration, one group of files at a time; each group's tests run as it moves. Then the internal leftovers are deleted.
+- **5c:** `testAccounts.ts`, the spec and chain edits, both runners, and G8. Proving 5c needs walkthrough suites that take longer than 5 minutes. As section 13 already says, I will **ask before** that run and propose a sample (the auth, permission-policy and two domain walkthroughs), with the full set deferred to ALV-N028's regression.
+
+### 17.8 Failure-first answers
+- **Route enabled by mistake in a shared environment:** it needs three independent conditions plus a loopback-only binding, and the product cannot map it at all (G1 to G3).
+- **ChainHost started with a wildcard address:** it refuses to start (G7).
+- **Cookie policy under `Test` forgotten:** every walkthrough sign-in fails at once, so the fault is loud, not silent. A ChainHost test also asserts that the cookie is issued over HTTP under `Test`.
+- **A test still uses a removed route:** it fails with 404 or 405 in its focused group. Slice 5b's per-group runs catch it before the leftovers are deleted.
