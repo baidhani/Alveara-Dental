@@ -20,6 +20,7 @@ public record EnrollMfaRequest(string? CurrentPassword);
 public record SetSessionTimeoutRequest(int SessionTimeoutMinutes);
 public record ChangeRoleRequest(string Role);
 public record SetEnabledRequest(bool Enabled);
+public record ChangePasswordRequest(string? CurrentPassword, string? NewPassword);
 public record CompleteResetRequest(Guid UserId, string Token, string NewPassword);
 public record AccountResponse(Guid Id, string Username, string Role);
 /// <summary>ALV-N020 (F-021): <see cref="LinkedStaffDisplayName"/> and <see cref="LinkedStaffIsActive"/> name the staff profile linked to the account, when there is one.</summary>
@@ -67,6 +68,7 @@ public class AuthController(AccountService accountService, AlveraDbContext db, I
     }
 
     [HttpPost("mfa/challenge")]
+    [AllowedWhilePasswordChangeRequired]
     [EnableRateLimiting("AuthAttempts")]
     public async Task<IActionResult> CompleteMfaChallenge([FromBody] MfaChallengeRequest request, CancellationToken cancellationToken)
     {
@@ -87,6 +89,7 @@ public class AuthController(AccountService accountService, AlveraDbContext db, I
     }
 
     [HttpPost("logout")]
+    [AllowedWhilePasswordChangeRequired]
     [Authorize]
     [RequireCsrfToken]
     public async Task<IActionResult> Logout(CancellationToken cancellationToken)
@@ -110,6 +113,7 @@ public class AuthController(AccountService accountService, AlveraDbContext db, I
 
     /// <summary>Issues (and cookie-sets) a CSRF token pair the client echoes back in the X-CSRF-Token header.</summary>
     [HttpGet("csrf-token")]
+    [AllowedWhilePasswordChangeRequired]
     public IActionResult GetCsrfToken([FromServices] IAntiforgery antiforgery)
     {
         var tokens = antiforgery.GetAndStoreTokens(HttpContext);
@@ -123,6 +127,7 @@ public class AuthController(AccountService accountService, AlveraDbContext db, I
     /// authentication ticket, not recomputed client-side) so the shell can warn before the session
     /// actually expires rather than only reacting after the fact.</summary>
     [HttpGet("permissions")]
+    [AllowedWhilePasswordChangeRequired]
     [Authorize]
     public async Task<IActionResult> MyPermissions()
     {
@@ -132,6 +137,14 @@ public class AuthController(AccountService accountService, AlveraDbContext db, I
             return Unauthorized();
         }
         var authenticateResult = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        var myId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var me = await db.UserAccounts.AsNoTracking().Where(u => u.Id == myId).Select(u => new
+        {
+            u.MustChangePassword,
+            u.AccountKind,
+            IsPracticeOwner = db.PracticeOwnerDesignations.Any(d => d.EndedAtUtc == null && d.StaffProfile!.UserAccountId == u.Id),
+            PracticeOwnerExists = db.PracticeOwnerDesignations.Any(d => d.EndedAtUtc == null),
+        }).SingleAsync(HttpContext.RequestAborted);
         return Ok(new
         {
             username = User.FindFirstValue(ClaimTypes.Name),
@@ -142,6 +155,11 @@ public class AuthController(AccountService accountService, AlveraDbContext db, I
             sessionExpiresAtUtc = authenticateResult.Properties?.ExpiresUtc,
             // ALV-N021 A3 (briefing 4.1-1, BR-5): the practice zone every client renders instants in - canonical IANA, the same for every signed-in user, no permission beyond sign-in
             practiceTimeZoneId = clock.PracticeTimeZoneIanaId,
+            // ALV-N030: the client's identity call is this route (whoami is Administrator-only), so the forced-change and account-kind facts ride here
+            mustChangePassword = me.MustChangePassword,
+            accountKind = me.AccountKind.ToString(),
+            isPracticeOwner = me.IsPracticeOwner,
+            practiceOwnerExists = me.PracticeOwnerExists,
         });
     }
 
@@ -362,6 +380,33 @@ public class AuthController(AccountService accountService, AlveraDbContext db, I
         catch (AccountNotFoundException)
         {
             return NotFound(new { error = "account_not_found" });
+        }
+    }
+
+    /// <summary>ALV-N030: the signed-in user changes their own password; the way out of a forced change. On success the session is re-issued under the new
+    /// security stamp (every other session of the account ends). Request bodies here are never logged.</summary>
+    [HttpPost("password/change")]
+    [Authorize]
+    [RequireCsrfToken]
+    [AllowedWhilePasswordChangeRequired]
+    [EnableRateLimiting("AuthAttempts")]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request, CancellationToken cancellationToken)
+    {
+        Response.Headers.CacheControl = "no-store";
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        try
+        {
+            var account = await accountService.ChangeOwnPasswordAsync(userId, request.CurrentPassword, request.NewPassword, cancellationToken);
+            await SignInAsync(account);
+            return Ok();
+        }
+        catch (InvalidCurrentPasswordException)
+        {
+            return BadRequest(new { error = "invalid_current_password" });
+        }
+        catch (NewPasswordRejectedException ex)
+        {
+            return BadRequest(new { error = ex.Code, minimumPasswordLength = DeploymentSetupService.MinimumPasswordLength });
         }
     }
 

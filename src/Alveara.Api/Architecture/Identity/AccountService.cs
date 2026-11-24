@@ -33,6 +33,11 @@ public class InvalidOrExpiredResetTokenException() : Exception("Invalid or expir
 // step-up reauthentication (the caller's current password), not just an active session.
 public class CurrentPasswordRequiredToReplaceMfaException() : Exception("Current password is required to replace an existing MFA factor.");
 public class InvalidCurrentPasswordException() : Exception("Current password is incorrect.");
+/// <summary>ALV-N030: the new password chosen in a self-service change is not acceptable; <see cref="Code"/> says why.</summary>
+public class NewPasswordRejectedException(string code) : Exception(code)
+{
+    public string Code { get; } = code;
+}
 public class InvalidSessionTimeoutException(int minutes) : Exception($"Session timeout of {minutes} minutes is outside the allowed range.");
 
 /// <summary>An in-progress login that has passed the password check but still needs an MFA code.</summary>
@@ -831,11 +836,40 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
         account.PasswordHash = Pbkdf2PasswordHasher.Hash(newPassword);
         account.FailedLoginAttempts = 0;
         account.LockedOutUntilUtc = null;
+        account.MustChangePassword = false;   // ALV-N030 (R01 CR-4): a completed reset clears a forced change - the recovery path for a lost temporary password
         BumpSecurityStamp(account);
         await AuditSessionStore.RevokeOpenAsync(db, account.Id, account.Id, DateTimeOffset.UtcNow, cancellationToken);   // ALV-N025 (BR-01): the stamp rotated: open sessions close as Revoked, in this save
         AddAudit(AuditEventTypes.PasswordReset, account.Id, account.Id, "Password reset completed.");
         await db.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// ALV-N030: a signed-in user changes their own password (the only way out of a forced change other than an administrator's reset). The current password
+    /// must verify; the new one must be at least <see cref="DeploymentSetupService.MinimumPasswordLength"/> characters and differ from the current one. On success,
+    /// in one transaction: the new hash, <see cref="UserAccount.MustChangePassword"/> cleared, the security stamp rotated (every earlier cookie, this one included,
+    /// stops working and its session row closes as Revoked) and one <see cref="AuditEventTypes.PasswordChanged"/> row that says whether the change was forced.
+    /// The caller re-issues the session. A wrong current password changes nothing and is not counted toward lockout (the caller is already signed in).
+    /// </summary>
+    public async Task<UserAccount> ChangeOwnPasswordAsync(Guid userAccountId, string? currentPassword, string? newPassword, CancellationToken cancellationToken = default)
+    {
+        await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
+        var account = await LoadLockedAsync(userAccountId, cancellationToken);
+        if (account.PasswordHash is null || string.IsNullOrEmpty(currentPassword) || !Pbkdf2PasswordHasher.Verify(currentPassword, account.PasswordHash))
+            throw new InvalidCurrentPasswordException();
+        if ((newPassword ?? string.Empty).Length < DeploymentSetupService.MinimumPasswordLength) throw new NewPasswordRejectedException("password_too_short");
+        if (newPassword == currentPassword) throw new NewPasswordRejectedException("password_unchanged");
+
+        var wasForced = account.MustChangePassword;
+        account.PasswordHash = Pbkdf2PasswordHasher.Hash(newPassword!);
+        account.MustChangePassword = false;
+        BumpSecurityStamp(account);
+        await AuditSessionStore.RevokeOpenAsync(db, account.Id, account.Id, DateTimeOffset.UtcNow, cancellationToken);
+        AddAudit(AuditEventTypes.PasswordChanged, account.Id, account.Id,
+            wasForced ? "Password changed by the account holder (required change at first sign-in)." : "Password changed by the account holder.");
+        await db.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+        return account;
     }
 
     /// <summary>Invalidates every existing session for the account by rotating its security stamp.</summary>

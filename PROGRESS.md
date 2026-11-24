@@ -3619,3 +3619,10 @@
   - What changed: DeploymentSetupService (hash-only token, 15 min, single use, 5-failure void, exactly-once completion), SetupController (/api/setup/status, /api/setup/deployment-administrator, SetupAttempts limiter), `setup issue-token` CLI (exit 0/1/2, console only); AuthController register/bootstrap-admin removed; New-DevAdmin.ps1 uses token flow; Start-DevApi.ps1 drops the old secret
   - Verification: focused DeploymentSetupServiceTests + DeploymentSetupApiTests 9/9 passed (26 s)
   - Notes: assumed 12-char minimum password; old AccountService register/bootstrap kept internal for tests until slice 5 (LegacyAccountRequests.cs); removed routes answer 404, or 405 when a client build exists (GET-only SPA fallback) - test accepts both and checks no account; suites using register/bootstrap-admin fail until slice 5
+
+- [x] ALV-N030 slice 3: forced password-change gate, self-service change route, identity fields
+  - Date: 2026-11-24
+  - Session: CC-20261123-q4vn
+  - What changed: PasswordChangeGateMiddleware + AllowedWhilePasswordChangeRequired (exactly 5 exempt actions; one refusal audit per session); MustChangePassword read in OnValidatePrincipal; POST /api/auth/password/change (AccountService.ChangeOwnPasswordAsync: verify, 12-char min, stamp rotation, PasswordChanged audit, session re-issue); reset-complete clears MustChangePassword; /api/auth/permissions adds mustChangePassword, accountKind, isPracticeOwner, practiceOwnerExists
+  - Verification: focused PasswordChangeGateTests (6) + DeploymentSetupServiceTests + DeploymentSetupApiTests 15/15 passed (36 s)
+  - Notes: deviation - brief names whoami, but whoami is Admin-only and the client's identity call is /api/auth/permissions, so fields and exemption are there; gate applies only to endpoints requiring sign-in; 12-char minimum reused for self-service change

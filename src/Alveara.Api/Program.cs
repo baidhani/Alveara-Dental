@@ -354,7 +354,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
             var db = context.HttpContext.RequestServices.GetRequiredService<AlveraDbContext>();
             var current = await db.UserAccounts
                 .Where(u => u.Id == userId)
-                .Select(u => new { u.SecurityStamp, PolicyVersion = db.PermissionPolicyStates.Select(s => (long?)s.Version).FirstOrDefault() })
+                .Select(u => new { u.SecurityStamp, u.MustChangePassword, PolicyVersion = db.PermissionPolicyStates.Select(s => (long?)s.Version).FirstOrDefault() })
                 .SingleOrDefaultAsync();
 
             if (current is null || current.SecurityStamp.ToString() != stampClaim)
@@ -362,6 +362,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
                 context.RejectPrincipal();
                 return;
             }
+            // ALV-N030: the forced-change gate reads the flag from this same query (no extra round trip); PasswordChangeGateMiddleware enforces it
+            if (current.MustChangePassword) context.HttpContext.Items[PasswordChangeGateMiddleware.ItemKey] = true;
             if (current.PolicyVersion is { } policyVersion) context.HttpContext.Items[Alveara.Api.Architecture.Permissions.PolicyVersionHandoff.Key] = policyVersion;
         };
     });
@@ -431,6 +433,7 @@ app.UseHttpsRedirection();
 app.UseCors(LocalClientCorsPolicy);
 
 app.UseAuthentication();
+app.UseMiddleware<PasswordChangeGateMiddleware>();   // ALV-N030: 403 password_change_required for a signed-in account that must change its password first
 app.UseAuthorization();
 app.UseAntiforgery();
 app.UseRateLimiter();
