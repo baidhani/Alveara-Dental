@@ -3542,3 +3542,10 @@
   - What changed: UNASSIGNED_FINDINGS.md U-027/U-030 decided, U-032 direction recorded, U-033..U-035 added
   - Verification: documents only
   - Notes: not pushed
+
+- [x] Record the ALV-N027 owner decisions and the PD-04 account/owner architecture direction
+  - Date: 2026-11-23
+  - Session: CC-20261123-q4vn
+  - What changed: docs/design/ALV-N027_OWNER_DECISION_RECORD.md, docs/design/ALV-N027_PD-04_ACCOUNT_OWNER_AND_SETUP_ARCHITECTURE.md (owner text unchanged + rulings + read-only survey); U-033 marked not approved
+  - Verification: documents only; survey by reading code at a142a1e
+  - Notes: PD-04 is now its own story (ACCT), next before N027 implementation; open questions Q-ACCT-1..3
