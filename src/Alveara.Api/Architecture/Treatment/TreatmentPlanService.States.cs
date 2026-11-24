@@ -91,7 +91,7 @@ public partial class TreatmentPlanService
         StageState(plan, item.Id, previous, ItemAcceptance.Accepted, wanted, ItemCompletion.NotStarted, date, null, previous?.DecidedByName, actor, now);
         StageEvent(plan, await NextEventAsync(planId, ct), scheduled ? TreatmentPlanChanges.TargetDateSet : TreatmentPlanChanges.TargetDateCleared, itemId, null, null, actor, now, plan.CurrentRevision);
         AuditService.Record(db, scheduled ? "TreatmentPlanItemTargetDateSet" : "TreatmentPlanItemTargetDateCleared", nameof(TreatmentPlan), planId, actor,
-            $"{await ItemLabelAsync(plan, item, ct)} {(scheduled ? $"target date set to {date:yyyy-MM-dd}{(date < Today() ? " (overdue, confirmed)" : "")}" : "target date cleared")}.");
+            $"{await ItemLabelAsync(plan, item, ct)} {(scheduled ? $"target date set to {date!.Value.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture)}{(date < Today() ? " (overdue, confirmed)" : "")}" : "target date cleared")}.");
         await SaveAsync(planId, ct);
         return await GetAsync(planId, ct);
     }

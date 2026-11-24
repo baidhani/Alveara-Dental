@@ -32,8 +32,7 @@ public static class TreatmentPlanCopyPdf
 
     public static Request For(TreatmentPlanCopyIssue issue, PlanCopyContent c, IPracticeClock clock, DateTimeOffset producedAtUtc)
     {
-        var inv = CultureInfo.InvariantCulture;
-        string Minute(DateTimeOffset utc) => clock.ToPracticeLocal(utc).ToString("yyyy-MM-dd HH:mm", inv);
+        string Minute(DateTimeOffset utc) => clock.ToPracticeLocal(utc).ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
         var anyDone = c.Lines.Any(l => l.Completion == ItemCompletion.Completed);
         object Line(PlanCopyLine l) => new
         {
@@ -47,7 +46,7 @@ public static class TreatmentPlanCopyPdf
         var groups = c.Phases.Select(p => new
         {
             title = $"Phase {p.PhaseNumber}: {p.Name}",
-            when = string.Join(" · ", new[] { p.PlannedVisit, p.TargetDate is { } t ? "target " + t.ToString("yyyy-MM-dd", inv) : null }.Where(x => !string.IsNullOrWhiteSpace(x))),
+            when = string.Join(" · ", new[] { p.PlannedVisit, p.TargetDate is { } t ? "target " + t.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) : null }.Where(x => !string.IsNullOrWhiteSpace(x))),
             items = c.Lines.Where(l => l.PhaseNumber == p.PhaseNumber).Select(Line).ToList(),
         }).ToList();
         var loose = c.Lines.Where(l => l.PhaseNumber is null || !phaseNumbers.Contains(l.PhaseNumber.Value)).ToList();
@@ -64,7 +63,7 @@ public static class TreatmentPlanCopyPdf
             practice = c.Envelope.Practice.Name is null ? null : c.Envelope.Practice,
             title = $"Your treatment plan: {c.Title}",
             prepared = string.IsNullOrWhiteSpace(c.Envelope.PatientName) ? $"Prepared on {issued[..10]}." : $"Prepared for {c.Envelope.PatientName} on {issued[..10]}.",
-            mrn = c.Envelope.Mrn.ToString(inv),
+            mrn = c.Envelope.Mrn.ToString(CultureInfo.InvariantCulture),
             explanation = c.PatientExplanation ?? (anyDone
                 ? "This is the care your dentist planned with you, including what has already been done. Please ask if anything is unclear."
                 : "Your dentist has proposed the care below. Please ask if anything is unclear."),

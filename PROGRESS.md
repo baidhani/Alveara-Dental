@@ -3661,3 +3661,10 @@
   - What changed: product - AccountService.RegisterAsync/BootstrapFirstAdminAsync and four unused exceptions removed, StaffProviderService.CreateStaffAsync/UpdateStaffAsync(link)/ValidateAccountLinkAsync removed; tests - TestAccounts (direct account fixtures, HTTP-shaped replies) and TestStaff (direct profile fixtures), IdentityTestHelpers rewritten, 27 API files mechanically moved off the removed routes, ConfigurationApiTests/PrescriptionWorkflowApiTests use POST /api/config/staff-members, 16 tests of removed features deleted, rate-limit tests retargeted, LegacyAccountRequests.cs deleted
   - Verification: owner-approved focused run (directly edited 37 classes + shared-base sample): A 104/112, B 208/208, C 166/166, D 68/69, E 98/98 (about 16 min); the 6 LoginPresentationApiTests failures were a fixture gap (reply lacked presentationAdministrator/notice), fixed, 7/7; the 3 remaining failures are pre-existing at 4e05be3 (proven in a scratch worktree), recorded as U-038 and U-039
   - Notes: indirect users of the changed shared bases are deferred to ALV-N028's broad regression
+
+- [x] ALV-N030: U-037 and U-039 fixed (owner assignment 2026-11-24)
+  - Date: 2026-11-24
+  - Session: CC-20261123-q4vn
+  - What changed: U-037 - CultureInfo.InvariantCulture named at every fixed-format date the culture guard lists (PrescriptionPdf.cs, TreatmentPlanCopyPdf.cs, UnscheduledTreatmentJobs.cs, BookingTreatmentLinks.cs, TreatmentPlanService.Links.cs, TreatmentPlanService.States.cs, ClearanceService.cs); U-039 - BackupRecoveryHardeningTests builds the included-class list from ManagedAssetClasses.All
+  - Verification: TimeCultureGuardTests 24/24; focused group (treatment-plan copy, state and link-merge, clearances, unscheduled treatment, prescription PDF text, culture guard, backup coverage) 141/141 (2 m 18 s)
+  - Notes: U-037 scope was larger than first reported (truncated message): 9 lines in 7 files, 5 of them real slips with no culture; corrected in the findings list

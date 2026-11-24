@@ -46,7 +46,7 @@ internal static class BookingTreatmentLinks
         var planIds = items.Select(c => c.Plan.Id).Distinct().ToList();
         var nextEvent = (await db.TreatmentPlanEvents.AsNoTracking().Where(e => planIds.Contains(e.PlanId)).GroupBy(e => e.PlanId).Select(g => new { g.Key, Max = g.Max(e => e.EventNumber) }).ToListAsync(ct))
             .ToDictionary(x => x.Key, x => x.Max + 1);
-        var day = clock.ToPracticeLocal(appointment.StartUtc).ToString("yyyy-MM-dd");
+        var day = clock.ToPracticeLocal(appointment.StartUtc).ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
         foreach (var c in items)
         {
             db.TreatmentPlanItemAppointmentLinks.Add(new TreatmentPlanItemAppointmentLink

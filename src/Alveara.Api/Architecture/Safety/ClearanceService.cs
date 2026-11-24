@@ -138,7 +138,7 @@ public class ClearanceService(AlveraDbContext db, IPracticeClock clock)
         var wanted = ids.Where(i => i is not null).Select(i => i!.Value).Distinct().ToList();
         if (wanted.Count == 0) return new Dictionary<Guid, string>();
         return await db.Documents.AsNoTracking().Where(d => wanted.Contains(d.Id))
-            .ToDictionaryAsync(d => d.Id, d => $"{d.OriginalFileName} ({d.DocumentDate:yyyy-MM-dd})", ct);   // the same name the document library and the picker show (not the optional description)
+            .ToDictionaryAsync(d => d.Id, d => $"{d.OriginalFileName} ({d.DocumentDate.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture)})", ct);   // the same name the document library and the picker show (not the optional description)
     }
 
     // ---------- shared ----------

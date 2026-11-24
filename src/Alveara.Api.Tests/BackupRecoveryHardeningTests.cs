@@ -776,7 +776,9 @@ public class BackupRecoveryHardeningTests : IClassFixture<TestDatabaseFixture>, 
         await _env.ConfigureRecoveryKeyAsync();
         var record = await BackupAsync();
         await using var db = _env.NewDb();
-        await db.BackupRecords.Where(r => r.Id == record.Id).ExecuteUpdateAsync(s => s.SetProperty(r => r.IncludedAssetClasses, "database,documents,dataProtectionKeys"));
+        // U-039 (ALV-N030): every managed class except deployment configuration, from the product's own list, so a class added later (as login backgrounds were) cannot break this
+        var allButDeployment = string.Join(",", ManagedAssetClasses.All.Where(c => c != ManagedAssetClasses.DeploymentConfiguration));
+        await db.BackupRecords.Where(r => r.Id == record.Id).ExecuteUpdateAsync(s => s.SetProperty(r => r.IncludedAssetClasses, allButDeployment));
 
         var status = await _env.NewBackupService(db).GetStatusAsync(default);
 

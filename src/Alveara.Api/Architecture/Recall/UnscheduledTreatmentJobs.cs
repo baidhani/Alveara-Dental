@@ -169,7 +169,7 @@ public sealed class UnscheduledTreatmentCloseJobHandler(IPracticeClock clock) : 
         if (task is not { Status: FollowUpStatuses.Open, Kind: FollowUpKinds.UnscheduledTreatment, SourcePlanItemId: { } itemId }) return;
         var judgement = await UnscheduledTreatmentRules.JudgeAsync(db, itemId, ct);
         if (judgement is { Waiting: true } && UnscheduledTreatmentRules.SameEpisode(task.SourceKey!, itemId, judgement.Sequence, judgement.LinkSequence, judgement.Ended)) return;
-        var day = judgement?.BookedForUtc is { } at ? clock.ToPracticeLocal(at).ToString("yyyy-MM-dd") : "";
+        var day = judgement?.BookedForUtc is { } at ? clock.ToPracticeLocal(at).ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture) : "";
         SystemTaskWriter.Close(db, task, judgement?.Settled ?? false, UnscheduledTreatmentRules.ClosureNote(judgement, day), clock.UtcNow);
     }
 }

@@ -40,9 +40,8 @@ public static class PrescriptionPdf
 
     public static Request For(PrescriptionIssue issue, PrescriptionRecord r, PrescriptionIssueEnvelope envelope, DateTimeOffset? endedAtUtc, string? endedReason, IPracticeClock clock, DateTimeOffset producedAtUtc)
     {
-        var inv = CultureInfo.InvariantCulture;
-        string Day(DateTimeOffset utc) => clock.ToPracticeLocal(utc).ToString("yyyy-MM-dd", inv);
-        string Minute(DateTimeOffset utc) => clock.ToPracticeLocal(utc).ToString("yyyy-MM-dd HH:mm", inv);
+        string Day(DateTimeOffset utc) => clock.ToPracticeLocal(utc).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+        string Minute(DateTimeOffset utc) => clock.ToPracticeLocal(utc).ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
         var inactive = issue.StatusAtIssue != PrescriptionStatuses.Active;
         var p = envelope.Patient;
         var allergy = envelope.Allergy ?? AllergyOf(r);                                                       // an issue made before the restoration: the outcome recorded on the prescription
@@ -56,13 +55,13 @@ public static class PrescriptionPdf
             prescribed = Day(r.PrescribedAtUtc),
             patient = new
             {
-                p.Name, dateOfBirth = DateOnly.Parse(p.DateOfBirth, inv).ToString("yyyy-MM-dd", inv), p.Mrn,
+                p.Name, dateOfBirth = DateOnly.Parse(p.DateOfBirth, CultureInfo.InvariantCulture).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), p.Mrn,
                 address = string.Join(", ", new[] { p.AddressLine1, p.AddressLine2, $"{p.City}, {p.State} {p.PostalCode}", p.Country == "US" ? null : p.Country }.Where(x => !string.IsNullOrWhiteSpace(x))),
             },
             prescriber = envelope.Prescriber,
             practice = envelope.Practice,
             medication = r.Medication,
-            dose = $"{r.DoseValue.ToString("0.###", inv)} {r.DoseUnit}",
+            dose = $"{r.DoseValue.ToString("0.###", CultureInfo.InvariantCulture)} {r.DoseUnit}",
             frequency = FrequencyLabel(r.Frequency),
             directions = r.Instructions,
             quantity = Quantity(r.QuantityValue!.Value, r.QuantityUnit!),

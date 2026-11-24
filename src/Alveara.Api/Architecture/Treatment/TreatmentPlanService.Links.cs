@@ -154,7 +154,7 @@ public partial class TreatmentPlanService
         return $"Procedure {code} (item {item.ItemNumber}) of the treatment plan {(plan.ReferenceCode is null ? "without a reference code" : $"with reference {plan.ReferenceCode}")}";
     }
 
-    private string DayOf(DateTimeOffset utc) => clock.ToPracticeLocal(utc).ToString("yyyy-MM-dd");
+    private string DayOf(DateTimeOffset utc) => clock.ToPracticeLocal(utc).ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
 
     /// <summary>Saves a link change. A same-moment duplicate (the unique item/sequence) re-reads: if the item now holds what was asked, the request was a retry and is quiet; otherwise a conflict.</summary>
     private async Task SaveLinkAsync(Guid planId, Guid itemId, Guid? wantedAppointment, CancellationToken ct)
