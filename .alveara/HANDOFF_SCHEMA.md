@@ -23,7 +23,7 @@ PLANNED → READY → IN_PROGRESS → AWAITING_REVIEW → COMPLETE (`fullRegress
 Exceptional states:
 
 - `AWAITING_REGRESSION` — a Stage 1 review accepted the implementation conditionally; the exact broad-regression contract is still required before final review.
-- `COMPLETE` with `fullRegression: "DEFERRED_TO_ALV-N028"` — permitted only for `ALV-N019` through `ALV-N027` and the owner-approved plan items `ALV-N020-C01` and `ALV-N029` (execution-plan amendment of 2026-11-12) after independent approval of the package's focused stability proof. It is not release-ready and may not unlock release engineering, Gate F, deployment, or a release decision; `ALV-N028` owns the one consolidated final regression.
+- `COMPLETE` with `fullRegression: "DEFERRED_TO_ALV-N028"` — permitted only for `ALV-N019` through `ALV-N027` and the owner-approved plan items `ALV-N020-C01`, `ALV-N029` and `ALV-N030` (execution-plan amendments of 2026-11-12 and, for `ALV-N030`, 2026-11-24) after independent approval of the package's focused stability proof. It is not release-ready and may not unlock release engineering, Gate F, deployment, or a release decision; `ALV-N028` owns the one consolidated final regression.
 - `BLOCKED` — cannot proceed because a dependency, requirement, credential, architecture decision, defect, or an inconclusive regression environment blocks truthful completion.
 - `CHANGES_REQUIRED` — implementation ran, review found work that must be corrected before completion.
 - `DEFERRED` — product owner deliberately postponed the story; impact/reason must be recorded.
@@ -85,7 +85,7 @@ Use this flow for every future story, milestone, release, and gate that requires
 
 ### Post-Gate-E stabilization-program deferred-regression closure
 
-This narrowly scoped route applies only to `ALV-N019` through `ALV-N027`, under the execution-plan exception dated 2026-11-11, and to `ALV-N020-C01` and `ALV-N029`, which the owner-approved plan amendment of 2026-11-12 places under the same exception. It replaces package-level Stage 2 with focused proof and transfers the accumulated broad-regression obligation to `ALV-N028`.
+This narrowly scoped route applies only to `ALV-N019` through `ALV-N027`, under the execution-plan exception dated 2026-11-11, and to `ALV-N020-C01`, `ALV-N029` and `ALV-N030`, which the owner-approved plan amendments of 2026-11-12 and 2026-11-24 place under the same exception. It replaces package-level Stage 2 with focused proof and transfers the accumulated broad-regression obligation to `ALV-N028`.
 
 1. The attempt handoff states `fullRegression: "DEFERRED_TO_ALV-N028"`, identifies the exact focused stability proof, and records every changed subsystem and deferred broad suite.
 2. The reviewer may return `APPROVED` only after inspecting that focused proof; otherwise ordinary `CHANGES_REQUIRED` applies.

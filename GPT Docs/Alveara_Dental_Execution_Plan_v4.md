@@ -3840,14 +3840,34 @@ The underlying R05 source plan and its raw-log mapping remain the detailed accep
 
 **NEXT:** After final approval and closure, continue to item 64.
 
+## 63a — ALV-N030 — Accounts, Deployment Administrator, and Practice Owner
+
+**Type:** New Production — owner-approved plan amendment of 2026-11-24 (PD-04, split out of ALV-N027)
+**Dependencies:** ALV-N026
+
+**Scope:** The account and onboarding architecture in `docs/design/ALV-N027_PD-04_ACCOUNT_OWNER_AND_SETUP_ARCHITECTURE.md`, as specified by the independently approved pre-implementation brief `docs/design/ACCT_PRE_IMPLEMENTATION_BRIEF.md` (R04, `.alveara/reviews/ACCT/BRIEFING-R04.md`):
+- a first-run setup page with a one-time, short-lived token creates the account-only Deployment Administrator;
+- "Add staff member" creates the staff profile and interactive account as one linked pair, with a temporary password and a forced change at first sign-in;
+- the protected Practice Owner designation (one active holder; transfer out of scope);
+- anonymous sign-up and the old bootstrap-admin endpoint are removed;
+- test provisioning only in a separate loopback-only TestHost.
+
+The setup wizard is a separate later story.
+
+**Acceptance:** Every rule and focused test (S1 to S17, guards G1 to G8) in the approved brief passes. No new human staff record can be created without its linked account (legacy remediation only). The product host and its publish output contain no test-support code or route. The upgrade never silently selects a Deployment Administrator or a Practice Owner.
+
+**Required coverage:** The brief's focused security matrix, migration tests for 0, 1 and 2+ profile-less administrators, and the harness migration proven by a sample of real-backend walkthroughs chosen with the owner. Post-Gate-E deferred-regression route: `fullRegression: DEFERRED_TO_ALV-N028`, `releaseCertified: false`.
+
+**NEXT:** After final approval and closure, continue to item 64 (ALV-N027).
+
 ## 64 — ALV-N027 — Messaging, Follow-Ups, Reports, Navigation, Configuration, and Onboarding
 
 **Type:** New Production  
-**Dependencies:** ALV-N026
+**Dependencies:** ALV-N030
 
 **Scope:** Consolidates R05 PKG-13 and PKG-14: messaging/notifications/follow-up, reports/measurement, navigation and visual consistency, practice configuration, onboarding, menu visibility, and date-format preference.
 
-**Acceptance:** Complete all mapped operational communication, follow-up, report, configuration, accessibility, and usability corrections without turning messages into clinical documentation. Resolve PD-04, PD-31, PD-34, and PD-37 before dependent behavior. DentalKeep public-facing identity must remain consistent throughout these surfaces.
+**Acceptance:** Complete all mapped operational communication, follow-up, report, configuration, accessibility, and usability corrections without turning messages into clinical documentation. Resolve PD-31, PD-34, and PD-37 before dependent behavior (PD-04 moved to item 63a, ALV-N030, by the amendment of 2026-11-24). DentalKeep public-facing identity must remain consistent throughout these surfaces.
 
 **Required coverage:** R05 stages 11 and 12 plus cross-cutting accessibility/usability checks, cases 9.01-10.05 and 12.01-12.03, and every mapped PKG-13/14 finding. Use two-stage review when the selected change risk requires broad regression.
 
@@ -3856,7 +3876,7 @@ The underlying R05 source plan and its raw-log mapping remain the detailed accep
 ## 65 — ALV-N028 — Complete Automated Accumulated-State Chain and Stabilization Exit Evidence
 
 **Type:** New Production  
-**Dependencies:** ALV-N019, ALV-N020, ALV-N020-C01, ALV-N021, ALV-N022, ALV-N023, ALV-N024, ALV-N025, ALV-N026, ALV-N027, ALV-N029
+**Dependencies:** ALV-N019, ALV-N020, ALV-N020-C01, ALV-N021, ALV-N022, ALV-N023, ALV-N024, ALV-N025, ALV-N026, ALV-N030, ALV-N027, ALV-N029
 
 **Scope:** R05 PKG-16. Run the complete chain once from an empty controlled environment with no resume, verify the tracked-exception register has no release-blocking entry, and package exit evidence.
 

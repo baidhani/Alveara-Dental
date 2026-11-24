@@ -1,6 +1,6 @@
 # Program Regression Ledger (post-Gate-E stabilization program)
 
-Authority: the execution-plan exception of 2026-11-11 and `.alveara/HANDOFF_SCHEMA.md` ("Post-Gate-E stabilization-program deferred-regression closure"). Packages `ALV-N019` through `ALV-N027`, and the owner-approved plan items `ALV-N020-C01` and `ALV-N029` (amendment of 2026-11-12), close on focused stability proof with `fullRegression: "DEFERRED_TO_ALV-N028"`. **None of them is release-certified.** `ALV-N028` owns the one frozen integrated release-candidate broad regression; nothing here unlocks release engineering, Gate F, deployment or a release decision.
+Authority: the execution-plan exception of 2026-11-11 and `.alveara/HANDOFF_SCHEMA.md` ("Post-Gate-E stabilization-program deferred-regression closure"). Packages `ALV-N019` through `ALV-N027`, and the owner-approved plan items `ALV-N020-C01`, `ALV-N029` and `ALV-N030` (amendments of 2026-11-12 and, for `ALV-N030`, 2026-11-24), close on focused stability proof with `fullRegression: "DEFERRED_TO_ALV-N028"`. **None of them is release-certified.** `ALV-N028` owns the one frozen integrated release-candidate broad regression; nothing here unlocks release engineering, Gate F, deployment or a release decision.
 
 Each package appends one section: implementation SHA, changed subsystems, the exact focused proof, and the broad obligations it hands to `ALV-N028`.
 

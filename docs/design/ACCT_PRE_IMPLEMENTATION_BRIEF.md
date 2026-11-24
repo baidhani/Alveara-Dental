@@ -13,7 +13,7 @@
 - **CR-2:** a separate `Alveara.Api.TestHost` executable replaces the `--test-support` startup path.
 - **CR-3:** path 1 chosen. With several profile-less administrators, no Deployment Administrator is selected, and an administrator designates the owner directly.
 - **Section 14:** questions resolved by the review.
-- **Story id:** to be assigned by the owner (working name ACCT).
+- **Story id:** **ALV-N030** (owner, 2026-11-24; plan item 63a; working name ACCT). **Approved for implementation:** `.alveara/reviews/ACCT/BRIEFING-R04.md`.
 - **Session:** CC-20261123-q4vn, 2026-11-23.
 - **Surveyed tree:** `d459025` (read-only).
 - **Position:** next implementation item, before ALV-N027 (owner sequence: ACCT, ALV-N027, setup-wizard story, release readiness).

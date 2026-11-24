@@ -3577,3 +3577,10 @@
   - What changed: DeploymentAdministratorAssigned limited to the migration single-candidate conversion; slice 5/matrix/evidence use G1-G8; review R03 stored
   - Verification: documents only; grep shows no remaining G1-G6 or administrator-pick wording
   - Notes: no code before approval
+
+- [x] ALV-N030 control insertion (ACCT approved for implementation)
+  - Date: 2026-11-24
+  - Session: CC-20261123-q4vn
+  - What changed: owner id ALV-N030 (plan item 63a) added to the execution plan v4, EXECUTION_STATUS (PLANNED, fullRegression DEFERRED_TO_ALV-N028, releaseCertified false; N027/N028 deps), story_catalog, HANDOFF_SCHEMA, regression ledger, BUILD_STATE; review BRIEFING-R04 stored and transitioned to APPROVED_FOR_IMPLEMENTATION
+  - Verification: documents only; both JSON files parse
+  - Notes: implementation waits for the owner's Go
