@@ -125,3 +125,13 @@ Status: **owner direction recorded; design input to the dedicated account story 
 - **Q-ACCT-1, how tests create users once registration is off.** Recommended: a test-only provisioning route enabled only by an explicit test-environment setting that production never sets, plus a guard test proving the route answers 404 without that setting. This lets the 200+ test files change one helper each, not their flows. The alternative is that every test signs in as an administrator and uses "Add staff member", which is slower and touches every spec.
 - **Q-ACCT-2, the existing administrator.** On upgrade, the existing bootstrap `Admin` becomes the Deployment Administrator only if it has no staff profile; otherwise it stays an ordinary administrator. Recommended.
 - **Q-ACCT-3, registration shutdown.** `POST /api/auth/register` is removed outright, answering 404 like an unknown route, rather than kept behind a switch. Recommended, since nothing in the product needs it once "Add staff member" exists.
+
+## 6. Owner answers to section 5 (2026-11-23)
+- **Q-ACCT-1:** approved. A distinct test-only user-creation route, not the former sign-up route behind a switch. It is mapped only in the dedicated test environment with an explicit test setting, and cannot be enabled in production, development, staging or deployed configuration by an ordinary flag. Production does not map it (404). A guard test proves it is absent outside the test host. It never appears in API documentation, navigation or deployment configuration. Existing test helper calls may move to it.
+- **Q-ACCT-2:** partly accepted:
+  - an Administrator without a staff profile becomes the Deployment Administrator;
+  - one with a profile stays an ordinary Administrator and is never silently made owner;
+  - if no owner exists after upgrade, an active Administrator sees a notice and may designate an eligible active staff member with a linked account (themselves included). This is confirmed and audited, and is a one-time transition step. It never chooses automatically by account order or creation date.
+- **Q-ACCT-3:** approved. The sign-up endpoint is removed completely (404). The test-only helper is separate and can never become a hidden production registration path.
+
+The brief: `docs/design/ACCT_PRE_IMPLEMENTATION_BRIEF.md`.

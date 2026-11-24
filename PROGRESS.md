@@ -3549,3 +3549,10 @@
   - What changed: docs/design/ALV-N027_OWNER_DECISION_RECORD.md, docs/design/ALV-N027_PD-04_ACCOUNT_OWNER_AND_SETUP_ARCHITECTURE.md (owner text unchanged + rulings + read-only survey); U-033 marked not approved
   - Verification: documents only; survey by reading code at a142a1e
   - Notes: PD-04 is now its own story (ACCT), next before N027 implementation; open questions Q-ACCT-1..3
+
+- [x] ACCT (PD-04) pre-implementation brief drafted for independent review
+  - Date: 2026-11-23
+  - Session: CC-20261123-q4vn
+  - What changed: docs/design/ACCT_PRE_IMPLEMENTATION_BRIEF.md; owner answers Q-ACCT-1..3 recorded in the PD-04 architecture doc
+  - Verification: documents only; read-only survey at d459025
+  - Notes: no code before review approval
