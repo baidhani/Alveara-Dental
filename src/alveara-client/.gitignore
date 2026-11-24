@@ -16,6 +16,8 @@ dist-ssr
 test-results
 playwright-report
 blob-report
+# ALV-N030: walkthrough output written next to the specs when a run gives no output folder; evidence belongs under .alveara/handoffs, never in the client tree
+*-e2e-out/
 
 # Editor directories and files
 .vscode/*
