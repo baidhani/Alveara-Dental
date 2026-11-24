@@ -50,7 +50,10 @@ public static class StartupModeProbe
     public static async Task<StartupModeState> DetectAsync(string? connectionString, IReadOnlyList<TimeSpan>? backoff = null, CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(connectionString)) return new StartupModeState(StartupMode.NotInstalled, 0);
-        var builder = new SqlConnectionStringBuilder(connectionString) { ConnectTimeout = (int)Timeout.TotalSeconds };
+        // ALV-N030 R02 (review CR-2): no connection pooling for the probe. After a failed open, a pool enters a "blocking period" and fails the next opens at once
+        // with the cached error, without trying the server - which made the retries below a no-op (found by the S21 silent-server test: 2 connections, not 4).
+        // The probe opens a handful of connections once per process start, so a pool gains nothing here.
+        var builder = new SqlConnectionStringBuilder(connectionString) { ConnectTimeout = (int)Timeout.TotalSeconds, Pooling = false };
         var options = new DbContextOptionsBuilder<AlveraDbContext>()
             .UseSqlServer(builder.ConnectionString, sql => sql.CommandTimeout((int)Timeout.TotalSeconds))
             .Options;

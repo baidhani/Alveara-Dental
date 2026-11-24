@@ -93,6 +93,52 @@ public class DeploymentSetupServiceTests : IAsyncLifetime
         Assert.False(await check.UserAccounts.AnyAsync(u => u.AccountKind == AccountKind.DeploymentAdministrator));
     }
 
+    /// <summary>
+    /// ALV-N030 R02 (review CR-1): simultaneous wrong attempts, each on its own context, released together. With exactly five, a lost update would leave
+    /// the count below five and the token usable; with twelve, the count must stop at five. Either way the token is voided, the right token is refused,
+    /// there is exactly one rejection row, later failures add none, and nothing attempted reaches the audit.
+    /// </summary>
+    [Theory]
+    [InlineData(5)]
+    [InlineData(12)]
+    public async Task Simultaneous_failures_are_all_counted_and_the_fifth_voids_the_token_once(int attempts)
+    {
+        var token = await IssueAsync(T0);
+        var gate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var tasks = Enumerable.Range(0, attempts).Select(i => Task.Run(async () =>
+        {
+            await using var s = new AlveraDbContextScope(_fixture);
+            var service = Service(s, T0);
+            await gate.Task;
+            await Assert.ThrowsAsync<SetupFailedException>(() => service.CompleteAsync($"wrong-{i}", $"tried-user-{i}", $"tried-password-{i}", default));
+        })).ToList();
+        gate.SetResult();
+        await Task.WhenAll(tasks);
+
+        await using (var db = _fixture.CreateContext())
+        {
+            var row = await db.SetupTokens.AsNoTracking().SingleAsync();
+            Assert.NotNull(row.VoidedAtUtc);
+            Assert.Equal(DeploymentSetupService.MaxFailedAttempts, row.FailedAttempts);
+            Assert.Equal(1, await db.AuditLogEntries.CountAsync(a => a.EventType == AuditEventTypes.SetupTokenRejected));
+        }
+        await Assert.ThrowsAsync<SetupFailedException>(() => CompleteAsync(token, T0));                 // the right token is refused now
+        for (var i = 0; i < 3; i++) await Assert.ThrowsAsync<SetupFailedException>(() => CompleteAsync("later-" + i, T0));
+
+        await using var check = _fixture.CreateContext();
+        Assert.Equal(1, await check.AuditLogEntries.CountAsync(a => a.EventType == AuditEventTypes.SetupTokenRejected));   // later failures add none
+        Assert.Equal(DeploymentSetupService.MaxFailedAttempts, (await check.SetupTokens.AsNoTracking().SingleAsync()).FailedAttempts);
+        Assert.False(await check.UserAccounts.AnyAsync(u => u.AccountKind == AccountKind.DeploymentAdministrator));
+        var details = await check.AuditLogEntries.AsNoTracking().Select(a => a.Details).ToListAsync();
+        Assert.All(details, d =>
+        {
+            Assert.DoesNotContain(token, d);
+            Assert.DoesNotContain("wrong-", d);
+            Assert.DoesNotContain("tried-user-", d);
+            Assert.DoesNotContain("tried-password-", d);
+        });
+    }
+
     [Fact]
     public async Task Issuing_a_new_token_voids_the_previous_one()
     {

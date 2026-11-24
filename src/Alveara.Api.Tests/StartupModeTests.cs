@@ -61,7 +61,9 @@ public class StartupModeTests : IAsyncLifetime
     [Fact]
     public async Task S18_each_condition_decides_its_mode_and_the_probe_never_migrates()
     {
-        Assert.Equal(StartupMode.NotInstalled, (await StartupModeProbe.DetectAsync(MissingDatabase)).Mode);
+        var missing = MissingDatabase;
+        Assert.Equal(StartupMode.NotInstalled, (await StartupModeProbe.DetectAsync(missing)).Mode);
+        Assert.False(await DatabaseExistsAsync(new SqlConnectionStringBuilder(missing).InitialCatalog));   // R02 (CR-2): the probe creates nothing
         Assert.Equal(StartupMode.NotInstalled, (await StartupModeProbe.DetectAsync(null)).Mode);
 
         Assert.Equal(new StartupModeState(StartupMode.Normal, 0), await StartupModeProbe.DetectAsync(_fixture.ConnectionString));   // the test database is set up
@@ -80,6 +82,96 @@ public class StartupModeTests : IAsyncLifetime
         Assert.Equal(new StartupModeState(StartupMode.UpgradeRequired, 1), upgrade);
         await using (var db = _fixture.CreateContext())
             Assert.Equal([removed], await db.Database.GetPendingMigrationsAsync());   // still pending: the API never migrates
+    }
+
+    private async Task<bool> DatabaseExistsAsync(string name)
+    {
+        await using var connection = new SqlConnection(new SqlConnectionStringBuilder(_fixture.ConnectionString) { InitialCatalog = "master" }.ConnectionString);
+        await connection.OpenAsync();
+        await using var command = connection.CreateCommand();
+        command.CommandText = "SELECT DB_ID(@name)";
+        command.Parameters.AddWithValue("@name", name);
+        return await command.ExecuteScalarAsync() is not DBNull and not null;
+    }
+
+    // ---------- S21 (R02, review CR-2): an unreachable server ends the readiness check within its bound ----------
+
+    /// <summary>
+    /// The real timeout and retry path: a local listener accepts every connection and never answers, so each attempt runs to the probe's 15 s timeout.
+    /// The probe must make 1 + 3 attempts with its 1/2/4 s backoff, answer NotInstalled, and finish within 4 x 15 s + 7 s (+ 15 s slack); the lower bound
+    /// (4 x 15 s) shows the timeouts really ran. It cannot create or migrate anything: nothing on the other end is a database.
+    /// </summary>
+    [Fact]
+    public async Task S21_a_silent_server_runs_every_attempt_to_its_timeout_and_the_check_ends_within_its_bound()
+    {
+        using var listener = new TcpListener(IPAddress.Loopback, 0);
+        listener.Start();
+        var port = ((IPEndPoint)listener.LocalEndpoint).Port;
+        var held = new List<TcpClient>();
+        using var stop = new CancellationTokenSource();
+        var accepting = Task.Run(async () =>
+        {
+            try { while (true) { var c = await listener.AcceptTcpClientAsync(stop.Token); lock (held) held.Add(c); } }   // accept, never answer
+            catch (OperationCanceledException) { }
+        });
+
+        var watch = Stopwatch.StartNew();
+        var state = await StartupModeProbe.DetectAsync($"Server=tcp:127.0.0.1,{port};Database=AlveraSilent;Trusted_Connection=True;TrustServerCertificate=True;Encrypt=False");
+        watch.Stop();
+        stop.Cancel();
+        await accepting;
+        lock (held) { foreach (var c in held) c.Dispose(); }
+
+        var attempts = StartupModeProbe.MaxRetries + 1;
+        var upper = TimeSpan.FromSeconds(attempts * StartupModeProbe.Timeout.TotalSeconds + 1 + 2 + 4 + 15);
+        var lower = TimeSpan.FromSeconds(attempts * StartupModeProbe.Timeout.TotalSeconds);
+        Console.WriteLine($"S21 silent server: {watch.Elapsed.TotalSeconds:F1} s, {held.Count} connections, bound {lower.TotalSeconds}-{upper.TotalSeconds} s");
+        Assert.Equal(StartupMode.NotInstalled, state.Mode);
+        Assert.True(watch.Elapsed <= upper, $"took {watch.Elapsed}, over the bound {upper}");
+        Assert.True(watch.Elapsed >= lower, $"took {watch.Elapsed}: the attempts did not run to their timeout");
+        Assert.True(held.Count >= attempts, $"{held.Count} connections; expected at least {attempts} (the first attempt and {StartupModeProbe.MaxRetries} retries)");
+    }
+
+    /// <summary>The whole application on a server that refuses connections: the process starts, the readiness check ends within its bound, and the status route
+    /// answers "installation incomplete" - it neither hangs nor tries anything else.</summary>
+    [Fact]
+    public async Task S21_the_application_on_a_refusing_server_starts_not_installed_within_its_bound()
+    {
+        var refused = FreePort();   // nothing listens here
+        var port = FreePort();
+        var dll = Path.Combine(RepoRoot, "src", "Alveara.Api.ChainHost", "bin", "Debug", "net10.0", "Alveara.Api.ChainHost.dll");
+        var psi = new ProcessStartInfo("dotnet") { UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true, CreateNoWindow = true, WorkingDirectory = Path.GetDirectoryName(dll)! };
+        psi.ArgumentList.Add(dll);
+        psi.Environment["CHAIN_URL"] = $"http://127.0.0.1:{port}";
+        psi.Environment["CHAIN_CLOCK_MODE"] = "real";
+        psi.Environment["ASPNETCORE_ENVIRONMENT"] = "Test";
+        psi.Environment["ConnectionStrings__Alveara"] = $"Server=tcp:127.0.0.1,{refused};Database=AlveraRefused;Trusted_Connection=True;TrustServerCertificate=True;Encrypt=False";
+        psi.Environment["ClientBuildPath"] = _clientDir;
+        psi.Environment.Remove("ASPNETCORE_URLS");
+        var watch = Stopwatch.StartNew();
+        var process = Process.Start(psi)!;
+        process.OutputDataReceived += (_, _) => { };
+        process.ErrorDataReceived += (_, _) => { };
+        process.BeginOutputReadLine();
+        process.BeginErrorReadLine();
+        try
+        {
+            var bound = TimeSpan.FromSeconds((StartupModeProbe.MaxRetries + 1) * StartupModeProbe.Timeout.TotalSeconds + 1 + 2 + 4 + 30);   // + process start-up
+            using var client = new HttpClient { BaseAddress = new Uri($"http://127.0.0.1:{port}"), Timeout = TimeSpan.FromSeconds(5) };
+            HttpResponseMessage? status = null;
+            while (watch.Elapsed < bound && status is null)
+            {
+                Assert.False(process.HasExited, $"the process exited with {(process.HasExited ? process.ExitCode : 0)}");
+                try { status = await client.GetAsync("/api/setup/status"); }
+                catch (HttpRequestException) { await Task.Delay(500); }
+                catch (TaskCanceledException) { }
+            }
+            watch.Stop();
+            Console.WriteLine($"S21 refusing server: answered after {watch.Elapsed.TotalSeconds:F1} s (bound {bound.TotalSeconds} s)");
+            Assert.NotNull(status);
+            Assert.Equal((HttpStatusCode.ServiceUnavailable, "{\"mode\":\"installation_incomplete\"}"), (status!.StatusCode, await status.Content.ReadAsStringAsync()));
+        }
+        finally { Stop(process); }
     }
 
     // ---------- S19: what each mode answers ----------

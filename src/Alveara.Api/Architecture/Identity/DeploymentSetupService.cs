@@ -5,6 +5,7 @@ using Alveara.Api.Architecture.Time;
 using Alveara.Api.Data;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Alveara.Api.Architecture.Identity;
 
@@ -112,19 +113,44 @@ public class DeploymentSetupService(AlveraDbContext db, IPracticeClock clock)
         }
     }
 
-    /// <summary>A failed attempt counts against the current (newest usable) token; the fifth failure voids it and records one SetupTokenRejected entry.</summary>
+    /// <summary>
+    /// A failed attempt counts against the current (newest usable) token; the fifth failure voids it and records exactly one SetupTokenRejected entry.
+    /// ALV-N030 R02 (review CR-1): the count is ONE atomic database statement - the increment, the void at the fifth failure, and the new count returned through
+    /// OUTPUT - so concurrent failures are serialized by the row's update lock and none is lost. Only the statement that reaches the limit writes the audit row,
+    /// in the same transaction. A voided token no longer matches, so later failures neither count nor add rows. Nothing about the attempt itself is recorded.
+    /// </summary>
     private async Task CountFailureAsync(DateTimeOffset now, CancellationToken ct)
     {
-        var current = await db.SetupTokens.Where(t => t.ConsumedAtUtc == null && t.VoidedAtUtc == null).OrderByDescending(t => t.IssuedAtUtc).FirstOrDefaultAsync(ct);
-        if (current is null) return;
-        current.FailedAttempts++;
-        if (current.FailedAttempts >= MaxFailedAttempts)
+        await using var tx = await db.Database.BeginTransactionAsync(ct);
+        var connection = db.Database.GetDbConnection();
+        Guid? tokenId = null;
+        var attempts = 0;
+        await using (var command = connection.CreateCommand())
         {
-            current.VoidedAtUtc = now;
-            AuditService.Record(db, AuditEventTypes.SetupTokenRejected, entityType: "SetupToken", current.Id, null,
-                $"The first-run setup token was voided after {MaxFailedAttempts} failed attempts.");
+            command.Transaction = tx.GetDbTransaction();
+            command.CommandText =
+                "UPDATE t SET t.[FailedAttempts] = t.[FailedAttempts] + 1, " +
+                "t.[VoidedAtUtc] = CASE WHEN t.[FailedAttempts] + 1 >= @max THEN @now ELSE t.[VoidedAtUtc] END " +
+                "OUTPUT inserted.[Id], inserted.[FailedAttempts] " +
+                "FROM [SetupTokens] AS t " +
+                "WHERE t.[Id] = (SELECT TOP (1) [Id] FROM [SetupTokens] WITH (UPDLOCK) WHERE [ConsumedAtUtc] IS NULL AND [VoidedAtUtc] IS NULL ORDER BY [IssuedAtUtc] DESC) " +
+                "AND t.[ConsumedAtUtc] IS NULL AND t.[VoidedAtUtc] IS NULL;";
+            command.Parameters.Add(new SqlParameter("@max", System.Data.SqlDbType.Int) { Value = MaxFailedAttempts });
+            command.Parameters.Add(new SqlParameter("@now", System.Data.SqlDbType.DateTimeOffset) { Value = now });
+            await using var reader = await command.ExecuteReaderAsync(ct);
+            if (await reader.ReadAsync(ct))
+            {
+                tokenId = reader.GetGuid(0);
+                attempts = reader.GetInt32(1);
+            }
         }
-        await db.SaveChangesAsync(ct);
+        if (tokenId is { } id && attempts == MaxFailedAttempts)
+        {
+            AuditService.Record(db, AuditEventTypes.SetupTokenRejected, entityType: "SetupToken", id, null,
+                $"The first-run setup token was voided after {MaxFailedAttempts} failed attempts.");
+            await db.SaveChangesAsync(ct);
+        }
+        await tx.CommitAsync(ct);
     }
 
     internal static string Hash(string token) => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(token))).ToLowerInvariant();
