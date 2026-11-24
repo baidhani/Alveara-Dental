@@ -3668,3 +3668,10 @@
   - What changed: U-037 - CultureInfo.InvariantCulture named at every fixed-format date the culture guard lists (PrescriptionPdf.cs, TreatmentPlanCopyPdf.cs, UnscheduledTreatmentJobs.cs, BookingTreatmentLinks.cs, TreatmentPlanService.Links.cs, TreatmentPlanService.States.cs, ClearanceService.cs); U-039 - BackupRecoveryHardeningTests builds the included-class list from ManagedAssetClasses.All
   - Verification: TimeCultureGuardTests 24/24; focused group (treatment-plan copy, state and link-merge, clearances, unscheduled treatment, prescription PDF text, culture guard, backup coverage) 141/141 (2 m 18 s)
   - Notes: U-037 scope was larger than first reported (truncated message): 9 lines in 7 files, 5 of them real slips with no culture; corrected in the findings list
+
+- [x] ALV-N030: U-038 fixed (owner decision 2026-11-24) - Office Manager defaults cover Front Desk
+  - Date: 2026-11-24
+  - Session: CC-20261123-q4vn
+  - What changed: CollectPayments added to the default Office Manager permissions (PermissionMatrix.cs); new RoleSubsetInvariantTests (default Front Desk ⊆ default Office Manager); AccountSafetyTests - the impossible Dentist test retargeted to a Hygienist, three new tests (standard Front Desk managed; Front Desk granted an extra permission stays protected; Dentist-only permission never held by an Office Manager); VisitWorkflowPermissionTests default-holder row updated; handoff disclosures started in .alveara/handoffs/ALV-N030/PENDING_DISCLOSURES.md
+  - Verification: focused AccountSafetyTests + RoleSubsetInvariantTests + VisitWorkflowPermissionTests + PermissionMatrixTests + CollectPaymentsApiTests + EffectivePermissionServiceTests + PermissionPolicyStoreTests + AuthControllerPermissionMatrixTests 100/100 (1 m 1 s)
+  - Notes: default-role change disclosed for the handoff; the safety rule stays on effective permissions (no marker permission)

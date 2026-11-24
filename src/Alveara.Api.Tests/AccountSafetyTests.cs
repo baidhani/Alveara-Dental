@@ -327,26 +327,89 @@ public class AccountSafetyTests : SafetyTestBase
     [Fact]
     public async Task A_change_to_the_holders_effective_grants_changes_the_outcome_on_the_very_next_request()
     {
+        // ALV-N030 (U-038): the target is a Hygienist, whose extra permissions can all legitimately be granted to an Office Manager. A Dentist could never be
+        // covered (CompleteOwnStartedVisit is Dentist/Hygienist-only), so the earlier Dentist version of this test asked for an impossible grant.
         var holder = await NewUserAsync(Role.OfficeManager);
-        var dentist = await NewUserAsync(Role.Dentist);
+        var hygienist = await NewUserAsync(Role.Hygienist);
         var source = new ControlledPolicySource();
         foreach (var p in Holds) source.Overrides.Add(PolicyTestSupport.Override("OfficeManager", p.ToString(), "Grant"));
         source.Version = 1;
         var store = PolicyTestSupport.Store(source);
         await using (var db = Fixture.CreateContext())
-            await Assert.ThrowsAsync<AccountTargetNotAllowedException>(() => Service(db, new EffectivePermissionService(store)).SetAccountEnabledAsync(dentist, false, holder));
+            await Assert.ThrowsAsync<AccountTargetNotAllowedException>(() => Service(db, new EffectivePermissionService(store)).SetAccountEnabledAsync(hygienist, false, holder));
 
-        var missing = PermissionMatrix.PermissionsFor(Role.Dentist).Except(PermissionMatrix.PermissionsFor(Role.OfficeManager)).Except(Holds).ToList();
+        var missing = PermissionMatrix.PermissionsFor(Role.Hygienist).Except(PermissionMatrix.PermissionsFor(Role.OfficeManager)).Except(Holds).ToList();
         Assert.NotEmpty(missing);
+        Assert.All(missing, p => Assert.True(PermissionProtection.IsGrantableTo(p, Role.OfficeManager), $"{p} cannot be granted to an Office Manager"));
         foreach (var p in missing) source.Overrides.Add(PolicyTestSupport.Override("OfficeManager", p.ToString(), "Grant"));
-        source.Version = 2;                                                                                            // the office manager now holds everything a dentist holds
-        await using (var db = Fixture.CreateContext()) await Service(db, new EffectivePermissionService(store)).SetAccountEnabledAsync(dentist, false, holder);
-        Assert.True((await StateAsync(dentist)).Disabled);
+        source.Version = 2;                                                                                            // the office manager now holds everything a hygienist holds
+        await using (var db = Fixture.CreateContext()) await Service(db, new EffectivePermissionService(store)).SetAccountEnabledAsync(hygienist, false, holder);
+        Assert.True((await StateAsync(hygienist)).Disabled);
 
         source.Overrides.RemoveAll(o => missing.Any(m => m.ToString() == o.Permission));
         source.Version = 3;                                                                                            // revert: refused again, at once
         await using (var db = Fixture.CreateContext())
-            await Assert.ThrowsAsync<AccountTargetNotAllowedException>(() => Service(db, new EffectivePermissionService(store)).SetAccountEnabledAsync(dentist, true, holder));
+            await Assert.ThrowsAsync<AccountTargetNotAllowedException>(() => Service(db, new EffectivePermissionService(store)).SetAccountEnabledAsync(hygienist, true, holder));
+    }
+
+    // ---------- ALV-N030 (U-038): Front Desk is a subset of the Office Manager; the rule still follows effective permissions ----------
+
+    [Fact]
+    public async Task An_office_manager_manages_a_standard_front_desk_account()
+    {
+        var holder = await NewUserAsync(Role.OfficeManager);
+        var desk = await NewUserAsync(Role.FrontDesk);
+        var policy = WithOfficeManagerHolding(Holds);
+        await using (var db = Fixture.CreateContext()) await Service(db, policy).SetAccountEnabledAsync(desk, false, holder);
+        Assert.True((await StateAsync(desk)).Disabled);
+        await using (var db = Fixture.CreateContext()) await Service(db, policy).SetAccountEnabledAsync(desk, true, holder);
+        await using (var db = Fixture.CreateContext()) await Service(db, policy).SetSessionTimeoutAsync(desk, 60, holder);
+        await using (var db = Fixture.CreateContext()) await Service(db, policy).RevokeAllSessionsAsync(desk, holder);
+        Assert.False((await StateAsync(desk)).Disabled);
+    }
+
+    [Fact]
+    public async Task A_front_desk_role_given_a_permission_the_office_manager_lacks_stays_protected()
+    {
+        var holder = await NewUserAsync(Role.OfficeManager);
+        var desk = await NewUserAsync(Role.FrontDesk);
+        // a permission a practice may grant to Front Desk that the Office Manager does not hold
+        var extra = Enum.GetValues<Permission>().First(p => !PermissionMatrix.RoleHas(Role.OfficeManager, p) && !Holds.Contains(p) && PermissionProtection.IsGrantableTo(p, Role.FrontDesk));
+        var source = new ControlledPolicySource();
+        foreach (var p in Holds) source.Overrides.Add(PolicyTestSupport.Override("OfficeManager", p.ToString(), "Grant"));
+        source.Overrides.Add(PolicyTestSupport.Override("FrontDesk", extra.ToString(), "Grant"));
+        source.Version = 1;
+        var policy = new EffectivePermissionService(PolicyTestSupport.Store(source));
+
+        await using (var db = Fixture.CreateContext())
+        {
+            var refused = await Assert.ThrowsAsync<AccountTargetNotAllowedException>(() => Service(db, policy).SetAccountEnabledAsync(desk, false, holder));
+            Assert.Equal(AccountTargetRules.TargetExceedsActor, refused.Rule);
+        }
+        Assert.False((await StateAsync(desk)).Disabled);                                                                // nothing changed
+    }
+
+    [Fact]
+    public async Task The_office_manager_can_never_hold_the_dentist_only_permission_so_a_dentist_account_stays_protected()
+    {
+        Assert.False(PermissionProtection.IsGrantableTo(Permission.CompleteOwnStartedVisit, Role.OfficeManager));      // a grant is refused when written
+        var holder = await NewUserAsync(Role.OfficeManager);
+        var dentist = await NewUserAsync(Role.Dentist);
+        // grant the Office Manager every OTHER permission a Dentist holds: the Dentist-only one still leaves the Dentist outside its set
+        var source = new ControlledPolicySource();
+        foreach (var p in Holds) source.Overrides.Add(PolicyTestSupport.Override("OfficeManager", p.ToString(), "Grant"));
+        foreach (var p in PermissionMatrix.PermissionsFor(Role.Dentist).Except(PermissionMatrix.PermissionsFor(Role.OfficeManager)).Where(p => PermissionProtection.IsGrantableTo(p, Role.OfficeManager)))
+            source.Overrides.Add(PolicyTestSupport.Override("OfficeManager", p.ToString(), "Grant"));
+        source.Version = 1;
+        var policy = new EffectivePermissionService(PolicyTestSupport.Store(source));
+        Assert.DoesNotContain(Permission.CompleteOwnStartedVisit, await policy.PermissionsForAsync(Role.OfficeManager, default));
+
+        await using (var db = Fixture.CreateContext())
+        {
+            var refused = await Assert.ThrowsAsync<AccountTargetNotAllowedException>(() => Service(db, policy).SetAccountEnabledAsync(dentist, false, holder));
+            Assert.Equal(AccountTargetRules.TargetExceedsActor, refused.Rule);
+        }
+        Assert.False((await StateAsync(dentist)).Disabled);
     }
 
     [Fact]

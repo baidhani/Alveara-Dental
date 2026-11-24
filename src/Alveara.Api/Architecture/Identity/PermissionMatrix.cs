@@ -81,6 +81,7 @@ public static class PermissionMatrix
             Permission.ManageFormTemplates, Permission.CompleteForms, Permission.ViewSignedForms, Permission.VoidForms, // ALV-N010
             Permission.UpdateVisitFlow, // ALV-011-C01; ALV-N021 A2 (OD-07): the chairside default is removed (grantable back by an administrator)
             Permission.ReassignAppointmentProvider, // ALV-N021 A2 (OD-13)
+            Permission.CollectPayments, // ALV-N030 (U-038, owner decision 2026-11-24): Front Desk's defaults are a subset of the Office Manager's (guarded by RoleSubsetInvariantTests)
             Permission.ImportDocuments, Permission.ViewDocuments, // STORY-010: imports and categorizes; the settings stay with the administrator
             Permission.ManageDocuments, // ALV-N026 (PD-24): edits, inactivates and reactivates documents it may read; never a way round the read rule
             Permission.ManageDocumentStorage, // ALV-010-C01: checks the stored files and reviews the ones nothing points to

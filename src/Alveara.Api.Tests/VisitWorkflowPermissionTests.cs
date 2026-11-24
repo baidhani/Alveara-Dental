@@ -25,7 +25,7 @@ public class VisitWorkflowPermissionTests
     [InlineData(Role.Assistant, false, false, false)]
     [InlineData(Role.FrontDesk, false, false, true)]
     [InlineData(Role.Billing, false, false, false)]
-    [InlineData(Role.OfficeManager, false, true, false)]
+    [InlineData(Role.OfficeManager, false, true, true)]   // ALV-N030 (U-038): CollectPayments is an Office Manager default too (Front Desk defaults are a subset)
     [InlineData(Role.Admin, true, true, true)]
     [InlineData(Role.Unassigned, false, false, false)]
     public void Default_holders_of_the_new_permissions(Role role, bool completeOwn, bool reassign, bool collect)
