@@ -3703,3 +3703,10 @@
   - What changed: product - StartupMode/StartupModeProbe (decided before Build, 15 s timeout, 3 retries on connection failures, never migrates), StartupModeMiddleware (503 outside Normal except the mode's routes), app background services not registered outside Normal, status route with the four 16.2a bodies, restart on exit 75 after the 201 (ISetupRestart/ProcessSetupRestart), startup_mode log, DeploymentGuard exempts /api/setup; ChainHost passes the application's exit code on (shutdown crash fixed); scripts - RestartLoop.ps1 + Start-DevApi.ps1 loop, walkthrough runner -DatabaseState and restart-on-75 watch, chain runner marks set up; tests - TestDatabaseFixture setup-completed mark + ClearSetupCompletedAsync, StartupModeTests (S18-S20), RestartLoopScriptTests (S22), setup tests updated; client - StartupGate, setup page restart wait, server-states spec (S21), S14 split by database state
   - Verification: StartupModeTests + DeploymentSetupApiTests 10/10; S20 2/2; RestartLoopScriptTests + TestSupportGuardTests 43/43; first focused group 100/106 before fixes (8 m 8 s, over the 3-4 min estimate - disclosed); vitest 2181/2183 (2 known flaky U-018); walkthroughs S14 Fresh 4/4 with one restart on exit 75, S14 SetUp 1/1, S21 NotInstalled 1/1, S21 UpgradeRequired 1/1, auth 13/13; evidence .alveara/handoffs/ALV-N030/7-walkthrough-evidence/
   - Notes: see PENDING_DISCLOSURES.md slice 7 for the guard exemption, the test-data mark and the S18 history-row method
+
+- [x] ALV-N030: approved Deployment Administrator dashboard wording (owner, 2026-11-24)
+  - Date: 2026-11-24
+  - Session: CC-20261123-q4vn
+  - What changed: DEPLOYMENT_ADMINISTRATOR_NOTICE replaced by the owner-approved text; the S14 spec's check follows it
+  - Verification: NOT re-run (owner: no further tests before the Stage 1 review); the vitest notice test compares against the same constant; the S14 browser check of this text last ran with the previous wording
+  - Notes: disclosed in the Stage 1 handoff

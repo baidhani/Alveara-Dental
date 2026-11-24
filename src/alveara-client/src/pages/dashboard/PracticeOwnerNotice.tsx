@@ -8,10 +8,11 @@ import { listStaff } from "../../services/configApi";
 import type { StaffRecord } from "../../services/configApi";
 import "./PracticeOwnerNotice.css";
 
-/** The Deployment Administrator's notice while no Practice Owner exists (brief section 9; wording for owner approval). */
+/** The Deployment Administrator's notice while no Practice Owner exists (brief section 9; wording approved by the owner 2026-11-24). */
 export const DEPLOYMENT_ADMINISTRATOR_NOTICE =
-  "No Practice Owner has been created yet. We recommend creating one before you configure the practice: add the owner as a staff member and tick Practice Owner. " +
-  "You can still configure the practice by hand; the guided setup is reserved for the Practice Owner.";
+  "No Practice Owner has been created yet. This deployment account is intended to create the first Practice Owner. Before configuring the practice, " +
+  "add the owner as a staff member and select Practice Owner. The Practice Owner will use the guided practice setup when it becomes available. " +
+  "You can still configure the practice manually with this account if necessary.";
 
 /**
  * ALV-N030 (brief sections 4 and 9; D-3, D-7). While no Practice Owner exists:

@@ -113,7 +113,7 @@ test("S14-b first-run setup: the installer's token on the setup page creates the
 
   await signIn(deploy, DEPLOY.username, DEPLOY.password);
   await expect(deploy.getByRole("heading", { name: "Dashboard" })).toBeVisible();
-  await expect(deploy.getByText(/No Practice Owner has been created yet\. We recommend creating one before you configure the practice/)).toBeVisible();
+  await expect(deploy.getByText(/No Practice Owner has been created yet\. This deployment account is intended to create the first Practice Owner\./)).toBeVisible();
   await shot(deploy, "03-deployment-administrator-notice.png");
 });
 
