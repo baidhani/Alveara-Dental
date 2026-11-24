@@ -5,6 +5,7 @@ import { execFileSync } from "node:child_process";
 import { sqlServer } from "./support/sqlServer";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { createAccount } from "./support/testAccounts";
 
 // ALV-011-C01 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real SQL Server.
 // Excluded from the default mocked run (playwright.config.ts) and run with playwright.board.config.ts through the walkthrough runner (see docs/testing/REAL_BACKEND_E2E.md).
@@ -75,7 +76,7 @@ async function userPage(browser: Browser, key: string, role: string) {
   const admin = pages.admin;
   const token = await csrf(admin);
   const username = `${key}-${stamp}`;
-  const reg = await admin.request.post("/api/auth/register", { data: { username, password: PASSWORD } });
+  const reg = await createAccount(admin.request, { username, password: PASSWORD, role: "Unassigned" });
   expect(reg.ok(), `register ${role}`).toBeTruthy();
   const { id } = await reg.json();
   expect((await admin.request.put(`/api/auth/${id}/role`, { headers: { "X-CSRF-Token": token }, data: { role } })).ok()).toBeTruthy();
@@ -147,8 +148,7 @@ test.beforeAll(async ({ browser }: { browser: Browser }) => {
   stamp = Date.now();
   contexts.admin = await browser.newContext();
   pages.admin = await contexts.admin.newPage();
-  const secret = process.env.E2E_BOOTSTRAP_SECRET ?? "e2e-real-backend-secret";
-  expect((await pages.admin.request.post("/api/auth/bootstrap-admin", { data: { username: `admin-${stamp}`, password: "admin-password-1!", secret } })).ok()).toBeTruthy();
+  expect((await createAccount(pages.admin.request, { username: `admin-${stamp}`, password: "admin-password-1!", role: "Admin" })).ok()).toBeTruthy();
   await signIn(pages.admin, `admin-${stamp}`, "admin-password-1!");
   for (const [key, role] of [["desk", "FrontDesk"], ["desk2", "FrontDesk"], ["assistant", "Assistant"], ["dentist", "Dentist"], ["manager", "OfficeManager"], ["billing", "Billing"]] as const)
     await userPage(browser, key, role);
@@ -169,7 +169,7 @@ test("SETUP: the practice, six staff (the dentist linked to Dr. Rivera), five pa
   ids.op2 = (await call(admin, "post", "/api/config/operatories", { name: "Op 2" })).body.id as string;
   ids.exam = (await call(admin, "post", "/api/config/appointment-types", { name: "Exam", defaultDurationMinutes: 60 })).body.id as string;
   for (const [key, name, account] of [["rivera", "Dr. Rivera", users.dentist], ["patel", "Dr. Patel", null]] as const) {
-    const staff = await call(admin, "post", "/api/config/staff", { displayName: name, jobTitle: "Dentist", userAccountId: account });
+    const staff = await call(admin, "post", "/api/test-support/staff-profiles", { displayName: name, jobTitle: "Dentist", userAccountId: account });
     expect(staff.status, JSON.stringify(staff.body)).toBe(201);
     ids[key] = (await call(admin, "post", "/api/config/providers", { staffProfileId: staff.body.id, specialty: "General dentistry" })).body.id as string;
     const current = (await (await admin.request.get(`/api/config/providers/${ids[key]}/availability`)).json()) as { revision: number };

@@ -2,6 +2,7 @@ import { test, expect } from "@playwright/test";
 import type { Browser, BrowserContext, Page } from "@playwright/test";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { createAccount } from "./support/testAccounts";
 
 // ALV-N025 (brief section 8, "Browser"), un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real SQL Server, run with
 // playwright.identity-audit.config.ts against an API the caller started (scripts/Invoke-RealBackendWalkthrough.ps1). It walks what ALV-N025 changed as staff would:
@@ -45,7 +46,7 @@ async function newPage(browser: Browser) {
 async function createUser(key: string, role: string) {
   const username = `${key}-${stamp}`;
   const token = await csrf(admin);
-  const reg = await admin.request.post("/api/auth/register", { data: { username, password: PASSWORD } });
+  const reg = await createAccount(admin.request, { username, password: PASSWORD, role: "Unassigned" });
   expect(reg.ok(), `register ${key}`).toBeTruthy();
   const { id } = await reg.json();
   expect((await admin.request.put(`/api/auth/${id}/role`, { headers: { "X-CSRF-Token": token }, data: { role } })).ok()).toBeTruthy();
@@ -83,8 +84,7 @@ async function fillPatient(page: Page, p: { first: string; last: string; dob: st
 test.beforeAll(async ({ browser }) => {
   test.setTimeout(120_000);   // a fresh dev server compiles on first load, and this setup also changes the permission policy and creates four users
   admin = await newPage(browser);
-  const secret = process.env.E2E_BOOTSTRAP_SECRET ?? "e2e-real-backend-secret";
-  expect((await admin.request.post("/api/auth/bootstrap-admin", { data: { username: `admin-${stamp}`, password: PASSWORD, secret } })).ok()).toBeTruthy();
+  expect((await createAccount(admin.request, { username: `admin-${stamp}`, password: PASSWORD, role: "Admin" })).ok()).toBeTruthy();
   await signIn(admin, `admin-${stamp}`, PASSWORD);
   await createUser("desk", "FrontDesk");
   await createUser("leaver", "FrontDesk");

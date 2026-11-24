@@ -4,9 +4,16 @@ Most of `src/alveara-client/e2e/` mocks the API via Playwright's `page.route()` 
 so those specs run against nothing but the built static client (`playwright.config.ts`'s
 `webServer` only starts `vite preview`).
 
-`e2e/auth-real-backend.spec.ts` is different: it makes genuine network calls to a real,
-running `Alveara.Api` process backed by a real (migrated) SQL Server database, with no
-mocking anywhere. This exists specifically to satisfy ALV-001-C01's requirement to "exercise the
+`e2e/auth-real-backend.spec.ts` is different: it makes genuine network calls to the real application
+(the unchanged `Alveara.Api`, hosted by the chain host `src/Alveara.Api.ChainHost`) backed by a real (migrated)
+SQL Server database, with no mocking anywhere.
+
+> **ALV-N030 (brief section 17, review BRIEFING-R07).** The product has no sign-up and no first-administrator bootstrap
+> any more, and no bootstrap secret is set anywhere. Walkthroughs create their fixture accounts and staff profiles through
+> the test-only routes `/api/test-support/accounts` and `/api/test-support/staff-profiles`
+> (`src/alveara-client/e2e/support/testAccounts.ts`). Those routes exist **only** on the chain host started with
+> `ASPNETCORE_ENVIRONMENT=Test`, `TestSupport__Enabled=true` and a `127.0.0.1` listener; the product API never has them.
+> Both runners start it that way, in both clock modes (`CHAIN_CLOCK_MODE=injected|real`). This exists specifically to satisfy ALV-001-C01's requirement to "exercise the
 actual rendered application in a real browser against the real API/database" — component tests
 and route-mocked browser tests don't prove that; this does.
 
@@ -24,8 +31,8 @@ Set-Location -LiteralPath "C:\Users\firas\Documents\AI-Project-[Alveara-Dental]"
 ```
 
 It (1) creates a uniquely named database `AlveraWalk_<name>_<id>` with its files in
-`C:\.alvera-data\Test-Data\Database` and applies every migration, (2) starts the real API on
-`http://localhost:5072` against it, with its document storage, key ring and backup folders also under `Test-Data`,
+`C:\.alvera-data\Test-Data\Database` and applies every migration, (2) starts the chain host (the unchanged
+application; ALV-N030) on `http://127.0.0.1:5072` against it, under the `Test` environment with test support on, with its document storage, key ring and backup folders also under `Test-Data`,
 (3) runs `npx playwright test --config=<Config>` from `src\alveara-client` (the config starts the Vite dev server),
 and (4) always stops the API, drops the database (its files go with it) and deletes the folders it made. The exit code
 is the walkthrough's own (0 = all passed). It never touches `Dev-Data` or `AlveraDev`.
@@ -57,9 +64,13 @@ sqlcmd -S ".\SQLEXPRESS" -Q "CREATE DATABASE AlveraE2E ON (NAME=N'AlveraE2E_data
 Set-Location -LiteralPath "C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api"
 dotnet ef database update --connection "Server=.\SQLEXPRESS;Database=AlveraE2E;Trusted_Connection=True;TrustServerCertificate=True"
 
-# 2. the real API, in its own terminal (its files under Test-Data too)
+# 2. the chain host (ALV-N030: the walkthroughs need its test-support routes), in its own terminal (its files under Test-Data too)
+Set-Location -LiteralPath "C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.ChainHost"
 $env:ConnectionStrings__Alveara = "Server=.\SQLEXPRESS;Database=AlveraE2E;Trusted_Connection=True;TrustServerCertificate=True"
-$env:AdminBootstrapSecret = "e2e-real-backend-secret"         # or your own value; pass the same one below
+$env:ASPNETCORE_ENVIRONMENT = "Test"                            # test support needs exactly Test ...
+$env:TestSupport__Enabled = "true"                              # ... an explicit opt-in ...
+$env:CHAIN_URL = "http://127.0.0.1:5072"                        # ... and a loopback listener (anything else is refused)
+$env:CHAIN_CLOCK_MODE = "real"                                  # required: real, or injected (with CHAIN_CLOCK_UTC)
 $env:AuthAttemptRateLimit__PermitLimit = "500"                 # the specs sign in several accounts from one address
 $env:StorageRoot = "C:\.alvera-data\Test-Data\Storage\by-hand"
 $env:DataProtectionKeysPath = "C:\.alvera-data\Test-Data\Keys\by-hand"
@@ -67,11 +78,10 @@ $env:Backup__Root = "C:\.alvera-data\Test-Data\Backup\by-hand"
 dotnet run
 
 # 3. the walkthrough, from src\alveara-client in a second terminal
-$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"          # must match step 2
 $env:E2E_DB_NAME = "AlveraE2E"                                  # the specs that seed or break something in the database need it
 npx playwright test --config=playwright.auth.config.ts
 
-# 4. afterwards: the first administrator can be created once per database, so drop it before running again
+# 4. afterwards: drop the database before running again (the specs' fixture usernames are made per run, but a clean database is the tested state)
 sqlcmd -S ".\SQLEXPRESS" -Q "ALTER DATABASE AlveraE2E SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE AlveraE2E;"
 ```
 
@@ -99,7 +109,6 @@ dentists from one address, which the default limit of 10 would cut off), then fr
 `src/alveara-client`:
 
 ```powershell
-$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
 $env:PATIENT_E2E_OUT = "C:\tmp\patient-e2e"   # optional: where the JSON results and screenshots go
 npx playwright test --config=playwright.patients.config.ts
 ```
@@ -119,7 +128,6 @@ excluded from the default mocked `npm run test:e2e`.
 walkthrough above (including `AuthAttemptRateLimit__PermitLimit=500`), then from `src/alveara-client`:
 
 ```powershell
-$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
 $env:WORKSPACE_E2E_OUT = "C:\tmp\workspace-e2e"   # optional: where the JSON results and screenshots go
 npx playwright test --config=playwright.workspace.config.ts
 ```
@@ -139,7 +147,6 @@ default mocked `npm run test:e2e`.
 walkthrough above (including `AuthAttemptRateLimit__PermitLimit=500`), then from `src/alveara-client`:
 
 ```powershell
-$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
 $env:FORMS_E2E_OUT = "C:\tmp\forms-e2e"   # optional: where the JSON results and screenshots go (use a Windows path)
 npx playwright test --config=playwright.forms.config.ts
 ```
@@ -159,7 +166,6 @@ scans of each screen and state in light and dark. Like the other real-backend sp
 walkthrough above (including `AuthAttemptRateLimit__PermitLimit=500`), then from `src/alveara-client`:
 
 ```powershell
-$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
 $env:CLINICAL_E2E_OUT = "C:\tmp\clinical-e2e"   # optional: where the JSON results and screenshots go (use a Windows path)
 npx playwright test --config=playwright.clinical.config.ts
 ```
@@ -180,7 +186,6 @@ user and time and no clinical text - then axe scans of each screen and state in 
 the STORY-003 walkthrough above (including `AuthAttemptRateLimit__PermitLimit=500`), then from `src/alveara-client`:
 
 ```powershell
-$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
 $env:SAFETY_E2E_OUT = "C:\tmp\safety-e2e"   # optional: where the JSON results and screenshots go (use a Windows path)
 npx playwright test --config=playwright.safety.config.ts
 ```
@@ -202,7 +207,6 @@ each screen and state in light and dark. Like the other real-backend specs it is
 `AuthAttemptRateLimit__PermitLimit=500`), then from `src/alveara-client`:
 
 ```powershell
-$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
 $env:ODONTOGRAM_E2E_OUT = "C:\tmp\odontogram-e2e"   # optional: where the JSON results and screenshots go (use a Windows path)
 npx playwright test --config=playwright.odontogram.config.ts
 ```
@@ -223,7 +227,6 @@ from the default mocked `npm run test:e2e`.
 (including `AuthAttemptRateLimit__PermitLimit=500`), then from `src/alveara-client`:
 
 ```powershell
-$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
 $env:ODONTOGRAM_LONGITUDINAL_E2E_OUT = "C:\tmp\odontogram-longitudinal-e2e"   # optional: where the JSON results and screenshots go (use a Windows path)
 npx playwright test --config=playwright.odontogram-longitudinal.config.ts
 ```
@@ -247,7 +250,6 @@ The original `odontogram-real-backend.spec.ts` (STORY-006) is run alongside it a
 STORY-003 walkthrough above (including `AuthAttemptRateLimit__PermitLimit=500`), then from `src/alveara-client`:
 
 ```powershell
-$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
 $env:COMPANION_E2E_OUT = "C:\tmp\companion-e2e"   # optional: where the JSON results and screenshots go (use a Windows path)
 npx playwright test --config=playwright.clinical-companion.config.ts
 ```
@@ -270,7 +272,6 @@ axe scans of each new screen and state in light and dark. Like the other real-ba
 walkthrough above (including `AuthAttemptRateLimit__PermitLimit=500`), then from `src/alveara-client`:
 
 ```powershell
-$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
 $env:SCHEDULE_E2E_OUT = "C:\tmp\schedule-e2e"   # optional: where the JSON results and screenshots go (use a Windows path)
 npx playwright test --config=playwright.schedule.config.ts
 ```
@@ -290,7 +291,6 @@ Like the other real-backend specs it is excluded from the default mocked `npm ru
 above (including `AuthAttemptRateLimit__PermitLimit=500`), then from `src/alveara-client`:
 
 ```powershell
-$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
 $env:E2E_DB_NAME = "AlveraE2E"                      # the database the API is using: one step moves a booked appointment ten years back with a SQL UPDATE
 $env:CALENDAR_E2E_OUT = "C:\tmp\calendar-e2e"       # optional: where the JSON results and screenshots go (use a Windows path)
 npx playwright test --config=playwright.calendar.config.ts
@@ -355,7 +355,6 @@ it is excluded from the default mocked `npm run test:e2e`.
 `AuthAttemptRateLimit__PermitLimit=500`), then from `src/alveara-client`:
 
 ```powershell
-$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
 $env:PERIO_E2E_OUT = "C:\tmp\perio-e2e"   # optional: where the JSON results and screenshots go (use a Windows path)
 npx playwright test --config=playwright.perio.config.ts
 ```
@@ -376,7 +375,6 @@ and the 768 px tablet layout (the page does not scroll sideways), in light and d
 `AuthAttemptRateLimit__PermitLimit=500`), then from `src/alveara-client`:
 
 ```powershell
-$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
 $env:PERIO_SESSIONS_E2E_OUT = "C:\tmp\perio-sessions-e2e"   # optional: where the JSON results and screenshots go (use a Windows path)
 npx playwright test --config=playwright.perio-sessions.config.ts
 ```
@@ -399,7 +397,6 @@ excluded from the default mocked `npm run test:e2e`. `perio-real-backend.spec.ts
 `AuthAttemptRateLimit__PermitLimit=500`), then from `src/alveara-client`:
 
 ```powershell
-$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
 $env:DIAGNOSES_E2E_OUT = "C:\tmp\diagnoses-e2e"   # optional: where the JSON results and screenshots go (use a Windows path)
 npx playwright test --config=playwright.diagnoses.config.ts
 ```
@@ -421,7 +418,6 @@ tablet layout (the page does not scroll sideways), in light and dark. Like the o
 `AuthAttemptRateLimit__PermitLimit=500`), then from `src/alveara-client`:
 
 ```powershell
-$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
 $env:DIAGNOSES_STRUCTURE_E2E_OUT = "C:\tmp\diagnoses-structure-e2e"   # optional: where the JSON results and screenshots go (use a Windows path)
 npx playwright test --config=playwright.diagnoses-structure.config.ts
 ```
@@ -441,7 +437,6 @@ STORY-013's own walkthrough (`playwright.diagnoses.config.ts`) is the parent reg
 `AuthAttemptRateLimit__PermitLimit=500`), then from `src/alveara-client`:
 
 ```powershell
-$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
 $env:PROCEDURES_E2E_OUT = "C:\tmp\procedures-e2e"   # optional: where the JSON results and screenshots go (use a Windows path)
 npx playwright test --config=playwright.procedures.config.ts
 ```
@@ -459,7 +454,6 @@ mocked `npm run test:e2e` run.
 `AuthAttemptRateLimit__PermitLimit=500`), then from `src/alveara-client`:
 
 ```powershell
-$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
 $env:TREATMENT_PLANS_E2E_OUT = "C:	mp	reatment-plans-e2e"   # optional: where the JSON results and screenshots go (use a Windows path)
 npx playwright test --config=playwright.treatment-plans.config.ts
 ```
@@ -478,7 +472,6 @@ plan and an unknown plan; and axe scans in light and dark for the author and rea
 API exactly as for the STORY-003 walkthrough above (including `AuthAttemptRateLimit__PermitLimit=500`), then from `src/alveara-client`:
 
 ```powershell
-$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
 $env:TREATMENT_PLANS_COMPLETE_E2E_OUT = "C:\tmp\treatment-plans-complete-e2e"   # optional: where the JSON results and screenshots go (use a Windows path)
 npx playwright test --config=playwright.treatment-plans-complete.config.ts
 ```
@@ -497,7 +490,6 @@ hygienist reading everything and offered no control; and the API refusing a stal
 `AuthAttemptRateLimit__PermitLimit=500`), then from `src/alveara-client`:
 
 ```powershell
-$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
 $env:E2E_DB_NAME = "<the database the API is using>"   # needed by the failed-log step, which briefly installs a trigger that refuses audit writes
 $env:BILLING_E2E_OUT = "C:\tmp\billing-e2e"             # optional: where the JSON results and screenshots go (use a Windows path)
 npx playwright test --config=playwright.billing.config.ts
@@ -510,7 +502,6 @@ It signs in a dentist, a hygienist, a billing user and a front-desk user, with a
 `e2e/billing-ledger-real-backend.spec.ts` is the un-mocked run for the billing ledger. Prepare a fresh database and start the API exactly as for the STORY-003 walkthrough above (including `AuthAttemptRateLimit__PermitLimit=500`), then from `src/alveara-client`:
 
 ```powershell
-$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
 $env:E2E_DB_NAME = "<the database the API is using>"   # needed by the failed-log step, which briefly installs a trigger that refuses audit writes
 $env:BILLING_LEDGER_E2E_OUT = "C:\tmp\billing-ledger-e2e"   # optional: where the JSON results and screenshots go (use a Windows path)
 npx playwright test --config=playwright.billing-ledger.config.ts
@@ -523,7 +514,6 @@ It signs in a dentist, a hygienist, a billing user and a front-desk user, with a
 `e2e/billing-statements-real-backend.spec.ts` is the un-mocked run for refunds, moving what a payment pays, corrections, the timeline and aging, and statements and receipts. Prepare a fresh database and start the API exactly as for the ALV-007-C01 walkthrough above.
 
 ```powershell
-$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
 $env:E2E_DB_NAME = "<the database the API is using>"   # needed by the failed-log step and by the stale-preview step (it renames the patient on a second screen)
 $env:BILLING_STATEMENTS_E2E_OUT = "C:	mpilling-statements-e2e"   # optional: where the JSON results and screenshots go (use a Windows path)
 npx playwright test --config=playwright.billing-statements.config.ts
@@ -536,7 +526,6 @@ It shows: a refund (gaps named before sending, an over-refund refused beside the
 `e2e/treatment-plans-complete-accepted-real-backend.spec.ts` (the STORY-008 walkthrough) was **replaced by ALV-008-C02** with `e2e/completion-adoption-real-backend.spec.ts`, because the routes it exercised are retired (they answer 410). Prepare a fresh database and start the API as for the other walkthroughs (including `AuthAttemptRateLimit__PermitLimit=500`), and set `E2E_DB_NAME` to that database's name (the spec seeds procedures completed the old way into it, and creates and drops a trigger in it for the failed-log demonstration), then from `src/alveara-client`:
 
 ```powershell
-$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
 $env:E2E_DB_NAME = "<the database the API is using>"
 $env:COMPLETION_ADOPTION_E2E_OUT = "C:\tmp\completion-adoption-e2e"   # optional: where the JSON results and screenshots go
 npx playwright test --config=playwright.completion-adoption.config.ts
@@ -551,7 +540,6 @@ It shows: no screen offers the old completion and both old routes answer 410 and
 `e2e/completion-real-backend.spec.ts` is the un-mocked run for the review-and-complete screen, the clinical history with the completion detail, the corrections and the absence of the retired legacy button (a completion made the old way is seeded and shown with no detail). Prepare a fresh database and start the API as for the other walkthroughs (including `AuthAttemptRateLimit__PermitLimit=500`), and set `E2E_DB_NAME` to that database's name (the failed-log demonstration creates and drops a trigger in it), then from `src/alveara-client`:
 
 ```powershell
-$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
 $env:E2E_DB_NAME = "<the database the API is using>"
 $env:COMPLETION_E2E_OUT = "C:\tmp\completion-e2e"   # optional: where the JSON results and screenshots go
 npx playwright test --config=playwright.completion.config.ts
@@ -564,7 +552,6 @@ It signs in a dentist, a hygienist and a front-desk user (an administrator creat
 `e2e/prescriptions-real-backend.spec.ts` is the un-mocked run for the Prescriptions tab. Prepare a fresh database and start the API as for the other walkthroughs (including `AuthAttemptRateLimit__PermitLimit=500`), and set `E2E_DB_NAME` to that database's name (the failed-log demonstration creates and drops a trigger in it), then from `src/alveara-client`:
 
 ```powershell
-$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
 $env:E2E_DB_NAME = "<the database the API is using>"
 $env:PRESCRIPTIONS_E2E_OUT = "C:\tmp\prescriptions-e2e"   # optional: where the JSON results and screenshots go
 npx playwright test --config=playwright.prescriptions.config.ts
@@ -577,7 +564,6 @@ It signs in a dentist, a hygienist and a front-desk user and shows: the form bes
 `e2e/prescription-workflow-real-backend.spec.ts` is the un-mocked run for the Prescription composer tab. Prepare a fresh database and start the API as for the other walkthroughs (including `AuthAttemptRateLimit__PermitLimit=500`), and set `E2E_DB_NAME` to that database's name (the failed-log demonstration creates and drops a trigger in it, and the immutability demonstration runs refused UPDATE and DELETE statements against it), then from `src/alveara-client`:
 
 ```powershell
-$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
 $env:E2E_DB_NAME = "<the database the API is using>"
 $env:PRESCRIPTION_WORKFLOW_E2E_OUT = "C:\tmp\prescription-workflow-e2e"   # optional: where the JSON results and screenshots go
 npx playwright test --config=playwright.prescription-workflow.config.ts

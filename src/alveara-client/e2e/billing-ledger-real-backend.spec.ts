@@ -6,6 +6,7 @@ import { sqlServer } from "./support/sqlServer";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { seedLegacyCompletion } from "./support/legacyCompletion";
+import { createAccount } from "./support/testAccounts";
 
 // ALV-007-C01 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real SQL Server.
 // Excluded from the default mocked run (playwright.config.ts) and run with playwright.billing-ledger.config.ts against an API the caller started (see docs/testing/REAL_BACKEND_E2E.md).
@@ -41,7 +42,7 @@ async function api(page: Page, method: "post" | "put" | "get", url: string, data
 
 async function createUser(role: string, username: string): Promise<string> {
   const token = await csrf(admin);
-  const reg = await admin.request.post("/api/auth/register", { data: { username, password: PASSWORD } });
+  const reg = await createAccount(admin.request, { username, password: PASSWORD, role: "Unassigned" });
   expect(reg.ok(), `register ${role}`).toBeTruthy();
   const { id } = await reg.json();
   expect((await admin.request.put(`/api/auth/${id}/role`, { headers: { "X-CSRF-Token": token }, data: { role } })).ok()).toBeTruthy();
@@ -125,8 +126,7 @@ test.beforeAll(async ({ browser }: { browser: Browser }) => {
   stamp = Date.now();
   adminContext = await browser.newContext();
   admin = await adminContext.newPage();
-  const secret = process.env.E2E_BOOTSTRAP_SECRET ?? "e2e-real-backend-secret";
-  expect((await admin.request.post("/api/auth/bootstrap-admin", { data: { username: `admin-${stamp}`, password: "admin-password-1!", secret } })).ok()).toBeTruthy();
+  expect((await createAccount(admin.request, { username: `admin-${stamp}`, password: "admin-password-1!", role: "Admin" })).ok()).toBeTruthy();
   await signIn(admin, `admin-${stamp}`, "admin-password-1!");
   for (const role of ["Dentist", "Hygienist", "Billing", "FrontDesk"]) {
     const userId = await createUser(role, `${role.toLowerCase()}-${stamp}`);

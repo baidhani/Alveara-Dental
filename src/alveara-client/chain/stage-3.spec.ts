@@ -29,7 +29,7 @@ test("3.00 setup: the practice (Dr. Dana and Harper with real accounts, Operator
   expect([clock.mode, clock.utcNow.slice(0, 16)]).toEqual(["injected", "2026-01-15T15:00"]);
   const register = async (key: AccountKey) => {
     const [username, role] = ACCOUNTS[key];
-    const reg = await call(admin, "post", "/api/auth/register", { username, password: "stage3-user-password-1!" });
+    const reg = await call(admin, "post", "/api/test-support/accounts", { username, password: "stage3-user-password-1!", role: "Unassigned" });   // ALV-N030: test-only fixture (sign-up is gone)
     expect(reg.status, `register ${username}`).toBeLessThan(300);
     const id = reg.body.id as string;
     expect((await call(admin, "put", `/api/auth/${id}/role`, { role })).status).toBe(200);
@@ -43,7 +43,7 @@ test("3.00 setup: the practice (Dr. Dana and Harper with real accounts, Operator
   for (const name of ["Operatory 1", "Hygiene 1"]) expect((await call(admin, "post", "/api/config/operatories", { name })).status).toBe(201);
   expect((await call(admin, "post", "/api/config/appointment-types", { name: "New patient exam", defaultDurationMinutes: 60 })).status).toBe(201);
   for (const [name, title, account] of [["Dr. Dana", "Dentist", ids.dentist], ["Harper", "Hygienist", ids.hygienist]] as const) {
-    const staff = await call(admin, "post", "/api/config/staff", { displayName: name, jobTitle: title, userAccountId: account });
+    const staff = await call(admin, "post", "/api/test-support/staff-profiles", { displayName: name, jobTitle: title, userAccountId: account });
     expect(staff.status, JSON.stringify(staff.body)).toBe(201);
     const provider = await call(admin, "post", "/api/config/providers", { staffProfileId: staff.body.id, specialty: title });
     expect(provider.status).toBe(201);

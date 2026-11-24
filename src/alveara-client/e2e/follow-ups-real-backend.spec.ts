@@ -5,6 +5,7 @@ import { execFileSync } from "node:child_process";
 import { sqlServer } from "./support/sqlServer";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { createAccount } from "./support/testAccounts";
 
 // STORY-009 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real SQL Server, with the real background reminder pass (every 3 s here, 60 s by default).
 // A dentist creates a follow-up that is already due for a hygienist through the screen; within seconds the hygienist finds a reminder in the notification center (carrying no title or note), opens the patient's
@@ -45,7 +46,7 @@ function sql(statement: string) {
 
 async function createUser(role: string, username: string): Promise<string> {
   const token = await csrf(admin);
-  const reg = await admin.request.post("/api/auth/register", { data: { username, password: PASSWORD } });
+  const reg = await createAccount(admin.request, { username, password: PASSWORD, role: "Unassigned" });
   expect(reg.ok(), `register ${role}`).toBeTruthy();
   const { id } = await reg.json();
   expect((await admin.request.put(`/api/auth/${id}/role`, { headers: { "X-CSRF-Token": token }, data: { role } })).ok()).toBeTruthy();
@@ -94,8 +95,7 @@ test.beforeAll(async ({ browser }: { browser: Browser }) => {
   stamp = Date.now();
   adminContext = await browser.newContext();
   admin = await adminContext.newPage();
-  const secret = process.env.E2E_BOOTSTRAP_SECRET ?? "e2e-real-backend-secret";
-  const boot = await admin.request.post("/api/auth/bootstrap-admin", { data: { username: `admin-${stamp}`, password: "admin-password-1!", secret } });
+  const boot = await createAccount(admin.request, { username: `admin-${stamp}`, password: "admin-password-1!", role: "Admin" });
   expect(boot.ok()).toBeTruthy();
   ids.adminId = (await boot.json()).id as string;
   await signIn(admin, `admin-${stamp}`, "admin-password-1!");

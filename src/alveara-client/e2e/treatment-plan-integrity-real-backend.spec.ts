@@ -2,6 +2,7 @@ import { test, expect } from "@playwright/test";
 import type { Browser, BrowserContext, Page } from "@playwright/test";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { createAccount } from "./support/testAccounts";
 
 // ALV-N023 (brief section 9 step 5), un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real SQL Server, on a fresh database.
 // Run ALONE with playwright.treatment-plan-integrity.config.ts against an API the caller started (scripts/Invoke-RealBackendWalkthrough.ps1). One patient's plan, walked in order:
@@ -41,7 +42,7 @@ async function api(page: Page, method: "post" | "put" | "get", url: string, data
 
 async function createUser(role: string, username: string): Promise<string> {
   const token = await csrf(admin);
-  const reg = await admin.request.post("/api/auth/register", { data: { username, password: PASSWORD } });
+  const reg = await createAccount(admin.request, { username, password: PASSWORD, role: "Unassigned" });
   expect(reg.ok(), `register ${role}`).toBeTruthy();
   const { id } = await reg.json();
   expect((await admin.request.put(`/api/auth/${id}/role`, { headers: { "X-CSRF-Token": token }, data: { role } })).ok()).toBeTruthy();
@@ -71,14 +72,13 @@ test.beforeAll(async ({ browser }: { browser: Browser }) => {
   stamp = Date.now();
   adminContext = await browser.newContext();
   admin = await adminContext.newPage();
-  const secret = process.env.E2E_BOOTSTRAP_SECRET ?? "e2e-real-backend-secret";
-  expect((await admin.request.post("/api/auth/bootstrap-admin", { data: { username: `admin-${stamp}`, password: "admin-password-1!", secret } })).ok()).toBeTruthy();
+  expect((await createAccount(admin.request, { username: `admin-${stamp}`, password: "admin-password-1!", role: "Admin" })).ok()).toBeTruthy();
   await signIn(admin, `admin-${stamp}`, "admin-password-1!");
   for (const role of ["Dentist", "FrontDesk"]) {
     const userId = await createUser(role, `${role.toLowerCase()}-${stamp}`);
     if (role === "Dentist") {
       dentistName = `Dr. Dana Dentist ${stamp}`;
-      const staff = await api(admin, "post", "/api/config/staff", { displayName: dentistName, userAccountId: userId });
+      const staff = await api(admin, "post", "/api/test-support/staff-profiles", { displayName: dentistName, userAccountId: userId });
       expect(staff.status, "dentist staff profile").toBe(201);
       const provider = await api(admin, "post", "/api/config/providers", { staffProfileId: staff.body.id, specialty: "General dentistry" });
       expect([200, 201], "dentist provider").toContain(provider.status);

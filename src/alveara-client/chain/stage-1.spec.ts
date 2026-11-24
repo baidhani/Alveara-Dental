@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { test, expect } from "@playwright/test";
 import type { Browser, BrowserContext, Page } from "@playwright/test";
+import { createAccount } from "../e2e/support/testAccounts";
 
 // ALV-N020 stage 1 (sign-in, accounts and session) and the minimal part of stage 2 (two patients) of the accumulated chain (R05 PKG-02/PKG-03, cases
 // 1.01-1.06, 1.10-1.12, F-021, F-037, and the outage case 13.05: since R02 the runner really stops and restarts its own API on the step's request). Runs only through scripts/Invoke-AccumulatedChain.ps1, after stage 0 created
@@ -60,7 +61,7 @@ async function newSession(username: string, password = PASSWORD): Promise<{ cont
 
 /** Registers an account, then (unless `keepDisabled`) gives it a role and enables it, as the administrator. */
 async function createUser(username: string, role: string, keepDisabled = false): Promise<string> {
-  const reg = await admin.request.post("/api/auth/register", { data: { username, password: PASSWORD } });
+  const reg = await createAccount(admin.request, { username, password: PASSWORD, role: "Unassigned" });
   expect(reg.status(), `register ${username}`).toBe(201);
   const id = (await reg.json()).id as string;
   if (!keepDisabled) {
@@ -169,7 +170,7 @@ test("1.10 after sign-out the browser Back button shows the sign-in page and no 
 });
 
 test("F-021 inactivating a staff profile disables its login and ends its session; reactivating the profile does not re-enable it", async () => {
-  const created = await call(admin, "post", "/api/config/staff", { displayName: "Dr. Chain Dentist", jobTitle: "Dentist", userAccountId: ids.dentist });
+  const created = await call(admin, "post", "/api/test-support/staff-profiles", { displayName: "Dr. Chain Dentist", jobTitle: "Dentist", userAccountId: ids.dentist });
   expect(created.status).toBe(201);
   const dentist = await newSession("chain-dentist");
 

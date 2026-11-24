@@ -27,6 +27,13 @@ namespace Alveara.Api.Tests;
 public class TestSupportGuardTests : IAsyncLifetime
 {
     private const string Route = "/api/test-support/accounts";
+    private const string StaffRoute = "/api/test-support/staff-profiles";   // ALV-N030 R07 implementation extension (owner, 2026-11-24)
+
+    private async Task<int> ProfilesNamedAsync(string displayName)
+    {
+        await using var db = _fixture.CreateContext();
+        return await db.StaffProfiles.CountAsync(s => s.DisplayName == displayName);
+    }
     private static readonly string RepoRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
     private static readonly string Src = Path.Combine(RepoRoot, "src");
 
@@ -59,9 +66,13 @@ public class TestSupportGuardTests : IAsyncLifetime
             b.UseSetting("test-support", "true");          // what "--test-support" on the command line becomes
             b.UseSetting("urls", "http://127.0.0.1:5999");
         });
-        var response = await product.CreateClient().PostAsJsonAsync(Route, Body($"g1-{environment}"));
+        var client = product.CreateClient();
+        var response = await client.PostAsJsonAsync(Route, Body($"g1-{environment}"));
         Assert.Contains(response.StatusCode, new[] { HttpStatusCode.NotFound, HttpStatusCode.MethodNotAllowed });
         Assert.Equal(0, await AccountsNamedAsync($"g1-{environment}"));
+        var staff = await client.PostAsJsonAsync(StaffRoute, new CreateTestStaffProfileRequest($"G1 Profile {environment}", LegacyUnlinked: true));
+        Assert.Contains(staff.StatusCode, new[] { HttpStatusCode.NotFound, HttpStatusCode.MethodNotAllowed });
+        Assert.Equal(0, await ProfilesNamedAsync($"G1 Profile {environment}"));
     }
 
     // ---------- G2: the reference graph ----------
@@ -136,13 +147,19 @@ public class TestSupportGuardTests : IAsyncLifetime
         var username = $"g4-{environment}-{enabled}-{loopback}".ToLowerInvariant();
         await using var host = new ChainHostFactory(null, null, new ChainHostSettings(environment, decision))
             .WithWebHostBuilder(b => b.UseSetting("ConnectionStrings:Alveara", _fixture.ConnectionString));
-        var response = await host.CreateClient().PostAsJsonAsync(Route, Body(username));
+        var client = host.CreateClient();
+        var response = await client.PostAsJsonAsync(Route, Body(username));
+        var profileName = $"G4 Profile {environment} {enabled} {loopback}";
+        var staff = await client.PostAsJsonAsync(StaffRoute, new CreateTestStaffProfileRequest(profileName, LegacyUnlinked: true));
         if (!all)
         {
             Assert.Contains(response.StatusCode, new[] { HttpStatusCode.NotFound, HttpStatusCode.MethodNotAllowed });
             Assert.Equal(0, await AccountsNamedAsync(username));
+            Assert.Contains(staff.StatusCode, new[] { HttpStatusCode.NotFound, HttpStatusCode.MethodNotAllowed });
+            Assert.Equal(0, await ProfilesNamedAsync(profileName));
             return;
         }
+        Assert.Equal(HttpStatusCode.Created, staff.StatusCode);
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         await using var db = _fixture.CreateContext();
         var account = await db.UserAccounts.AsNoTracking().SingleAsync(u => u.Username == username);
@@ -177,6 +194,39 @@ public class TestSupportGuardTests : IAsyncLifetime
         Assert.Equal(HttpStatusCode.OK, login.StatusCode);
         Assert.DoesNotContain(login.Headers.GetValues("Set-Cookie"), c => c.Contains("secure", StringComparison.OrdinalIgnoreCase));
         Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/api/auth/permissions")).StatusCode);
+    }
+
+    [Fact]
+    public async Task G4_the_staff_profile_fixture_links_only_an_existing_unlinked_account_and_makes_an_unlinked_profile_only_when_asked()
+    {
+        var host = TestHost();
+        await using var _ = host;
+        var client = host.CreateClient();
+        var account = (await (await client.PostAsJsonAsync(Route, Body("g4.link", "Dentist"))).Content.ReadFromJsonAsync<JsonElement>()).GetProperty("id").GetGuid();
+
+        var linked = await client.PostAsJsonAsync(StaffRoute, new CreateTestStaffProfileRequest("Dr. Linked Fixture", "Dentist", account));
+        Assert.Equal(HttpStatusCode.Created, linked.StatusCode);
+        var body = await linked.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(account, body.GetProperty("userAccountId").GetGuid());
+        Assert.False(string.IsNullOrEmpty(body.GetProperty("rowVersion").GetString()));
+        await using (var db = _fixture.CreateContext())
+            Assert.Equal(account, await db.StaffProfiles.Where(s => s.DisplayName == "Dr. Linked Fixture").Select(s => s.UserAccountId).SingleAsync());
+
+        async Task<(HttpStatusCode, string)> Refused(CreateTestStaffProfileRequest r)
+        {
+            var response = await client.PostAsJsonAsync(StaffRoute, r);
+            return (response.StatusCode, (await response.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("error").GetString()!);
+        }
+        Assert.Equal((HttpStatusCode.Conflict, "account_already_linked"), await Refused(new("Second Profile", null, account)));
+        Assert.Equal((HttpStatusCode.NotFound, "account_not_found"), await Refused(new("Ghost Profile", null, Guid.NewGuid())));
+        Assert.Equal((HttpStatusCode.BadRequest, "legacy_unlinked_required"), await Refused(new("Unflagged Profile")));
+        Assert.Equal((HttpStatusCode.BadRequest, "display_name_required"), await Refused(new("  ", null, null, true)));
+        Assert.Equal((HttpStatusCode.Conflict, "staff_name_taken"), await Refused(new("Dr. Linked Fixture", null, null, true)));
+        foreach (var name in new[] { "Second Profile", "Ghost Profile", "Unflagged Profile" }) Assert.Equal(0, await ProfilesNamedAsync(name));
+
+        var legacy = await client.PostAsJsonAsync(StaffRoute, new CreateTestStaffProfileRequest("Legacy Fixture", null, null, LegacyUnlinked: true));
+        Assert.Equal(HttpStatusCode.Created, legacy.StatusCode);
+        Assert.Equal(JsonValueKind.Null, (await legacy.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("userAccountId").ValueKind);
     }
 
     /// <summary>ChainHost as the runners start it (Test, opted in, loopback; real clock), in memory against the test database.</summary>
@@ -276,12 +326,14 @@ public class TestSupportGuardTests : IAsyncLifetime
     [InlineData("http://0.0.0.0:5099", null, "real")]                       // a wildcard CHAIN_URL: always refused
     [InlineData("http://127.0.0.1:5099", "http://0.0.0.0:5098", "real")]     // test support requested with a wildcard ASPNETCORE_URLS
     [InlineData("http://127.0.0.1:5099", null, null)]                        // no clock mode stated
-    public async Task G7_a_real_chain_host_process_refuses_to_start(string chainUrl, string? aspnetcoreUrls, string? clockMode)
+    [InlineData("http://127.0.0.1:5099", null, "real", "--urls", "http://0.0.0.0:5097")]   // test support requested with a wildcard --urls on the command line
+    public async Task G7_a_real_chain_host_process_refuses_to_start(string chainUrl, string? aspnetcoreUrls, string? clockMode, params string[] args)
     {
         var dll = Path.Combine(Src, "Alveara.Api.ChainHost", "bin", "Debug", "net10.0", "Alveara.Api.ChainHost.dll");
         Assert.True(File.Exists(dll), $"build the chain host first: {dll}");
         var psi = new ProcessStartInfo("dotnet") { UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true, CreateNoWindow = true };
         psi.ArgumentList.Add(dll);
+        foreach (var a in args) psi.ArgumentList.Add(a);
         psi.Environment["CHAIN_URL"] = chainUrl;
         psi.Environment["ASPNETCORE_ENVIRONMENT"] = "Test";
         psi.Environment["TestSupport__Enabled"] = "true";
@@ -298,5 +350,32 @@ public class TestSupportGuardTests : IAsyncLifetime
         Assert.NotEqual(0, process.ExitCode);
         Assert.DoesNotContain("ChainHost ready", await stdout);
         Assert.False(string.IsNullOrWhiteSpace(await stderr));
+    }
+
+    // ---------- G8: the runners start the chain host as R07 requires ----------
+
+    [Theory]
+    [InlineData("Invoke-RealBackendWalkthrough.ps1")]
+    [InlineData("Invoke-AccumulatedChain.ps1")]
+    public void G8_each_runner_starts_the_chain_host_under_test_with_test_support_an_explicit_clock_mode_and_a_loopback_address(string runner)
+    {
+        var text = File.ReadAllText(Path.Combine(RepoRoot, "scripts", runner));
+        Assert.Matches(@"\$chainUrl\s*=\s*'http://127\.0\.0\.1:5072'", text);
+        Assert.Contains("$psi.EnvironmentVariables['CHAIN_URL'] = $chainUrl", text);
+        Assert.Contains("$psi.EnvironmentVariables['ASPNETCORE_ENVIRONMENT'] = 'Test'", text);
+        Assert.Contains("$psi.EnvironmentVariables['TestSupport__Enabled'] = 'true'", text);
+        Assert.Contains("$psi.EnvironmentVariables['CHAIN_CLOCK_MODE']", text);
+        Assert.Contains("$psi.EnvironmentVariables.Remove('ASPNETCORE_URLS')", text);
+        Assert.Contains(@"Alveara.Api.ChainHost\bin\Debug\net10.0\Alveara.Api.ChainHost.dll", text);
+        foreach (var gone in new[] { "Alveara.Api.dll", "AdminBootstrapSecret", "E2E_BOOTSTRAP_SECRET", "'Development'" })
+            Assert.DoesNotContain(gone, text);
+    }
+
+    [Fact]
+    public void G8_the_vite_proxy_targets_the_loopback_address_the_runners_use()
+    {
+        var vite = File.ReadAllText(Path.Combine(Src, "alveara-client", "vite.config.ts"));
+        Assert.Contains("const API_DEV_PORT = 5072;", vite);
+        Assert.Contains("target: `http://127.0.0.1:${API_DEV_PORT}`", vite);
     }
 }

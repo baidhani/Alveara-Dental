@@ -3,6 +3,7 @@ import type { Browser, BrowserContext, Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { createAccount } from "./support/testAccounts";
 
 // STORY-003 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real SQL Server.
 // Like auth-real-backend.spec.ts it is excluded from the default mocked run (playwright.config.ts) and run with
@@ -29,7 +30,7 @@ async function csrf(page: Page) {
 
 async function createUser(role: string, username: string) {
   const token = await csrf(admin);
-  const reg = await admin.request.post("/api/auth/register", { data: { username, password: "front-desk-pass-1!" } });
+  const reg = await createAccount(admin.request, { username, password: "front-desk-pass-1!", role: "Unassigned" });
   expect(reg.ok(), `register ${role}`).toBeTruthy();
   const { id } = await reg.json();
   expect((await admin.request.put(`/api/auth/${id}/role`, { headers: { "X-CSRF-Token": token }, data: { role } })).ok()).toBeTruthy();
@@ -77,8 +78,7 @@ test.beforeAll(async ({ browser }: { browser: Browser }) => {
   deskUsername = `desk-${Date.now()}`;
   adminContext = await browser.newContext();
   admin = await adminContext.newPage();
-  const secret = process.env.E2E_BOOTSTRAP_SECRET ?? "e2e-real-backend-secret";
-  expect((await admin.request.post("/api/auth/bootstrap-admin", { data: { username: adminName, password: "admin-password-1!", secret } })).ok()).toBeTruthy();
+  expect((await createAccount(admin.request, { username: adminName, password: "admin-password-1!", role: "Admin" })).ok()).toBeTruthy();
   await signIn(admin, adminName, "admin-password-1!");
   await createUser("FrontDesk", deskUsername);
   await createUser("Dentist", `dentist-${Date.now()}`);

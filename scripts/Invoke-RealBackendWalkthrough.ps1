@@ -24,7 +24,11 @@
 .PARAMETER InjectedClockUtc
   ALV-N021 A2: run the walkthrough on the chain host (src\Alveara.Api.ChainHost: the unchanged production application with the injected test clock of ALV-N019, PD-32) with
   "now" fixed at this ISO 8601 UTC instant, for walkthroughs that need a practice "today" (the check-in day rule). The host's own report (/api/chain/clock-mode) must say
-  injected at that instant or the run stops before any test. Without it the walkthrough runs on the production API and the real clock, exactly as before.
+  injected at that instant or the run stops before any test. Without it the walkthrough runs on the chain host with the real clock (CHAIN_CLOCK_MODE=real).
+
+  ALV-N030 (brief section 17, review BRIEFING-R07): every walkthrough runs on the chain host, never on the product API, under ASPNETCORE_ENVIRONMENT=Test with
+  TestSupport__Enabled=true and an explicit 127.0.0.1 listener (CHAIN_URL), so the specs can create their fixture accounts through /api/test-support/*. The product
+  has no sign-up and no bootstrap secret any more; none is set.
 
 .EXAMPLE
   .\scripts\Invoke-RealBackendWalkthrough.ps1 -Config playwright.procedures.config.ts -OutputVariable PROCEDURES_E2E_OUT
@@ -50,7 +54,7 @@ $id           = [Guid]::NewGuid().ToString('N').Substring(0, 8)
 $short        = ([IO.Path]::GetFileNameWithoutExtension($Config) -replace '[^A-Za-z0-9]', '_')
 if ($short.Length -gt 40) { $short = $short.Substring(0, 40) }
 $Database     = "AlveraWalk_${short}_$id"
-$secret       = 'e2e-real-backend-secret'
+$chainUrl     = 'http://127.0.0.1:5072'      # ALV-N030 (G7, G8): the chain host listens on loopback only; the Vite proxy targets the same address
 $apiProject   = Join-Path $RepoRoot 'src\Alveara.Api'
 $injected     = [bool]$InjectedClockUtc
 $hostProject  = Join-Path $RepoRoot 'src\Alveara.Api.ChainHost\Alveara.Api.ChainHost.csproj'
@@ -83,7 +87,7 @@ try {
         # Windows PowerShell treats text a native command writes to its error stream (a build warning) as an error when errors stop the script; the exit code decides instead.
         $ErrorActionPreference = 'Continue'
         if (-not $SkipBuild) {
-            if ($injected) { & dotnet build $hostProject --nologo -v q } else { & dotnet build --nologo -v q }   # the chain host project builds the API with it
+            & dotnet build $hostProject --nologo -v q   # the chain host project builds the API and the test-support library with it
             if ($LASTEXITCODE -ne 0) { throw 'dotnet build failed.' }
         }
         & dotnet ef database update --no-build --connection $connection
@@ -91,20 +95,22 @@ try {
     }
     finally { $ErrorActionPreference = 'Stop'; Pop-Location }
 
-    $dll = if ($injected) { Join-Path $RepoRoot 'src\Alveara.Api.ChainHost\bin\Debug\net10.0\Alveara.Api.ChainHost.dll' } else { Join-Path $apiProject 'bin\Debug\net10.0\Alveara.Api.dll' }
+    $dll = Join-Path $RepoRoot 'src\Alveara.Api.ChainHost\bin\Debug\net10.0\Alveara.Api.ChainHost.dll'   # ALV-N030: always the chain host (both clock modes)
     if (-not (Test-Path -LiteralPath $dll)) { throw "The built API was not found at $dll." }
 
     $psi = New-Object System.Diagnostics.ProcessStartInfo
     $psi.FileName = 'dotnet'
     $psi.Arguments = '"' + $dll + '"'
-    $psi.WorkingDirectory = $(if ($injected) { Split-Path -Parent $dll } else { $apiProject })   # as Invoke-AccumulatedChain.ps1 starts the chain host
+    $psi.WorkingDirectory = Split-Path -Parent $dll   # as Invoke-AccumulatedChain.ps1 starts the chain host
     $psi.UseShellExecute = $false
     $psi.CreateNoWindow = $true
-    $psi.EnvironmentVariables['ASPNETCORE_ENVIRONMENT'] = 'Development'
-    $psi.EnvironmentVariables['ASPNETCORE_URLS'] = $ApiUrl
-    if ($injected) { $psi.EnvironmentVariables['CHAIN_URL'] = $ApiUrl; $psi.EnvironmentVariables['CHAIN_CLOCK_UTC'] = $InjectedClockUtc }
+    $psi.EnvironmentVariables['ASPNETCORE_ENVIRONMENT'] = 'Test'                # ALV-N030: the test-support routes need exactly Test ...
+    $psi.EnvironmentVariables['TestSupport__Enabled'] = 'true'                  # ... and an explicit opt-in ...
+    $psi.EnvironmentVariables['CHAIN_URL'] = $chainUrl                          # ... and a loopback-only listener (the chain host refuses anything else)
+    $psi.EnvironmentVariables.Remove('ASPNETCORE_URLS')
+    $psi.EnvironmentVariables['CHAIN_CLOCK_MODE'] = $(if ($injected) { 'injected' } else { 'real' })
+    if ($injected) { $psi.EnvironmentVariables['CHAIN_CLOCK_UTC'] = $InjectedClockUtc }
     $psi.EnvironmentVariables['ConnectionStrings__Alveara'] = $connection
-    $psi.EnvironmentVariables['AdminBootstrapSecret'] = $secret
     $psi.EnvironmentVariables['AuthAttemptRateLimit__PermitLimit'] = '500'
     $psi.EnvironmentVariables['FollowUps__ReminderPollSeconds'] = '3'   # STORY-009: the follow-up reminder pass runs every 3 s here (60 s by default) so a walkthrough sees a reminder promptly
     $psi.EnvironmentVariables['FollowUps__WorkPollSeconds'] = '3'   # ALV-009-C01: the recall and unscheduled-treatment passes run every 3 s here (300 s by default)
@@ -118,27 +124,27 @@ try {
     $healthy = $false
     for ($i = 0; $i -lt 40 -and -not $healthy; $i++) {
         if ($api.HasExited) { throw "The API exited at start-up (exit code $($api.ExitCode))." }
-        try { $healthy = (Invoke-WebRequest "$ApiUrl/api/health" -UseBasicParsing -TimeoutSec 3).StatusCode -eq 200 } catch { Start-Sleep -Seconds 2 }
+        try { $healthy = (Invoke-WebRequest "$chainUrl/api/health" -UseBasicParsing -TimeoutSec 3).StatusCode -eq 200 } catch { Start-Sleep -Seconds 2 }
     }
     if (-not $healthy) { throw 'The API did not become healthy in time.' }
+    # measured, never assumed (as in Invoke-AccumulatedChain.ps1): the chain host reports the clock it really uses
+    $report = $null
+    try {
+        $reply = Invoke-WebRequest "$chainUrl/api/chain/clock-mode" -UseBasicParsing -TimeoutSec 5
+        if ("$($reply.Headers['Content-Type'])" -like 'application/json*') { $report = $reply.Content | ConvertFrom-Json }
+    }
+    catch { throw "Could not read the clock mode from the host: $_" }
+    $expectedMode = $(if ($injected) { 'injected' } else { 'real' })
+    if (-not $report -or $report.mode -ne $expectedMode) { throw "The host does not report a $expectedMode clock; the walkthrough was not run." }
     if ($injected) {
-        # measured, never assumed (as in Invoke-AccumulatedChain.ps1): only the chain host answers this route with a JSON report
-        $report = $null
-        try {
-            $reply = Invoke-WebRequest "$ApiUrl/api/chain/clock-mode" -UseBasicParsing -TimeoutSec 5
-            if ("$($reply.Headers['Content-Type'])" -like 'application/json*') { $report = $reply.Content | ConvertFrom-Json }
-        }
-        catch { throw "Could not read the clock mode from the host: $_" }
-        if (-not $report -or $report.mode -ne 'injected') { throw 'The host does not report an injected clock; the walkthrough was not run.' }
         $reported = [DateTimeOffset]::Parse("$($report.utcNow)", [Globalization.CultureInfo]::InvariantCulture)
         $requested = [DateTimeOffset]::Parse($InjectedClockUtc, [Globalization.CultureInfo]::InvariantCulture)
         if ([Math]::Abs(($reported - $requested).TotalSeconds) -gt 1) { throw "The host's clock reads $reported, not the requested $InjectedClockUtc; the walkthrough was not run." }
         Write-Host "Clock: injected, now = $InjectedClockUtc"
     }
-    Write-Host "API healthy on $ApiUrl; running $Config ..."
+    Write-Host "Chain host healthy on $chainUrl (environment Test, test support on); running $Config ..."
 
     $env:E2E_DB_NAME = $Database
-    $env:E2E_BOOTSTRAP_SECRET = $secret
     $env:ALVERA_SQL_SERVER = $SqlServer
     $env:E2E_CLOCK_MODE = $(if ($injected) { 'injected' } else { 'real' })   # ALV-N021 A2: a spec that needs the injected "today" checks this and stops early otherwise
     $env:E2E_STORAGE_ROOT = $runFolders[0]   # the API's storage folder, so a spec can place and check real files on disk (the bulk-import sweep spec does)
@@ -153,7 +159,7 @@ try {
 }
 finally {
     $ErrorActionPreference = 'Continue'
-    Remove-Item Env:E2E_DB_NAME, Env:E2E_BOOTSTRAP_SECRET, Env:E2E_STORAGE_ROOT, Env:E2E_CLOCK_MODE -ErrorAction SilentlyContinue
+    Remove-Item Env:E2E_DB_NAME, Env:E2E_STORAGE_ROOT, Env:E2E_CLOCK_MODE -ErrorAction SilentlyContinue
     if ($OutputVariable) { Remove-Item "Env:$OutputVariable" -ErrorAction SilentlyContinue }
     if ($api -and -not $api.HasExited) {
         try { Stop-Process -Id $api.Id -Force } catch { Write-Warning "Could not stop the API process $($api.Id): $_" }

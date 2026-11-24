@@ -2,6 +2,7 @@ import { test, expect } from "@playwright/test";
 import type { Browser, BrowserContext, Page } from "@playwright/test";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { createAccount } from "./support/testAccounts";
 
 // ALV-N021 A3 (briefing section 9 "real browser, two zones"): one Chicago practice, two browsers in different zones (America/Chicago and Asia/Tokyo, which
 // is 15 hours ahead, so its calendar day differs from Chicago's for most of the day). Real Chromium -> real Vite proxy -> real Alveara.Api -> real SQL
@@ -43,7 +44,7 @@ async function signIn(page: Page, username: string, password: string) {
 
 async function createUser(role: string, username: string) {
   const token = await csrf(admin);
-  const reg = await admin.request.post("/api/auth/register", { data: { username, password: PASSWORD } });
+  const reg = await createAccount(admin.request, { username, password: PASSWORD, role: "Unassigned" });
   expect(reg.ok(), `register ${role}`).toBeTruthy();
   const { id } = await reg.json();
   expect((await admin.request.put(`/api/auth/${id}/role`, { headers: { "X-CSRF-Token": token }, data: { role } })).ok()).toBeTruthy();
@@ -54,8 +55,7 @@ test.beforeAll(async ({ browser }: { browser: Browser }) => {
   stamp = Date.now();
   adminContext = await browser.newContext({ timezoneId: PRACTICE_ZONE });
   admin = await adminContext.newPage();
-  const secret = process.env.E2E_BOOTSTRAP_SECRET ?? "e2e-real-backend-secret";
-  expect((await admin.request.post("/api/auth/bootstrap-admin", { data: { username: `admin-${stamp}`, password: "admin-password-1!", secret } })).ok()).toBeTruthy();
+  expect((await createAccount(admin.request, { username: `admin-${stamp}`, password: "admin-password-1!", role: "Admin" })).ok()).toBeTruthy();
   await signIn(admin, `admin-${stamp}`, "admin-password-1!");
   const patient = await admin.request.post("/api/patients", {
     headers: { "X-CSRF-Token": await csrf(admin), "Idempotency-Key": `pt-${stamp}` },

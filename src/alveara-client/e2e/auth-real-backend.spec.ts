@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import type { Browser, BrowserContext, Page } from "@playwright/test";
+import { createAccount } from "./support/testAccounts";
 
 // ALV-001-C01 R02 (review finding ALV-001-C01-R01-05): unlike every other e2e spec in this
 // directory, this file deliberately does NOT mock the API via page.route() - the reviewer's
@@ -11,22 +12,20 @@ import type { Browser, BrowserContext, Page } from "@playwright/test";
 // This spec is NOT wired into playwright.config.ts's default `npm test:e2e` run, because that
 // config's webServer only starts the built static client (`vite preview`), with no backend behind
 // it - the existing specs are deliberately backend-independent via mocking. Running this file
-// requires both a real API (migrated database, AdminBootstrapSecret configured) and the Vite dev
-// server (which proxies /api to the API - see vite.config.ts) already running; see
+// requires both a real API (ALV-N030: ChainHost under the Test environment with test support, as the
+// runners start it) and the Vite dev server (which proxies /api to it - see vite.config.ts) already running; see
 // docs/testing/REAL_BACKEND_E2E.md for the exact commands. Evidence of an actual run is at
 // .alveara/handoffs/ALV-001-C01/R02-evidence/artifacts/playwright-real-backend/.
 
 test.describe.configure({ mode: "serial" });
 
 let adminUsername: string;
-let bootstrapSecret: string;
 let mfaSecret: string;
 let context: BrowserContext;
 let page: Page;
 
 test.beforeAll(async ({ browser }: { browser: Browser }) => {
   adminUsername = `admin-${Date.now()}`;
-  bootstrapSecret = process.env.E2E_BOOTSTRAP_SECRET ?? "e2e-real-backend-secret";
   // A single shared context/page across every test below (Playwright's documented pattern for a
   // session-like flow): each test() normally gets its own isolated, cookie-free context, which
   // would silently drop the login from one step before the next step ever runs.
@@ -38,20 +37,20 @@ test.afterAll(async () => {
   await context.close();
 });
 
-test.describe("Real backend — first-admin bootstrap, login, MFA, security administration", () => {
-  test("an unauthenticated caller cannot select a role at registration", async () => {
+test.describe("Real backend — no sign-up, forced password change, login, MFA, security administration", () => {
+  test("sign-up and the old first-admin bootstrap are gone, and the sign-in page offers no way to choose a role", async () => {
+    // ALV-N030: there is no self-service sign-up and no static-secret bootstrap any more (404, or 405 from the client fallback)
+    for (const url of ["/api/auth/register", "/api/auth/bootstrap-admin"]) {
+      const response = await page.request.post(url, { data: { username: `nobody-${Date.now()}`, password: "irrelevant-1!", secret: "irrelevant" } });
+      expect([404, 405], `${url} answered ${response.status()}`).toContain(response.status());
+    }
     await page.goto("/login");
-    // There is no role field anywhere in the UI - registration itself isn't exposed as a public
-    // flow in this shell (self-service accounts are provisioned by an admin instead), which is
-    // itself the acceptance criterion made visible: no rendered path exists to choose a role.
     await expect(page.getByLabel("Username")).toBeVisible();
     await expect(page.locator("select, input").filter({ hasText: /role/i })).toHaveCount(0);
   });
 
-  test("bootstraps the first admin via the real API and signs in", async () => {
-    const response = await page.request.post("/api/auth/bootstrap-admin", {
-      data: { username: adminUsername, password: "admin-password-1!", secret: bootstrapSecret },
-    });
+  test("an administrator (test fixture) signs in", async () => {
+    const response = await createAccount(page.request, { username: adminUsername, password: "admin-password-1!", role: "Admin" });
     expect(response.ok()).toBeTruthy();
 
     await page.goto("/login");
@@ -60,6 +59,36 @@ test.describe("Real backend — first-admin bootstrap, login, MFA, security admi
     await page.getByRole("button", { name: "Sign in" }).click();
 
     await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+  });
+
+  test("a staff member added with a temporary password must change it before using anything else (real API)", async ({ browser }: { browser: Browser }) => {
+    const { token: csrf } = await (await page.request.get("/api/auth/csrf-token")).json();
+    const username = `newstaff-${Date.now()}`;
+    const added = await page.request.post("/api/config/staff-members", {
+      headers: { "X-CSRF-Token": csrf, "Idempotency-Key": `add-${username}` },
+      data: { displayName: `New Staff ${Date.now()}`, jobTitle: "Front desk", username, role: "FrontDesk" },
+    });
+    expect(added.status()).toBe(201);
+    const { temporaryPassword } = await added.json();
+    expect(temporaryPassword).toHaveLength(16);
+
+    const newcomer = await browser.newContext();
+    try {
+      const request = newcomer.request;
+      expect((await request.post("/api/auth/login", { data: { username, password: temporaryPassword } })).ok()).toBeTruthy();
+      expect((await (await request.get("/api/auth/permissions")).json()).mustChangePassword).toBe(true);
+      const gated = await request.get("/api/patients");
+      expect(gated.status()).toBe(403);
+      expect((await gated.json()).error).toBe("password_change_required");
+
+      const { token } = await (await request.get("/api/auth/csrf-token")).json();
+      const changed = await request.post("/api/auth/password/change", { headers: { "X-CSRF-Token": token }, data: { currentPassword: temporaryPassword, newPassword: "Chosen-Front-Desk-1!" } });
+      expect(changed.status()).toBe(200);
+      expect((await (await request.get("/api/auth/permissions")).json()).mustChangePassword).toBe(false);
+      expect((await request.get("/api/patients")).status()).not.toBe(403);
+    } finally {
+      await newcomer.close();
+    }
   });
 
   test("enrolls a real TOTP factor and completes an MFA challenge end to end", async () => {
@@ -360,9 +389,7 @@ test.describe("Real backend — first-admin bootstrap, login, MFA, security admi
     const csrfResponse = await page.request.get("/api/auth/csrf-token");
     const { token: csrf } = await csrfResponse.json();
     const limitedUsername = `dentist-${Date.now()}`;
-    const registerResponse = await page.request.post("/api/auth/register", {
-      data: { username: limitedUsername, password: "dentist-password-1!" },
-    });
+    const registerResponse = await createAccount(page.request, { username: limitedUsername, password: "dentist-password-1!", role: "Unassigned" });   // ALV-N030: test fixture
     expect(registerResponse.ok()).toBeTruthy();
     const { id: limitedUserId } = await registerResponse.json();
     const roleResponse = await page.request.put(`/api/auth/${limitedUserId}/role`, {

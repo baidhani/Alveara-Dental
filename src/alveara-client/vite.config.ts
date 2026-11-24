@@ -12,7 +12,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: `http://localhost:${API_DEV_PORT}`,
+        target: `http://127.0.0.1:${API_DEV_PORT}`,   // ALV-N030 (G8): the chain host listens on 127.0.0.1 only (Node may resolve "localhost" to ::1); the dev API (Kestrel "localhost") answers on both
         changeOrigin: true,
       },
     },

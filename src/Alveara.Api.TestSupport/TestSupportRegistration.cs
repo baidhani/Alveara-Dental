@@ -67,13 +67,15 @@ public static class TestSupportRegistration
         return services;
     }
 
-    /// <summary>Adds exactly the one internal controller; nothing else in this assembly becomes a controller.</summary>
+    /// <summary>The internal fixture controllers this registration adds - and nothing else in this assembly becomes a controller.</summary>
+    internal static readonly Type[] Controllers = [typeof(TestAccountsController), typeof(TestStaffProfilesController)];
+
     private sealed class TestSupportControllerProvider : IApplicationFeatureProvider<ControllerFeature>
     {
         public void PopulateFeature(IEnumerable<ApplicationPart> parts, ControllerFeature feature)
         {
-            var type = typeof(TestAccountsController).GetTypeInfo();
-            if (!feature.Controllers.Contains(type)) feature.Controllers.Add(type);
+            foreach (var type in Controllers.Select(t => t.GetTypeInfo()))
+                if (!feature.Controllers.Contains(type)) feature.Controllers.Add(type);
         }
     }
 }

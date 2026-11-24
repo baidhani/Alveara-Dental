@@ -5,6 +5,7 @@ import { execFileSync } from "node:child_process";
 import { sqlServer } from "./support/sqlServer";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { createAccount } from "./support/testAccounts";
 
 // ALV-009-C01 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real SQL Server, with the real background passes (every 3 s here, 300 s by default).
 // Automatic recall is off until an office manager turns it on; then, within seconds, a patient whose last completed visit is long ago gets ONE unassigned recall task made by the system (through the durable job queue).
@@ -42,7 +43,7 @@ function sql(statement: string) {
 
 async function createUser(role: string, username: string): Promise<string> {
   const token = await csrf(admin);
-  const reg = await admin.request.post("/api/auth/register", { data: { username, password: PASSWORD } });
+  const reg = await createAccount(admin.request, { username, password: PASSWORD, role: "Unassigned" });
   expect(reg.ok(), `register ${role}`).toBeTruthy();
   const { id } = await reg.json();
   expect((await admin.request.put(`/api/auth/${id}/role`, { headers: { "X-CSRF-Token": token }, data: { role } })).ok()).toBeTruthy();
@@ -89,8 +90,7 @@ test.beforeAll(async ({ browser }: { browser: Browser }) => {
   stamp = Date.now();
   adminContext = await browser.newContext();
   admin = await adminContext.newPage();
-  const secret = process.env.E2E_BOOTSTRAP_SECRET ?? "e2e-real-backend-secret";
-  expect((await admin.request.post("/api/auth/bootstrap-admin", { data: { username: `admin-${stamp}`, password: "admin-password-1!", secret } })).ok()).toBeTruthy();
+  expect((await createAccount(admin.request, { username: `admin-${stamp}`, password: "admin-password-1!", role: "Admin" })).ok()).toBeTruthy();
   await signIn(admin, `admin-${stamp}`, "admin-password-1!");
   for (const role of ["Dentist", "FrontDesk", "Billing", "OfficeManager"]) {
     names[role] = `${role.toLowerCase()}-${stamp}`;
@@ -113,8 +113,8 @@ test("SETUP: a practice, a patient whose last completed visit was months ago", a
   expect((await api(admin, "post", "/api/config/locations", { name: "Main Office" })).status).toBe(201);
   const op = (await api(admin, "post", "/api/config/operatories", { name: "Op 1" })).body.id as string;
   const type = (await api(admin, "post", "/api/config/appointment-types", { name: "Exam", defaultDurationMinutes: 60 })).body.id as string;
-  const staff = await api(admin, "post", "/api/config/staff", { displayName: "Dr. Rivera", jobTitle: "Dentist" });
-  const provider = (await api(admin, "post", "/api/config/providers", { staffProfileId: staff.body.id, specialty: "General dentistry" })).body.id as string;
+  const staff = await api(admin, "post", "/api/config/staff-members", { displayName: "Dr. Rivera", jobTitle: "Dentist", username: `staff-${crypto.randomUUID()}`, role: "Dentist" }, { "Idempotency-Key": crypto.randomUUID() });   // ALV-N030: profile and login together
+  const provider = (await api(admin, "post", "/api/config/providers", { staffProfileId: staff.body.staffProfileId, specialty: "General dentistry" })).body.id as string;
   const current = (await (await admin.request.get(`/api/config/providers/${provider}/availability`)).json()) as { revision: number };
   const windows = [1, 2, 3, 4, 5, 6, 0].map((d) => ({ dayOfWeek: d, startLocal: "08:00", endLocal: "17:00" }));
   expect((await api(admin, "put", `/api/config/providers/${provider}/availability`, { windows, revision: current.revision })).status).toBe(200);

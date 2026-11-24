@@ -3,6 +3,7 @@ import type { Browser, BrowserContext, Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { createAccount } from "./support/testAccounts";
 
 // STORY-004 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real SQL Server.
 // Like the other real-backend specs it is excluded from the default mocked run (playwright.config.ts) and run with
@@ -42,7 +43,7 @@ async function put(page: Page, url: string, data: unknown) {
 
 async function createUser(role: string, username: string) {
   const token = await csrf(admin);
-  const reg = await admin.request.post("/api/auth/register", { data: { username, password: PASSWORD } });
+  const reg = await createAccount(admin.request, { username, password: PASSWORD, role: "Unassigned" });
   expect(reg.ok(), `register ${role}`).toBeTruthy();
   const { id } = await reg.json();
   expect((await admin.request.put(`/api/auth/${id}/role`, { headers: { "X-CSRF-Token": token }, data: { role } })).ok()).toBeTruthy();
@@ -101,8 +102,7 @@ test.beforeAll(async ({ browser }: { browser: Browser }) => {
   stamp = Date.now();
   adminContext = await browser.newContext();
   admin = await adminContext.newPage();
-  const secret = process.env.E2E_BOOTSTRAP_SECRET ?? "e2e-real-backend-secret";
-  expect((await admin.request.post("/api/auth/bootstrap-admin", { data: { username: `admin-${stamp}`, password: "admin-password-1!", secret } })).ok()).toBeTruthy();
+  expect((await createAccount(admin.request, { username: `admin-${stamp}`, password: "admin-password-1!", role: "Admin" })).ok()).toBeTruthy();
   await signIn(admin, `admin-${stamp}`, "admin-password-1!");
   await createUser("FrontDesk", `desk-${stamp}`);
   await createUser("Dentist", `dentist-${stamp}`);
@@ -127,8 +127,8 @@ test("SETUP: the practice is configured (two providers, two operatories, two app
   expect((await post(admin, "/api/config/appointment-types", { name: "Exam", defaultDurationMinutes: 60 })).status).toBe(201);
   expect((await post(admin, "/api/config/appointment-types", { name: "Quick check", defaultDurationMinutes: 30 })).status).toBe(201);
   for (const [key, name] of [["rivera", "Dr. Rivera"], ["patel", "Dr. Patel"]] as const) {
-    const staff = await post(admin, "/api/config/staff", { displayName: name, jobTitle: "Dentist" });
-    const provider = await post(admin, "/api/config/providers", { staffProfileId: staff.body.id, specialty: "General dentistry" });
+    const staff = await post(admin, "/api/config/staff-members", { displayName: name, jobTitle: "Dentist", username: `staff-${crypto.randomUUID()}`, role: "Dentist" }, { "Idempotency-Key": crypto.randomUUID() });   // ALV-N030: profile and login together
+    const provider = await post(admin, "/api/config/providers", { staffProfileId: staff.body.staffProfileId, specialty: "General dentistry" });
     ids[key] = provider.body.id as string;
     const current = (await (await admin.request.get(`/api/config/providers/${ids[key]}/availability`)).json()) as { revision: number };
     const windows = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"].map((_, i) => ({ dayOfWeek: i + 1, startLocal: "08:00", endLocal: "17:00" }));

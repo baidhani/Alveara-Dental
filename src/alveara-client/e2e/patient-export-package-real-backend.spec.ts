@@ -5,6 +5,7 @@ import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import { createAccount } from "./support/testAccounts";
 
 // ALV-018-C01 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real SQL Server (snapshot isolation on, as a production database has it).
 // Excluded from the default mocked run (playwright.config.ts) and run with playwright.patient-export-package.config.ts through scripts/Invoke-RealBackendWalkthrough.ps1 (see docs/testing/REAL_BACKEND_E2E.md).
@@ -104,11 +105,10 @@ test.beforeAll(async ({ browser }: { browser: Browser }) => {
   stamp = Date.now();
   adminContext = await browser.newContext({ acceptDownloads: true });
   admin = await adminContext.newPage();
-  const secret = process.env.E2E_BOOTSTRAP_SECRET ?? "e2e-real-backend-secret";
-  expect((await admin.request.post("/api/auth/bootstrap-admin", { data: { username: `admin-${stamp}`, password: "admin-password-1!", secret } })).ok()).toBeTruthy();
+  expect((await createAccount(admin.request, { username: `admin-${stamp}`, password: "admin-password-1!", role: "Admin" })).ok()).toBeTruthy();
   await signIn(admin, `admin-${stamp}`, "admin-password-1!");
   const token = await csrf(admin);
-  const reg = await admin.request.post("/api/auth/register", { data: { username: `dentist-${stamp}`, password: PASSWORD } });
+  const reg = await createAccount(admin.request, { username: `dentist-${stamp}`, password: PASSWORD, role: "Unassigned" });
   expect(reg.ok()).toBeTruthy();
   ids.dentistUser = (await reg.json()).id as string;
   expect((await admin.request.put(`/api/auth/${ids.dentistUser}/role`, { headers: { "X-CSRF-Token": token }, data: { role: "Dentist" } })).ok()).toBeTruthy();

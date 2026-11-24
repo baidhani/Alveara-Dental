@@ -3,6 +3,7 @@ import type { Browser, BrowserContext, Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { createAccount } from "./support/testAccounts";
 
 // ALV-N022 A1, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real SQL Server (run with playwright.encounter-chart.config.ts against an API
 // the caller started; see docs/testing/REAL_BACKEND_E2E.md). The encounter writes allergies to the patient's ONE chart; the one safety banner refreshes after each write
@@ -40,7 +41,7 @@ async function signIn(page: Page, username: string, password: string) {
 
 async function session(browser: Browser, role: string): Promise<Page> {
   const token = await csrf(admin);
-  const reg = await admin.request.post("/api/auth/register", { data: { username: `${role.toLowerCase()}-${stamp}`, password: PASSWORD } });
+  const reg = await createAccount(admin.request, { username: `${role.toLowerCase()}-${stamp}`, password: PASSWORD, role: "Unassigned" });
   expect(reg.ok(), `register ${role}`).toBeTruthy();
   const { id } = await reg.json();
   expect((await admin.request.put(`/api/auth/${id}/role`, { headers: { "X-CSRF-Token": token }, data: { role } })).ok()).toBeTruthy();
@@ -80,8 +81,7 @@ test.beforeAll(async ({ browser }: { browser: Browser }) => {
   const adminContext = await browser.newContext();
   contexts.push(adminContext);
   admin = await adminContext.newPage();
-  const secret = process.env.E2E_BOOTSTRAP_SECRET ?? "e2e-real-backend-secret";
-  expect((await admin.request.post("/api/auth/bootstrap-admin", { data: { username: `admin-${stamp}`, password: "admin-password-1!", secret } })).ok()).toBeTruthy();
+  expect((await createAccount(admin.request, { username: `admin-${stamp}`, password: "admin-password-1!", role: "Admin" })).ok()).toBeTruthy();
   await signIn(admin, `admin-${stamp}`, "admin-password-1!");
   const desk = await session(browser, "FrontDesk");
   dentist = await session(browser, "Dentist");

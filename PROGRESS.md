@@ -3675,3 +3675,10 @@
   - What changed: CollectPayments added to the default Office Manager permissions (PermissionMatrix.cs); new RoleSubsetInvariantTests (default Front Desk ⊆ default Office Manager); AccountSafetyTests - the impossible Dentist test retargeted to a Hygienist, three new tests (standard Front Desk managed; Front Desk granted an extra permission stays protected; Dentist-only permission never held by an Office Manager); VisitWorkflowPermissionTests default-holder row updated; handoff disclosures started in .alveara/handoffs/ALV-N030/PENDING_DISCLOSURES.md
   - Verification: focused AccountSafetyTests + RoleSubsetInvariantTests + VisitWorkflowPermissionTests + PermissionMatrixTests + CollectPaymentsApiTests + EffectivePermissionServiceTests + PermissionPolicyStoreTests + AuthControllerPermissionMatrixTests 100/100 (1 m 1 s)
   - Notes: default-role change disclosed for the handoff; the safety rule stays on effective permissions (no marker permission)
+
+- [ ] ALV-N030 slice 5c: browser specs, chain scenarios and runners on ChainHost test support; G8 (implementation done, walkthrough proof pending owner approval)
+  - Date: 2026-11-24
+  - Session: CC-20261123-q4vn
+  - What changed: e2e/support/testAccounts.ts (createAccount, createStaffProfile); 49 specs and 3 chain stages moved off register/bootstrap-admin (mechanical) and off the profile-only staff create (linked -> /api/test-support/staff-profiles, unlinked -> real POST /api/config/staff-members); auth-real-backend.spec.ts and chain stage 0 rewritten for the removed routes; owner-approved second fixture route POST /api/test-support/staff-profiles (TestSupport only, same guards); both runners on ChainHost in both clock modes (Test, TestSupport__Enabled, CHAIN_URL 127.0.0.1, CHAIN_CLOCK_MODE, no secret); Vite proxy to 127.0.0.1; G1/G4 extended to the new route, G7 --urls case, G8 runner and proxy checks; REAL_BACKEND_E2E.md updated
+  - Verification: TestSupportGuardTests 39/39 (45 s); tsc on every changed spec - no new errors (2 pre-existing, identical at HEAD); walkthrough runs NOT yet run (owner approval required)
+  - Notes: left unchecked until the approved walkthrough sample passes

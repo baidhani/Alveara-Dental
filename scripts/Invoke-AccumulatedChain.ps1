@@ -6,8 +6,9 @@
   ALV-N019 (R05 PKG-01). One run owns: a database AlveraChain_<run id>, and a folder <root>\Test-Data\Chain\<run id> holding its database files, storage,
   key ring and backup. Steps:
     1. refuse if port 5072 or 5173 is busy, then create the database (explicit files inside the run folder) and apply every migration;
-    2. start the real API on it (production composition, unchanged; the real clock) and wait for health;
-    3. run the chain's Playwright specs (stage 0: administrator bootstrap and sign-in; stage 1: accounts and session; ALV-N021 A2 stages 3 and 4: scheduling and visit flow);
+    2. start the chain host on it (ALV-N030: always the chain host - the unchanged production application, with the injected clock or, with -ClockMode real, its own;
+       ASPNETCORE_ENVIRONMENT=Test, TestSupport__Enabled=true, CHAIN_URL=http://127.0.0.1:5072) and wait for health;
+    3. run the chain's Playwright specs (stage 0: sign-up and bootstrap are gone, the fixture administrator signs in; stage 1: accounts and session; ALV-N021 A2 stages 3 and 4: scheduling and visit flow);
     4. take one COPY_ONLY checkpoint backup into the run folder and verify it (a safety net; the runner never resets anything automatically);
     5. ALWAYS, even on failure or interruption: stop the API, drop the database, delete the run folder;
     6. write <root>\Test-Data\Temp\chain-output\<run id>\evidence.json (kept) and exit with its code.
@@ -52,7 +53,7 @@ $dbDir       = Join-Path $runRoot 'Database'
 $storageDir  = Join-Path $runRoot 'Storage'
 $keysDir     = Join-Path $runRoot 'Keys'
 $backupDir   = Join-Path $runRoot 'Backup'
-$secret      = "chain-$runId"
+$chainUrl    = 'http://127.0.0.1:5072'      # ALV-N030 (G7, G8): the chain host listens on loopback only; the Vite proxy targets the same address
 $apiProject  = Join-Path $RepoRoot 'src\Alveara.Api'
 $clientDir   = Join-Path $RepoRoot 'src\alveara-client'
 $exitCode    = 2
@@ -105,7 +106,7 @@ try {
     try {
         $ErrorActionPreference = 'Continue'
         if (-not $SkipBuild) {
-            if ($ClockMode -eq 'injected') { & dotnet build (Join-Path $RepoRoot 'src\Alveara.Api.ChainHost\Alveara.Api.ChainHost.csproj') --nologo -v q } else { & dotnet build --nologo -v q }
+            & dotnet build (Join-Path $RepoRoot 'src\Alveara.Api.ChainHost\Alveara.Api.ChainHost.csproj') --nologo -v q   # ALV-N030: always the chain host (it builds the API and test support)
             if ($LASTEXITCODE -ne 0) { throw 'dotnet build failed.' }
         }
         & dotnet ef database update --no-build --connection $connection
@@ -115,23 +116,24 @@ try {
 
     $schemaVersion = (Invoke-DevSql "SET NOCOUNT ON; SELECT TOP 1 MigrationId FROM __EFMigrationsHistory ORDER BY MigrationId DESC" $Database | Select-Object -First 1).Trim()
 
-    $dll = if ($ClockMode -eq 'injected') { Join-Path $RepoRoot 'src\Alveara.Api.ChainHost\bin\Debug\net10.0\Alveara.Api.ChainHost.dll' } else { Join-Path $apiProject 'bin\Debug\net10.0\Alveara.Api.dll' }
+    $dll = Join-Path $RepoRoot 'src\Alveara.Api.ChainHost\bin\Debug\net10.0\Alveara.Api.ChainHost.dll'   # ALV-N030: both clock modes run on the chain host
     if (-not (Test-Path -LiteralPath $dll)) { throw "The built host was not found at $dll." }
     $psi = New-Object System.Diagnostics.ProcessStartInfo
     $psi.FileName = 'dotnet'
     $psi.Arguments = '"' + $dll + '"'
-    $psi.WorkingDirectory = $(if ($ClockMode -eq 'injected') { Split-Path -Parent $dll } else { $apiProject })
+    $psi.WorkingDirectory = Split-Path -Parent $dll
     $psi.UseShellExecute = $false
     $psi.CreateNoWindow = $true
-    $psi.EnvironmentVariables['ASPNETCORE_ENVIRONMENT'] = 'Development'
-    $psi.EnvironmentVariables['ASPNETCORE_URLS'] = $ApiUrl
-    $psi.EnvironmentVariables['CHAIN_URL'] = $ApiUrl
+    $psi.EnvironmentVariables['ASPNETCORE_ENVIRONMENT'] = 'Test'                # ALV-N030: the test-support routes need exactly Test ...
+    $psi.EnvironmentVariables['TestSupport__Enabled'] = 'true'                  # ... and an explicit opt-in ...
+    $psi.EnvironmentVariables['CHAIN_URL'] = $chainUrl                          # ... and a loopback-only listener (the chain host refuses anything else)
+    $psi.EnvironmentVariables.Remove('ASPNETCORE_URLS')
+    $psi.EnvironmentVariables['CHAIN_CLOCK_MODE'] = $ClockMode                  # ALV-N030 (brief 17.3): stated explicitly; the chain host refuses to start without it
     # ALV-N021 A2 (owner decision 2026-11-15): this run's control token switches on the chain host's clock-advance route for this run only; each advance is appended to the evidence
     $psi.EnvironmentVariables['CHAIN_RUN_ID'] = $runId
     $psi.EnvironmentVariables['CHAIN_CONTROL_TOKEN'] = $controlToken
     $psi.EnvironmentVariables['CHAIN_CLOCK_LOG'] = (Join-Path $evidenceDir 'clock-advances.jsonl')
     $psi.EnvironmentVariables['ConnectionStrings__Alveara'] = $connection
-    $psi.EnvironmentVariables['AdminBootstrapSecret'] = $secret
     $psi.EnvironmentVariables['AuthAttemptRateLimit__PermitLimit'] = '500'
     $psi.EnvironmentVariables['StorageRoot'] = $storageDir
     $psi.EnvironmentVariables['DataProtectionKeysPath'] = $keysDir
@@ -143,15 +145,15 @@ try {
     $healthy = $false
     for ($i = 0; $i -lt 40 -and -not $healthy; $i++) {
         if ($api.HasExited) { throw "The API exited at start-up (exit code $($api.ExitCode))." }
-        try { $healthy = (Invoke-WebRequest "$ApiUrl/api/health" -UseBasicParsing -TimeoutSec 3).StatusCode -eq 200 } catch { Start-Sleep -Seconds 2 }
+        try { $healthy = (Invoke-WebRequest "$chainUrl/api/health" -UseBasicParsing -TimeoutSec 3).StatusCode -eq 200 } catch { Start-Sleep -Seconds 2 }
     }
     if (-not $healthy) { throw 'The API did not become healthy in time.' }
-    Write-Host "Host healthy on $ApiUrl; running stage $Stage ..."
-    # The clock mode is measured from the running host: the chain host answers /api/chain/clock-mode with a JSON report. The production API serves no such report: it answers an unknown route with its
-    # client page (HTML, status 200) or a 404, so only a JSON body with a 'mode' counts as the chain's report.
+    Write-Host "Host healthy on $chainUrl; running stage $Stage ..."
+    # The clock mode is measured from the running host: the chain host answers /api/chain/clock-mode with a JSON report in both modes (ALV-N030: real-clock runs use it too).
+    # Only a JSON body with a 'mode' counts as the report; anything else is treated as no report.
     $report = $null
     try {
-        $reply = Invoke-WebRequest "$ApiUrl/api/chain/clock-mode" -UseBasicParsing -TimeoutSec 5
+        $reply = Invoke-WebRequest "$chainUrl/api/chain/clock-mode" -UseBasicParsing -TimeoutSec 5
         if ("$($reply.Headers['Content-Type'])" -like 'application/json*') { $parsed = $reply.Content | ConvertFrom-Json; if ($parsed.PSObject.Properties.Name -contains 'mode') { $report = $parsed } }
     }
     catch { if (-not ($_.Exception.Response -and [int]$_.Exception.Response.StatusCode -eq 404)) { throw "Could not read the clock mode from the host: $_" } }
@@ -168,7 +170,6 @@ try {
     }
 
     $env:E2E_DB_NAME = $Database
-    $env:E2E_BOOTSTRAP_SECRET = $secret
     $env:ALVERA_SQL_SERVER = $SqlServer
     $env:CHAIN_OUT = $evidenceDir
     # ALV-N020 R02 (13.05): the owned-API control channel. Only this run's own API process is ever stopped or started; every action is a runner step.
@@ -206,7 +207,7 @@ try {
                 $up = $false
                 for ($i = 0; $i -lt 40 -and -not $up; $i++) {
                     if ($script:api.HasExited) { throw "the restarted API exited (exit code $($script:api.ExitCode))" }
-                    try { $up = (Invoke-WebRequest "$ApiUrl/api/health" -UseBasicParsing -TimeoutSec 3).StatusCode -eq 200 } catch { Start-Sleep -Seconds 2 }
+                    try { $up = (Invoke-WebRequest "$chainUrl/api/health" -UseBasicParsing -TimeoutSec 3).StatusCode -eq 200 } catch { Start-Sleep -Seconds 2 }
                 }
                 if (-not $up) { throw 'the restarted API did not become healthy in time' }
                 $ok = $true; $detail = "started owned API process $($script:api.Id) with the same settings; healthy"
@@ -261,7 +262,7 @@ catch {
 }
 finally {
     $ErrorActionPreference = 'Continue'
-    Remove-Item Env:E2E_DB_NAME, Env:E2E_BOOTSTRAP_SECRET, Env:CHAIN_OUT, Env:CHAIN_CLOCK_MODE, Env:CHAIN_API_CONTROL, Env:CHAIN_CONTROL_TOKEN -ErrorAction SilentlyContinue
+    Remove-Item Env:E2E_DB_NAME, Env:CHAIN_OUT, Env:CHAIN_CLOCK_MODE, Env:CHAIN_API_CONTROL, Env:CHAIN_CONTROL_TOKEN -ErrorAction SilentlyContinue
     if ($api -and -not $api.HasExited) {
         try { Stop-Process -Id $api.Id -Force } catch { Write-Warning "Could not stop the API process $($api.Id): $_" }
         [void]$api.WaitForExit(15000)
