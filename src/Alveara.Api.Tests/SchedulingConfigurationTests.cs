@@ -25,7 +25,7 @@ public class SchedulingConfigurationTests : IAsyncLifetime
     {
         await using var db = _fixture.CreateContext();
         var practice = new PracticeConfigurationService(db, Clock);
-        var people = new StaffProviderService(db, Clock);
+        var people = TestStaff.Service(db, Clock);
         var scheduling = new SchedulingConfiguration(db, Clock);
 
         var empty = await scheduling.GetSnapshotAsync(default);
@@ -58,7 +58,7 @@ public class SchedulingConfigurationTests : IAsyncLifetime
     {
         await using var db = _fixture.CreateContext();
         var practice = new PracticeConfigurationService(db, Clock);
-        var people = new StaffProviderService(db, Clock);
+        var people = TestStaff.Service(db, Clock);
         var scheduling = new SchedulingConfiguration(db, Clock);
 
         await practice.CreateLocationAsync("Main Office", _actor, default);
@@ -90,7 +90,7 @@ public class SchedulingConfigurationTests : IAsyncLifetime
     public async Task Availability_check_honors_working_hours_blocked_time_and_slot_boundaries()
     {
         await using var db = _fixture.CreateContext();
-        var people = new StaffProviderService(db, Clock);
+        var people = TestStaff.Service(db, Clock);
         var scheduling = new SchedulingConfiguration(db, Clock);
 
         var staff = await people.CreateStaffAsync("Dr. Rivera", null, null, _actor, default);
@@ -114,7 +114,7 @@ public class SchedulingConfigurationTests : IAsyncLifetime
 
     private async Task<(SchedulingConfiguration Scheduling, Guid ProviderId)> ConfigureAsync(Alveara.Api.Data.AlveraDbContext db, params AvailabilityWindow[] windows)
     {
-        var people = new StaffProviderService(db, Clock);
+        var people = TestStaff.Service(db, Clock);
         var staff = await people.CreateStaffAsync("Dr. Rivera", null, null, _actor, default);
         var provider = await people.CreateProviderAsync(staff.Id, "Dentistry", _actor, default);
         await people.ReplaceCurrentAsync(provider.Id, windows, _actor);
@@ -168,7 +168,7 @@ public class SchedulingConfigurationTests : IAsyncLifetime
     {
         await using var db = _fixture.CreateContext();
         var (scheduling, providerId) = await ConfigureAsync(db, new AvailabilityWindow(DayOfWeek.Sunday, "00:00", "01:00"));
-        await new StaffProviderService(db, Clock).AddBlockedTimeAsync(providerId, new DateTime(2026, 11, 1, 0, 30, 0), new DateTime(2026, 11, 1, 0, 45, 0), null, _actor, default);
+        await TestStaff.Service(db, Clock).AddBlockedTimeAsync(providerId, new DateTime(2026, 11, 1, 0, 30, 0), new DateTime(2026, 11, 1, 0, 45, 0), null, _actor, default);
         // 00:30-00:45 CDT = 05:30Z-05:45Z.
         var blocked = await scheduling.CheckProviderAvailabilityAsync(providerId, DateTimeOffset.Parse("2026-11-01T05:30:00Z"), 15, default);
         Assert.Equal("blocked_time", blocked.Reason);

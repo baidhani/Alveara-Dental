@@ -87,7 +87,7 @@ public abstract class CompletionTestBase : BillingTestBase
 
     protected Task<ProviderProfile> ProviderAsync(string name = "Dr. Provider") => WithDb(async db =>
     {
-        var people = new StaffProviderService(db, Clock);
+        var people = TestStaff.Service(db, Clock);
         var staff = await people.CreateStaffAsync(name, null, null, S.Actor, default);
         return await people.CreateProviderAsync(staff.Id, "General dentistry", S.Actor, default);
     });

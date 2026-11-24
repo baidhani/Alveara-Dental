@@ -43,7 +43,7 @@ public sealed class SchedulingTestSupport(TestDatabaseFixture fixture)
     {
         await using var db = fixture.CreateContext();
         var practice = new PracticeConfigurationService(db, Clock);
-        var people = new StaffProviderService(db, Clock);
+        var people = TestStaff.Service(db, Clock);
         LocationId = (await practice.CreateLocationAsync("Main Office", Actor, default)).Id;
         Op1 = (await practice.CreateOperatoryAsync("Op 1", Actor, default)).Id;
         Op2 = (await practice.CreateOperatoryAsync("Op 2", Actor, default)).Id;
@@ -185,7 +185,7 @@ public sealed class SchedulingTestSupport(TestDatabaseFixture fixture)
     public async Task BlockProviderAsync(Guid provider, DateTime startLocal, DateTime endLocal)
     {
         await using var db = fixture.CreateContext();
-        await new StaffProviderService(db, Clock).AddBlockedTimeAsync(provider, startLocal, endLocal, "Meeting", Actor, default);
+        await TestStaff.Service(db, Clock).AddBlockedTimeAsync(provider, startLocal, endLocal, "Meeting", Actor, default);
     }
 
     /// <summary>A context whose saves fail whenever an audit entry is part of them, to simulate audit storage being down.</summary>

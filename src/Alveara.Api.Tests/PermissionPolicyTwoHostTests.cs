@@ -42,7 +42,7 @@ public class PermissionPolicyTwoHostTests : IAsyncLifetime
     {
         var admin = await _a.SessionAsync("Admin");
         var username = $"dentist-{Guid.NewGuid():N}";
-        var id = (await (await admin.Client.PostAsJsonAsync("/api/auth/register", new RegisterRequest(username, "password"))).Content.ReadFromJsonAsync<JsonElement>()).GetProperty("id").GetGuid();
+        var id = (await (await TestAccounts.SeedRegisteredResponseAsync(_a.Factory, username, "password")).Content.ReadFromJsonAsync<JsonElement>()).GetProperty("id").GetGuid();
         await admin.SendAsync(HttpMethod.Put, $"/api/auth/{id}/role", new ChangeRoleRequest("Dentist"));
         await admin.SendAsync(HttpMethod.Put, $"/api/auth/{id}/enabled", new SetEnabledRequest(true));
         return username;
@@ -102,7 +102,7 @@ public class PermissionPolicyTwoHostTests : IAsyncLifetime
     {
         var admin = await _a.SessionAsync("Admin");
         var username = $"billing-{Guid.NewGuid():N}";
-        var id = (await (await admin.Client.PostAsJsonAsync("/api/auth/register", new RegisterRequest(username, "password"))).Content.ReadFromJsonAsync<JsonElement>()).GetProperty("id").GetGuid();
+        var id = (await (await TestAccounts.SeedRegisteredResponseAsync(_a.Factory, username, "password")).Content.ReadFromJsonAsync<JsonElement>()).GetProperty("id").GetGuid();
         await admin.SendAsync(HttpMethod.Put, $"/api/auth/{id}/role", new ChangeRoleRequest("Billing"));
         await admin.SendAsync(HttpMethod.Put, $"/api/auth/{id}/enabled", new SetEnabledRequest(true));
         var onB = await LoginAsync(_b.Factory, username);

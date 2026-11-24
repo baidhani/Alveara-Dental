@@ -22,12 +22,10 @@ public class AuthCookieAttributesTests : IAsyncLifetime
         await using var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
             builder.UseSetting("ConnectionStrings:Alveara", _fixture.ConnectionString);
-            builder.UseSetting("AdminBootstrapSecret", IdentityTestHelpers.TestBootstrapSecret);
         });
         var client = factory.CreateClient(new WebApplicationFactoryClientOptions { HandleCookies = false }); // inspect the raw header instead of letting the handler absorb it
         var username = $"admin-{Guid.NewGuid():N}";
-        await client.PostAsJsonAsync("/api/auth/bootstrap-admin",
-            new BootstrapAdminRequest(username, "password", IdentityTestHelpers.TestBootstrapSecret));
+        await TestAccounts.SeedFirstAdminResponseAsync(factory, username, "password");
 
         var response = await client.PostAsJsonAsync("/api/auth/login", new LoginRequest(username, "password"));
 

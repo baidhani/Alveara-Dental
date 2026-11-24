@@ -129,7 +129,7 @@ public class AuditSessionLifecycleTests : IAsyncLifetime
     public async Task SES1_a_failed_lifecycle_write_does_not_block_sign_in_and_that_session_writes_no_sign_out_event()
     {
         var username = $"user-{Guid.NewGuid():N}";
-        var id = (await (await _admin.Client.PostAsJsonAsync("/api/auth/register", new RegisterRequest(username, "password"))).Content.ReadFromJsonAsync<JsonElement>()).GetProperty("id").GetGuid();
+        var id = (await (await TestAccounts.SeedRegisteredResponseAsync(_api.Factory, username, "password")).Content.ReadFromJsonAsync<JsonElement>()).GetProperty("id").GetGuid();
         await _admin.SendAsync(HttpMethod.Put, $"/api/auth/{id}/enabled", new SetEnabledRequest(true));
         // test-only fault: this user's lifecycle row cannot be inserted
         await SqlAsync($"CREATE TRIGGER [TR_Test_AuditSessionsFault] ON [AuditSessions] INSTEAD OF INSERT AS BEGIN IF EXISTS (SELECT 1 FROM inserted WHERE [UserId] = '{id}') THROW 59999, 'test fault', 1; INSERT INTO [AuditSessions] SELECT * FROM inserted; END");

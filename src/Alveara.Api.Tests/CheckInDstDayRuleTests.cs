@@ -25,7 +25,7 @@ public class CheckInDstDayRuleTests : IAsyncLifetime
         _ann = await _s.PatientAsync();
         _bo = await _s.PatientAsync("Bo", "Kim");
         await using var db = _fixture.CreateContext();   // both DST days are Sundays: Dr. Rivera works every day here
-        await new StaffProviderService(db, Clock).ReplaceCurrentAsync(_s.ProviderA,
+        await TestStaff.Service(db, Clock).ReplaceCurrentAsync(_s.ProviderA,
             [.. Enum.GetValues<DayOfWeek>().Select(d => new AvailabilityWindow(d, "08:00", "17:00"))], _s.Actor);
     });
     public Task DisposeAsync() => _fixture.DisposeAsync();

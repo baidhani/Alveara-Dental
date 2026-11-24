@@ -41,7 +41,6 @@ public class BackupApiTests : IAsyncLifetime
         new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
             builder.UseSetting("ConnectionStrings:Alveara", _fixture.ConnectionString);
-            builder.UseSetting("AdminBootstrapSecret", IdentityTestHelpers.TestBootstrapSecret);
             builder.UseSetting("Backup:Root", Path.Combine(_root, "backup"));
             builder.UseSetting("StorageRoot", Path.Combine(_root, "blobs"));
             builder.UseSetting("DataProtectionKeysPath", Path.Combine(_root, "keys"));
@@ -54,7 +53,7 @@ public class BackupApiTests : IAsyncLifetime
     {
         var client = factory.CreateClient();
         var username = $"admin-{Guid.NewGuid():N}";
-        await client.PostAsJsonAsync("/api/auth/bootstrap-admin", new BootstrapAdminRequest(username, AdminPassword, IdentityTestHelpers.TestBootstrapSecret));
+        await TestAccounts.SeedFirstAdminResponseAsync(factory, username, AdminPassword);
         await client.PostAsJsonAsync("/api/auth/login", new LoginRequest(username, AdminPassword));
         return (client, await CsrfAsync(client));
     }
@@ -70,7 +69,7 @@ public class BackupApiTests : IAsyncLifetime
     private static async Task<HttpClient> UserWithRoleAsync(WebApplicationFactory<Program> factory, HttpClient admin, string adminCsrf, string role)
     {
         var username = $"user-{Guid.NewGuid():N}";
-        var registered = await (await admin.PostAsJsonAsync("/api/auth/register", new RegisterRequest(username, "password"))).Content.ReadFromJsonAsync<JsonElement>();
+        var registered = await (await TestAccounts.SeedRegisteredResponseAsync(factory, username, "password")).Content.ReadFromJsonAsync<JsonElement>();
         var id = registered.GetProperty("id").GetGuid();
         await admin.SendAsync(Req(HttpMethod.Put, $"/api/auth/{id}/role", adminCsrf, new ChangeRoleRequest(role)));
         await admin.SendAsync(Req(HttpMethod.Put, $"/api/auth/{id}/enabled", adminCsrf, new SetEnabledRequest(true)));

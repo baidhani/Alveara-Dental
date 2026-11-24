@@ -22,15 +22,13 @@ public class AuthControllerRbacTests : IAsyncLifetime
         new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
             builder.UseSetting("ConnectionStrings:Alveara", _fixture.ConnectionString);
-            builder.UseSetting("AdminBootstrapSecret", IdentityTestHelpers.TestBootstrapSecret);
         });
 
     private static async Task<(HttpClient Client, string CsrfToken, Guid UserId)> CreateLoggedInAdminClientAsync(WebApplicationFactory<Program> factory)
     {
         var client = factory.CreateClient();
         var username = $"admin-{Guid.NewGuid():N}";
-        var bootstrapResponse = await client.PostAsJsonAsync("/api/auth/bootstrap-admin",
-            new BootstrapAdminRequest(username, "admin-password", IdentityTestHelpers.TestBootstrapSecret));
+        var bootstrapResponse = await TestAccounts.SeedFirstAdminResponseAsync(factory, username, "admin-password");
         var created = await bootstrapResponse.Content.ReadFromJsonAsync<AccountResponse>();
 
         await client.PostAsJsonAsync("/api/auth/login", new LoginRequest(username, "admin-password"));
@@ -51,7 +49,7 @@ public class AuthControllerRbacTests : IAsyncLifetime
     private static async Task<HttpClient> CreateLoggedInUserClientAsync(WebApplicationFactory<Program> factory, HttpClient adminClient, string csrf, string role)
     {
         var username = $"user-{Guid.NewGuid():N}";
-        var registerResponse = await adminClient.PostAsJsonAsync("/api/auth/register", new RegisterRequest(username, "password"));
+        var registerResponse = await TestAccounts.SeedRegisteredResponseAsync(factory, username, "password");
         var created = await registerResponse.Content.ReadFromJsonAsync<JsonElement>();
         var userId = created.GetProperty("id").GetGuid();
 
@@ -119,7 +117,7 @@ public class AuthControllerRbacTests : IAsyncLifetime
         await using var factory = CreateFactory();
         var (adminClient, csrf, _) = await CreateLoggedInAdminClientAsync(factory);
         var username = $"user-{Guid.NewGuid():N}";
-        var registerResponse = await adminClient.PostAsJsonAsync("/api/auth/register", new RegisterRequest(username, "password"));
+        var registerResponse = await TestAccounts.SeedRegisteredResponseAsync(factory, username, "password");
         var created = await registerResponse.Content.ReadFromJsonAsync<JsonElement>();
         var userId = created.GetProperty("id").GetGuid();
         await adminClient.SendAsync(WithCsrf(HttpMethod.Put, $"/api/auth/{userId}/role", csrf, new ChangeRoleRequest("Admin")));
@@ -162,7 +160,7 @@ public class AuthControllerRbacTests : IAsyncLifetime
         var (adminClient, csrf, adminId) = await CreateLoggedInAdminClientAsync(factory);
 
         var targetUsername = $"user-{Guid.NewGuid():N}";
-        var targetRegisterResponse = await adminClient.PostAsJsonAsync("/api/auth/register", new RegisterRequest(targetUsername, "password"));
+        var targetRegisterResponse = await TestAccounts.SeedRegisteredResponseAsync(factory, targetUsername, "password");
         var target = await targetRegisterResponse.Content.ReadFromJsonAsync<JsonElement>();
         var targetId = target.GetProperty("id").GetGuid();
         await adminClient.SendAsync(WithCsrf(HttpMethod.Put, $"/api/auth/{targetId}/role", csrf, new ChangeRoleRequest("Assistant")));
@@ -194,7 +192,7 @@ public class AuthControllerRbacTests : IAsyncLifetime
         await using var factory = CreateFactory();
         var (adminClient, csrf, _) = await CreateLoggedInAdminClientAsync(factory);
         var username = $"user-{Guid.NewGuid():N}";
-        var registerResponse = await adminClient.PostAsJsonAsync("/api/auth/register", new RegisterRequest(username, "password"));
+        var registerResponse = await TestAccounts.SeedRegisteredResponseAsync(factory, username, "password");
         var created = await registerResponse.Content.ReadFromJsonAsync<JsonElement>();
         var userId = created.GetProperty("id").GetGuid();
         await adminClient.SendAsync(WithCsrf(HttpMethod.Put, $"/api/auth/{userId}/role", csrf, new ChangeRoleRequest("Billing")));

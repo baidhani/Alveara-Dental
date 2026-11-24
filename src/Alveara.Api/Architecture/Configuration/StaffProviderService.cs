@@ -25,28 +25,6 @@ public class StaffProviderService(AlveraDbContext db, IPracticeClock clock)
     public async Task<StaffProfile> GetStaffAsync(Guid id, CancellationToken ct) =>
         await db.StaffProfiles.AsNoTracking().SingleOrDefaultAsync(s => s.Id == id, ct) ?? throw PracticeConfigurationService.NotFound("Staff profile");
 
-    // ALV-N030 (R01 CR-1): no product route creates a profile on its own or links an existing account any more (StaffMemberService does both together).
-    // Kept internal only for the existing test fixtures until slice 5 moves them; deleted there.
-    internal async Task<StaffProfile> CreateStaffAsync(string? displayName, string? jobTitle, Guid? userAccountId, Guid actor, CancellationToken ct)
-    {
-        var name = ConfigurationWrite.RequireName(displayName, "Display name");
-        var title = ConfigurationWrite.OptionalText(jobTitle, "Job title", 80);
-        if (await db.StaffProfiles.AnyAsync(s => s.DisplayName == name, ct))
-            throw new ConfigurationException("staff_name_taken", "A staff profile with that display name already exists.", 409);
-        if (userAccountId is not null) await ValidateAccountLinkAsync(userAccountId.Value, null, ct);
-
-        var staff = new StaffProfile
-        {
-            Id = Guid.NewGuid(), DisplayName = name, JobTitle = title, UserAccountId = userAccountId, IsActive = true, CreatedAtUtc = clock.UtcNow,
-        };
-        db.StaffProfiles.Add(staff);
-        ConfigurationWrite.Audit(db, ConfigurationAuditEvents.Created, nameof(StaffProfile), staff.Id, actor,
-            userAccountId is null ? "Staff profile created." : "Staff profile created and linked to a login account.");
-        await ConfigurationWrite.SaveAsync(db, nameof(StaffProfile), staff.Id, ct);
-        return staff;
-    }
-
-    /// <summary>Updates name/title and the account link together; only a changed link is audited as one.</summary>
     /// <summary>
     /// ALV-N026 S6 (PD-11): the optional prescriber details copied into a prescription at issue. Each is optional; an NPI must be exactly 10 digits (no check-digit claim). Audited without the values.
     /// A later edit never changes an issue already made: the issue keeps its own copy.
@@ -86,38 +64,6 @@ public class StaffProviderService(AlveraDbContext db, IPracticeClock clock)
         return staff;
     }
 
-    // ALV-N030: the old edit that could also set or change the link. No route calls it; kept internal for the existing test fixtures until slice 5.
-    internal async Task<StaffProfile> UpdateStaffAsync(Guid id, string? displayName, string? jobTitle, Guid? userAccountId, string? rowVersion, Guid actor, CancellationToken ct)
-    {
-        var name = ConfigurationWrite.RequireName(displayName, "Display name");
-        var title = ConfigurationWrite.OptionalText(jobTitle, "Job title", 80);
-        var staff = await db.StaffProfiles.SingleOrDefaultAsync(s => s.Id == id, ct) ?? throw PracticeConfigurationService.NotFound("Staff profile");
-        if (await db.StaffProfiles.AnyAsync(s => s.Id != id && s.DisplayName == name, ct))
-            throw new ConfigurationException("staff_name_taken", "A staff profile with that display name already exists.", 409);
-
-        var linkChanged = staff.UserAccountId != userAccountId;
-        // ALV-N020 (F-021): an inactive profile's login link cannot be swapped or removed by an ordinary edit (that freed the old login and took another);
-        // removing it needs an administrator and a reason (UnlinkAccountFromInactiveStaffAsync), and a new link needs the profile reactivated first.
-        if (linkChanged && !staff.IsActive)
-            throw new ConfigurationException("staff_inactive_link", "This staff member is inactive. Reactivate the profile to link a login, or remove the link with a reason.", 409);
-        // Only a NEW link is validated: an existing link to an account that was later disabled is
-        // kept as-is (the staff member's history still resolves), never silently severed.
-        if (linkChanged && userAccountId is not null) await ValidateAccountLinkAsync(userAccountId.Value, id, ct);
-
-        ConfigurationWrite.ApplyExpectedVersion(db, staff, rowVersion);
-        staff.DisplayName = name;
-        staff.JobTitle = title;
-        staff.UserAccountId = userAccountId;
-        ConfigurationWrite.Audit(db, ConfigurationAuditEvents.Updated, nameof(StaffProfile), id, actor, "Staff profile updated.");
-        if (linkChanged)
-        {
-            ConfigurationWrite.Audit(db, ConfigurationAuditEvents.StaffAccountLinkChanged, nameof(StaffProfile), id, actor,
-                userAccountId is null ? "Login account link removed." : "Login account link set.");
-        }
-        await ConfigurationWrite.SaveAsync(db, nameof(StaffProfile), id, ct);
-        return staff;
-    }
-
     public async Task<StaffProfile> SetStaffActiveAsync(Guid id, bool active, string? rowVersion, Guid actor, CancellationToken ct)
     {
         var staff = await db.StaffProfiles.SingleOrDefaultAsync(s => s.Id == id, ct) ?? throw PracticeConfigurationService.NotFound("Staff profile");
@@ -150,17 +96,6 @@ public class StaffProviderService(AlveraDbContext db, IPracticeClock clock)
         ConfigurationWrite.Audit(db, ConfigurationAuditEvents.StaffAccountUnlinked, nameof(StaffProfile), id, actor, "Login account link removed from an inactive staff profile.", why);
         await ConfigurationWrite.SaveAsync(db, nameof(StaffProfile), id, ct);
         return staff;
-    }
-
-    /// <summary>The link must point at an existing, enabled account that no other staff profile already uses.</summary>
-    private async Task ValidateAccountLinkAsync(Guid userAccountId, Guid? staffIdBeingEdited, CancellationToken ct)
-    {
-        var account = await db.UserAccounts.AsNoTracking().SingleOrDefaultAsync(a => a.Id == userAccountId, ct)
-            ?? throw new ConfigurationException("account_not_found", "The selected login account does not exist.");
-        if (account.IsDisabled)
-            throw new ConfigurationException("account_inactive", "The selected login account is disabled and cannot be linked.");
-        if (await db.StaffProfiles.AnyAsync(s => s.UserAccountId == userAccountId && s.Id != staffIdBeingEdited, ct))
-            throw new ConfigurationException("account_already_linked", "That login account is already linked to another staff profile.", 409);
     }
 
     // ---------- Providers ----------

@@ -9,9 +9,6 @@ using Alveara.Api.Data;
 
 namespace Alveara.Api.Architecture.Identity;
 
-public class UsernameAlreadyRegisteredException(string username) : Exception($"Username '{username}' is already registered.");
-/// <summary>ALV-N020: a username that is empty once its surrounding white space is removed.</summary>
-public class UsernameRequiredException() : Exception("A username is required.");
 public class InvalidLoginException() : Exception("Invalid username or password.");
 
 public class AccountLockedOutException(DateTimeOffset lockedOutUntilUtc)
@@ -22,8 +19,6 @@ public class AccountLockedOutException(DateTimeOffset lockedOutUntilUtc)
 
 public class AccountDisabledException() : Exception("This account has been disabled.");
 public class AccountNotFoundException(Guid userAccountId) : Exception($"No account with id '{userAccountId}' exists.");
-public class InvalidBootstrapSecretException() : Exception("Invalid bootstrap secret.");
-public class BootstrapAlreadyConsumedException() : Exception("The first-admin bootstrap has already been used.");
 public class InvalidOrExpiredMfaChallengeException() : Exception("Invalid or expired MFA challenge.");
 public class InvalidMfaCodeException() : Exception("Invalid MFA code.");
 public class MfaNotEnabledException() : Exception("MFA is not enabled for this account.");
@@ -79,105 +74,8 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
     /// equality ignores trailing spaces, so ' dentist1 ' used to sign in as dentist1 and be audited with the spaces.</summary>
     internal static string NormalizeUsername(string? username) => (username ?? string.Empty).Trim();
 
-    // ---------- Registration (self-service, no role/privilege) ----------
-
-    /// <summary>
-    /// ALV-001-C01: self-service registration can never grant a working role. The account is
-    /// created as Role.Unassigned and disabled; only an authorized administrator (via
-    /// <see cref="ChangeRoleAsync"/> and <see cref="SetAccountEnabledAsync"/>) can make it usable.
-    /// </summary>
-    // ALV-N030: no product route calls this any more (sign-up is removed, D-8). Kept internal only for the existing tests until slice 5 moves them to the TestHost; deleted there.
-    internal async Task<UserAccount> RegisterAsync(string username, string password, CancellationToken cancellationToken = default)
-    {
-        username = NormalizeUsername(username);
-        if (username.Length == 0) throw new UsernameRequiredException();
-        var account = new UserAccount
-        {
-            Id = Guid.NewGuid(),
-            Username = username,
-            PasswordHash = Pbkdf2PasswordHasher.Hash(password),
-            Role = Role.Unassigned,
-            IsDisabled = true,
-            CreatedAtUtc = DateTimeOffset.UtcNow,
-        };
-
-        await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
-        try
-        {
-            db.UserAccounts.Add(account);
-            AddAudit(AuditEventTypes.AccountRegistered, account.Id, null,
-                $"Account '{username}' self-registered (Unassigned, disabled, pending administrator approval).");
-            await db.SaveChangesAsync(cancellationToken);
-            await transaction.CommitAsync(cancellationToken);
-            return account;
-        }
-        catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex))
-        {
-            await transaction.RollbackAsync(cancellationToken);
-            throw new UsernameAlreadyRegisteredException(username);
-        }
-    }
-
-    // ---------- First-admin bootstrap ----------
-
-    /// <summary>
-    /// ALV-001-C01: the only way to create an enabled Admin account with no prior administrator.
-    /// Succeeds exactly once, offline, protected by <paramref name="bootstrapSecret"/> (matched
-    /// against server-side configuration — never source control). Atomicity under a concurrent
-    /// race comes from the database's own primary-key uniqueness on <see cref="BootstrapState"/>'s
-    /// fixed singleton id, not application-level check-then-act: two simultaneous callers both
-    /// attempt the same INSERT; exactly one can ever succeed.
-    /// </summary>
-    // ALV-N030: the bootstrap-admin route is removed (first-run setup replaces it). Internal only for existing tests until slice 5; deleted there.
-    internal async Task<UserAccount> BootstrapFirstAdminAsync(string username, string password, string suppliedSecret, string configuredSecret, CancellationToken cancellationToken = default)
-    {
-        username = NormalizeUsername(username);
-        if (string.IsNullOrEmpty(configuredSecret) ||
-            !System.Security.Cryptography.CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(suppliedSecret ?? ""), Encoding.UTF8.GetBytes(configuredSecret)))
-        {
-            throw new InvalidBootstrapSecretException();
-        }
-        if (username.Length == 0) throw new UsernameRequiredException();
-
-        var account = new UserAccount
-        {
-            Id = Guid.NewGuid(),
-            Username = username,
-            PasswordHash = Pbkdf2PasswordHasher.Hash(password),
-            Role = Role.Admin,
-            IsDisabled = false,
-            CreatedAtUtc = DateTimeOffset.UtcNow,
-        };
-
-        await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
-        try
-        {
-            db.Set<BootstrapState>().Add(new BootstrapState
-            {
-                ConsumedAtUtc = DateTimeOffset.UtcNow,
-                ConsumedForUsername = username,
-            });
-            await db.SaveChangesAsync(cancellationToken); // forces the PK-conflict race to resolve here, before the account exists
-
-            db.UserAccounts.Add(account);
-            AddAudit(AuditEventTypes.AccountRegistered, account.Id, null,
-                $"First administrator '{username}' provisioned via one-time bootstrap.");
-            AccountPermissionService.StageBootstrapHolder(db, account.Id, username);              // ALV-N020-C01: a NEW installation's first administrator is the presentation administrator
-            await db.SaveChangesAsync(cancellationToken);
-            await transaction.CommitAsync(cancellationToken);
-            return account;
-        }
-        catch (DbUpdateException ex) when (IsPrimaryKeyViolation(ex))
-        {
-            await transaction.RollbackAsync(cancellationToken);
-            throw new BootstrapAlreadyConsumedException();
-        }
-        catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex))
-        {
-            await transaction.RollbackAsync(cancellationToken);
-            throw new UsernameAlreadyRegisteredException(username);
-        }
-    }
+    // ALV-N030: self-service sign-up (RegisterAsync) and the static-secret first-admin bootstrap (BootstrapFirstAdminAsync) were removed. New staff come from
+    // StaffMemberService (profile and login together); the first administrator comes from DeploymentSetupService (first-run setup token).
 
     // ---------- Login, lockout (rearm-safe, concurrency-safe), MFA gate ----------
 

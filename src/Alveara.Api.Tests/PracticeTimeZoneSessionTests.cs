@@ -23,7 +23,6 @@ public class PracticeTimeZoneSessionTests : IAsyncLifetime
         new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
             builder.UseSetting("ConnectionStrings:Alveara", _fixture.ConnectionString);
-            builder.UseSetting("AdminBootstrapSecret", IdentityTestHelpers.TestBootstrapSecret);
             builder.UseSetting("AuthAttemptRateLimit:PermitLimit", "100");   // eight sign-ins in one test
             if (practiceTimeZone is not null) builder.UseSetting("PracticeTimeZone", practiceTimeZone);
         });
@@ -39,7 +38,7 @@ public class PracticeTimeZoneSessionTests : IAsyncLifetime
     {
         var client = factory.CreateClient();
         var username = $"admin-{Guid.NewGuid():N}";
-        await client.PostAsJsonAsync("/api/auth/bootstrap-admin", new BootstrapAdminRequest(username, "admin-password", IdentityTestHelpers.TestBootstrapSecret));
+        await TestAccounts.SeedFirstAdminResponseAsync(factory, username, "admin-password");
         await client.PostAsJsonAsync("/api/auth/login", new LoginRequest(username, "admin-password"));
         var csrf = (await (await client.GetAsync("/api/auth/csrf-token")).Content.ReadFromJsonAsync<JsonElement>()).GetProperty("token").GetString()!;
         return (client, csrf);
@@ -48,7 +47,7 @@ public class PracticeTimeZoneSessionTests : IAsyncLifetime
     private static async Task<HttpClient> UserAsync(WebApplicationFactory<Program> factory, HttpClient admin, string csrf, string role)
     {
         var username = $"user-{Guid.NewGuid():N}";
-        var created = await (await admin.PostAsJsonAsync("/api/auth/register", new RegisterRequest(username, "password"))).Content.ReadFromJsonAsync<JsonElement>();
+        var created = await (await TestAccounts.SeedRegisteredResponseAsync(factory, username, "password")).Content.ReadFromJsonAsync<JsonElement>();
         var id = created.GetProperty("id").GetGuid();
         await admin.SendAsync(WithCsrf(HttpMethod.Put, $"/api/auth/{id}/role", csrf, new ChangeRoleRequest(role)));
         await admin.SendAsync(WithCsrf(HttpMethod.Put, $"/api/auth/{id}/enabled", csrf, new SetEnabledRequest(true)));

@@ -36,7 +36,7 @@ public class CalendarBlockedTimeApiTests : IAsyncLifetime
     private async Task LegacyAsync(Guid provider, DateTime start, DateTime end, string reason)
     {
         await using var db = _fixture.CreateContext();
-        await new StaffProviderService(db, Clock).AddBlockedTimeAsync(provider, start, end, reason, _s.Actor, default);
+        await TestStaff.Service(db, Clock).AddBlockedTimeAsync(provider, start, end, reason, _s.Actor, default);
     }
 
     private static string[] Labels(JsonElement list) => list.EnumerateArray().Select(b => b.GetProperty("displayLabel").GetString()!).ToArray();

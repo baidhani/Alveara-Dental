@@ -198,11 +198,14 @@ public class AccountSafetyTests : SafetyTestBase
     }
 
     [Fact]
-    public async Task Ordinary_updates_to_accounts_and_the_first_administrator_bootstrap_are_unaffected()
+    public async Task Ordinary_updates_to_accounts_and_the_first_administrator_setup_are_unaffected()
     {
         await using (var db = Fixture.CreateContext())
         {
-            var first = await Service(db).BootstrapFirstAdminAsync($"first-{Guid.NewGuid():N}", "bootstrap-admin-password", IdentityTestHelpers.TestBootstrapSecret, IdentityTestHelpers.TestBootstrapSecret);
+            // ALV-N030: the first administrator now comes from first-run setup (the static-secret bootstrap is gone); the guard must not stand in its way
+            var setup = new DeploymentSetupService(db, new TestClock(DateTimeOffset.UtcNow));
+            var issued = await setup.IssueTokenAsync(default);
+            var first = await setup.CompleteAsync(issued.Token, $"first-{Guid.NewGuid():N}", "a-long-enough-password", default);
             Assert.Equal(Role.Admin, first.Role);
         }
         var user = await NewUserAsync(Role.Dentist);

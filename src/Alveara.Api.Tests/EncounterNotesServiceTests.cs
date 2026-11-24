@@ -28,7 +28,7 @@ public class EncounterNotesServiceTests : IAsyncLifetime
         db.UserAccounts.Add(new UserAccount { Id = _s.Actor, Username = $"dr-{Guid.NewGuid():N}", CreatedAtUtc = DateTimeOffset.UtcNow });
         db.UserAccounts.Add(new UserAccount { Id = _other, Username = $"hyg-{Guid.NewGuid():N}", CreatedAtUtc = DateTimeOffset.UtcNow });
         await db.SaveChangesAsync();
-        var people = new StaffProviderService(db, Clock);
+        var people = TestStaff.Service(db, Clock);
         await people.CreateStaffAsync("Dr. Okafor", null, _s.Actor, _s.Actor, default);
         await people.CreateStaffAsync("Hana Hygienist", null, _other, _s.Actor, default);
     });

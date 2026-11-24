@@ -24,7 +24,6 @@ public class AuthControllerMfaConfirmSessionTests : IAsyncLifetime
         new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
             builder.UseSetting("ConnectionStrings:Alveara", _fixture.ConnectionString);
-            builder.UseSetting("AdminBootstrapSecret", IdentityTestHelpers.TestBootstrapSecret);
         });
 
     [Fact]
@@ -35,8 +34,7 @@ public class AuthControllerMfaConfirmSessionTests : IAsyncLifetime
         // the server issues - including a re-issued one from mfa/confirm, exactly like a real browser.
         var client = factory.CreateClient();
         var username = $"admin-{Guid.NewGuid():N}";
-        await client.PostAsJsonAsync("/api/auth/bootstrap-admin",
-            new BootstrapAdminRequest(username, "password", IdentityTestHelpers.TestBootstrapSecret));
+        await TestAccounts.SeedFirstAdminResponseAsync(factory, username, "password");
         await client.PostAsJsonAsync("/api/auth/login", new LoginRequest(username, "password"));
 
         var csrfResponse = await client.GetAsync("/api/auth/csrf-token");
@@ -73,8 +71,7 @@ public class AuthControllerMfaConfirmSessionTests : IAsyncLifetime
         await using var factory = CreateFactory();
         var client = factory.CreateClient();
         var username = $"admin-{Guid.NewGuid():N}";
-        await client.PostAsJsonAsync("/api/auth/bootstrap-admin",
-            new BootstrapAdminRequest(username, "password", IdentityTestHelpers.TestBootstrapSecret));
+        await TestAccounts.SeedFirstAdminResponseAsync(factory, username, "password");
         await client.PostAsJsonAsync("/api/auth/login", new LoginRequest(username, "password"));
 
         async Task<string> EnrollAndConfirmAsync()

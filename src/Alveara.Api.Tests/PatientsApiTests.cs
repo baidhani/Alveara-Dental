@@ -21,7 +21,6 @@ public class PatientsApiTests : IAsyncLifetime
         new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
             builder.UseSetting("ConnectionStrings:Alveara", _fixture.ConnectionString);
-            builder.UseSetting("AdminBootstrapSecret", IdentityTestHelpers.TestBootstrapSecret);
             builder.UseSetting("AuthAttemptRateLimit:PermitLimit", "500"); // test setup signs in many accounts from one address
         });
 
@@ -32,7 +31,7 @@ public class PatientsApiTests : IAsyncLifetime
     {
         var client = factory.CreateClient();
         var username = $"admin-{Guid.NewGuid():N}";
-        await client.PostAsJsonAsync("/api/auth/bootstrap-admin", new BootstrapAdminRequest(username, "admin-password", IdentityTestHelpers.TestBootstrapSecret));
+        await TestAccounts.SeedFirstAdminResponseAsync(factory, username, "admin-password");
         await client.PostAsJsonAsync("/api/auth/login", new LoginRequest(username, "admin-password"));
         return (client, await CsrfAsync(client));
     }
@@ -40,7 +39,7 @@ public class PatientsApiTests : IAsyncLifetime
     private static async Task<(HttpClient Client, Guid UserId)> UserWithRoleAsync(WebApplicationFactory<Program> factory, HttpClient admin, string csrf, string role)
     {
         var username = $"user-{Guid.NewGuid():N}";
-        var registered = await (await admin.PostAsJsonAsync("/api/auth/register", new RegisterRequest(username, "password"))).Content.ReadFromJsonAsync<JsonElement>();
+        var registered = await (await TestAccounts.SeedRegisteredResponseAsync(factory, username, "password")).Content.ReadFromJsonAsync<JsonElement>();
         var id = registered.GetProperty("id").GetGuid();
         await admin.SendAsync(Req(HttpMethod.Put, $"/api/auth/{id}/role", csrf, new ChangeRoleRequest(role)));
         await admin.SendAsync(Req(HttpMethod.Put, $"/api/auth/{id}/enabled", csrf, new SetEnabledRequest(true)));

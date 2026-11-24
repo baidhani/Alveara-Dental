@@ -23,7 +23,7 @@ public class StaffProviderServiceTests : IAsyncLifetime
     private (AlveraDbContext Db, StaffProviderService Service) NewService()
     {
         var db = _fixture.CreateContext();
-        return (db, new StaffProviderService(db, Clock));
+        return (db, TestStaff.Service(db, Clock));
     }
 
     private static string Version(byte[] v) => Convert.ToBase64String(v);
@@ -69,30 +69,6 @@ public class StaffProviderServiceTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task Linking_a_staff_profile_to_a_missing_disabled_or_already_linked_account_is_rejected()
-    {
-        var enabled = await SeedAccountAsync(enabled: true);
-        var disabled = await SeedAccountAsync(enabled: false);
-        var (db, service) = NewService();
-        await using (db)
-        {
-            var missing = await Assert.ThrowsAsync<ConfigurationException>(() => service.CreateStaffAsync("A", null, Guid.NewGuid(), _actor, default));
-            Assert.Equal("account_not_found", missing.Code);
-
-            var inactive = await Assert.ThrowsAsync<ConfigurationException>(() => service.CreateStaffAsync("B", null, disabled.Id, _actor, default));
-            Assert.Equal("account_inactive", inactive.Code);
-
-            await service.CreateStaffAsync("C", null, enabled.Id, _actor, default);
-            var taken = await Assert.ThrowsAsync<ConfigurationException>(() => service.CreateStaffAsync("D", null, enabled.Id, _actor, default));
-            Assert.Equal("account_already_linked", taken.Code);
-            Assert.Equal(409, taken.StatusCode);
-
-            // Nothing partial was persisted by the rejected attempts.
-            Assert.Equal(1, await db.StaffProfiles.CountAsync());
-        }
-    }
-
-    [Fact]
     public async Task A_link_to_an_account_that_is_later_disabled_keeps_resolving_and_is_not_silently_severed()
     {
         var account = await SeedAccountAsync(enabled: true);
@@ -115,40 +91,13 @@ public class StaffProviderServiceTests : IAsyncLifetime
             Assert.Equal(account.Id, resolved.UserAccountId);
 
             // Editing something else keeps the existing link without re-validating it as "new".
-            var updated = await service2.UpdateStaffAsync(staffId, "Dr. Linked", "Lead", account.Id, Version(resolved.RowVersion), _actor, default);
+            var updated = await service2.UpdateStaffDetailsAsync(staffId, "Dr. Linked", "Lead", Version(resolved.RowVersion), _actor, default);
             Assert.Equal(account.Id, updated.UserAccountId);
             Assert.Equal("Lead", updated.JobTitle);
         }
     }
 
     // ALV-N030 (R01 CR-1): the link picker (ListLinkableAccountsAsync, GET /api/config/linkable-accounts) was removed; its test went with it.
-
-    [Fact]
-    public async Task Changing_the_account_link_is_audited_as_its_own_event()
-    {
-        var account = await SeedAccountAsync(enabled: true);
-        var (db, service) = NewService();
-        await using (db)
-        {
-            var staff = await service.CreateStaffAsync("Dr. Linked", null, null, _actor, default);
-            await service.UpdateStaffAsync(staff.Id, "Dr. Linked", null, account.Id, Version(staff.RowVersion), _actor, default);
-            Assert.Contains(await db.AuditLogEntries.Where(a => a.TargetUserAccountId == staff.Id).ToListAsync(),
-                a => a.EventType == ConfigurationAuditEvents.StaffAccountLinkChanged && a.EntityType == "StaffProfile");
-        }
-    }
-
-    [Fact]
-    public async Task Staff_display_names_are_unique_so_a_retried_create_cannot_duplicate()
-    {
-        var (db, service) = NewService();
-        await using (db)
-        {
-            await service.CreateStaffAsync("Dr. Rivera", null, null, _actor, default);
-            var ex = await Assert.ThrowsAsync<ConfigurationException>(() => service.CreateStaffAsync("dr. rivera", null, null, _actor, default));
-            Assert.Equal("staff_name_taken", ex.Code);
-            Assert.Equal(1, await db.StaffProfiles.CountAsync());
-        }
-    }
 
     // ---------- Providers + inactivation history ----------
 

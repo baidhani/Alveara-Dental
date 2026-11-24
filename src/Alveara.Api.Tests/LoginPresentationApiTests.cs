@@ -35,7 +35,6 @@ public class LoginPresentationApiTests : IAsyncLifetime
         new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
             builder.UseSetting("ConnectionStrings:Alveara", _fixture.ConnectionString);
-            builder.UseSetting("AdminBootstrapSecret", IdentityTestHelpers.TestBootstrapSecret);
             builder.UseSetting("StorageRoot", _storage);
         });
 
@@ -46,7 +45,7 @@ public class LoginPresentationApiTests : IAsyncLifetime
     {
         var client = factory.CreateClient();
         var username = $"owner-{Guid.NewGuid():N}";
-        var created = await client.PostAsJsonAsync("/api/auth/bootstrap-admin", new BootstrapAdminRequest(username, "admin-password", IdentityTestHelpers.TestBootstrapSecret));
+        var created = await TestAccounts.SeedFirstAdminResponseAsync(factory, username, "admin-password");
         Assert.Equal(HttpStatusCode.Created, created.StatusCode);
         var body = await created.Content.ReadFromJsonAsync<JsonElement>();                                 // the installer is told explicitly
         Assert.True(body.GetProperty("presentationAdministrator").GetBoolean());
@@ -67,7 +66,7 @@ public class LoginPresentationApiTests : IAsyncLifetime
     private static async Task<(HttpClient Client, Guid Id)> UserAsync(WebApplicationFactory<Program> factory, HttpClient admin, string csrf, string role, bool enable = true)
     {
         var username = $"user-{Guid.NewGuid():N}";
-        var id = (await (await admin.PostAsJsonAsync("/api/auth/register", new RegisterRequest(username, "password"))).Content.ReadFromJsonAsync<JsonElement>()).GetProperty("id").GetGuid();
+        var id = (await (await TestAccounts.SeedRegisteredResponseAsync(factory, username, "password")).Content.ReadFromJsonAsync<JsonElement>()).GetProperty("id").GetGuid();
         await admin.SendAsync(Req(HttpMethod.Put, $"/api/auth/{id}/role", csrf, new ChangeRoleRequest(role)));
         if (enable) await admin.SendAsync(Req(HttpMethod.Put, $"/api/auth/{id}/enabled", csrf, new SetEnabledRequest(true)));
         var client = factory.CreateClient();

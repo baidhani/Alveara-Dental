@@ -119,7 +119,7 @@ public sealed class BackupTestEnvironment : IDisposable
     public async Task<(Guid AccountId, string Username, string ProtectedSecret)> SeedAccountsAndAuditAsync()
     {
         await using var db = NewDb();
-        var accounts = new AccountService(db, DataProtection);
+        var accounts = TestAccounts.Track(new AccountService(db, DataProtection), db);
         var admin = await accounts.RegisterAsync($"backup-user-{Guid.NewGuid():N}", "bootstrap-admin-password"); // bootstrap is one-time per database; a plain account is enough to test restore
         var protectedSecret = DataProtection.CreateProtector(AccountService.MfaSecretProtectorPurpose).Protect(Convert.ToBase64String(new byte[20]));
         await db.UserAccounts.Where(u => u.Id == admin.Id).ExecuteUpdateAsync(s => s.SetProperty(u => u.MfaSecretProtected, protectedSecret));

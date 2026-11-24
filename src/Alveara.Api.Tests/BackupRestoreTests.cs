@@ -415,7 +415,7 @@ public class BackupRestoreTests : IClassFixture<TestDatabaseFixture>, IDisposabl
         const string password = "recovered-app-password-1";
         await using (var seed = _env.NewDb())
         {
-            var accounts = new AccountService(seed, _env.DataProtection, PolicyTestSupport.Defaults());
+            var accounts = TestAccounts.Track(new AccountService(seed, _env.DataProtection, PolicyTestSupport.Defaults()), seed);
             var loginUser = $"drill-login-{Guid.NewGuid():N}";
             var created = await accounts.RegisterAsync(loginUser, password);
             await accounts.SetAccountEnabledAsync(created.Id, true, accountId);                                   // enable first: the seeding account holds no role, so it may only act on an account that holds none either
@@ -437,7 +437,6 @@ public class BackupRestoreTests : IClassFixture<TestDatabaseFixture>, IDisposabl
             builder.UseSetting("DataProtectionKeysPath", Path.Combine(extracted, ManagedAssetClasses.DataProtectionKeys));
             builder.UseSetting("Backup:Root", Path.Combine(_env.Root, "recovered-app-backup"));
             builder.UseSetting("DataProtection:ApplicationName", BackupTestEnvironment.DataProtectionApplicationName); // the recorded deployment setting, applied as the runbook says
-            builder.UseSetting("AdminBootstrapSecret", IdentityTestHelpers.TestBootstrapSecret);
         });
         var client = factory.CreateClient();
 

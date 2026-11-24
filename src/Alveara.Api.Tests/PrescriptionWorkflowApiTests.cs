@@ -30,6 +30,15 @@ public class PrescriptionWorkflowApiTests : IAsyncLifetime
     private static string Error(JsonElement e) => e.GetProperty("error").GetString()!;
     private static string Str(JsonElement e, string name) => e.GetProperty(name).GetString()!;
 
+    /// <summary>ALV-N030: staff are added with their login (POST /api/config/staff-members); answers the profile as GET /api/config/staff/{id} shows it.</summary>
+    private static async Task<(HttpStatusCode Status, JsonElement Body)> AddStaffMemberAsync(SchedulingApiHarness.Session admin, string displayName)
+    {
+        var created = await admin.SendAsync(HttpMethod.Post, "/api/config/staff-members",
+            new { displayName, jobTitle = (string?)null, username = $"staff-{Guid.NewGuid():N}", role = "Dentist" }, key: Guid.NewGuid().ToString());
+        Assert.Equal(HttpStatusCode.Created, created.Status);
+        return await admin.SendAsync(HttpMethod.Get, $"/api/config/staff/{created.Body.GetProperty("staffProfileId").GetGuid()}");
+    }
+
     private static object DraftBody(string medication = "Amoxicillin", decimal dose = 500m, string? key = null, string? instructions = "Take one capsule with food until finished.", decimal? quantity = 21m,
         string? quantityUnit = "capsule", int? refills = 0, string? note = null, string? rowVersion = null) =>
         new { idempotencyKey = key ?? $"d-{Guid.NewGuid():N}", medication, doseValue = dose, doseUnit = "mg", frequency = "Three times daily", instructions, quantityValue = quantity, quantityUnit, refills, reviewNote = note, rowVersion };
@@ -515,8 +524,7 @@ public class PrescriptionWorkflowApiTests : IAsyncLifetime
     public async Task An_npi_that_is_not_exactly_ten_digits_is_refused(string npi)
     {
         var admin = await _api.SessionAsync("Admin");
-        var staff = await admin.SendAsync(HttpMethod.Post, "/api/config/staff", new { displayName = $"Dr {npi}", jobTitle = (string?)null, userAccountId = (Guid?)null });
-        Assert.Equal(HttpStatusCode.Created, staff.Status);
+        var staff = await AddStaffMemberAsync(admin, $"Dr {npi}");
         var r = await admin.SendAsync(HttpMethod.Put, $"/api/config/staff/{Str(staff.Body, "id")}/prescriber", new { npi, rowVersion = Str(staff.Body, "rowVersion") });
         Assert.Equal((HttpStatusCode.BadRequest, "validation_failed"), (r.Status, Error(r.Body)));
     }
@@ -525,7 +533,7 @@ public class PrescriptionWorkflowApiTests : IAsyncLifetime
     public async Task Only_an_administrator_records_prescriber_details_and_the_audit_keeps_no_values()
     {
         var admin = await _api.SessionAsync("Admin");
-        var staff = await admin.SendAsync(HttpMethod.Post, "/api/config/staff", new { displayName = "Dr Details", jobTitle = (string?)null, userAccountId = (Guid?)null });
+        var staff = await AddStaffMemberAsync(admin, "Dr Details");
         var id = Str(staff.Body, "id");
         Assert.Equal(HttpStatusCode.Forbidden, (await (await _api.SessionAsync("OfficeManager")).SendAsync(HttpMethod.Put, $"/api/config/staff/{id}/prescriber", new { npi = "1234567893", rowVersion = Str(staff.Body, "rowVersion") })).Status);
         var saved = await admin.SendAsync(HttpMethod.Put, $"/api/config/staff/{id}/prescriber", new { credentialLabel = "DDS", licenseNumber = "LIC-777", licenseJurisdiction = "Texas", npi = "1234567893", rowVersion = Str(staff.Body, "rowVersion") });

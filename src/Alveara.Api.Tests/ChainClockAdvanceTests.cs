@@ -33,7 +33,6 @@ public class ChainClockAdvanceTests : IAsyncLifetime
     private void Configure(Microsoft.AspNetCore.Hosting.IWebHostBuilder builder)
     {
         builder.UseSetting("ConnectionStrings:Alveara", _fixture.ConnectionString);
-        builder.UseSetting("AdminBootstrapSecret", IdentityTestHelpers.TestBootstrapSecret);
     }
 
     private static Task<HttpResponseMessage> AdvanceAsync(HttpClient client, string body, string? token = Token)

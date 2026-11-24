@@ -44,7 +44,7 @@ public class BackupRecoveryHardeningTests : IClassFixture<TestDatabaseFixture>, 
         var (accountId, _, secret) = await _env.SeedAccountsAndAuditAsync();
         const string password = "recovered-app-password-1";
         await using var db = _env.NewDb();
-        var accounts = new AccountService(db, _env.DataProtection, PolicyTestSupport.Defaults());
+        var accounts = TestAccounts.Track(new AccountService(db, _env.DataProtection, PolicyTestSupport.Defaults()), db);
         var loginUser = $"drill-login-{Guid.NewGuid():N}";
         var created = await accounts.RegisterAsync(loginUser, password);
         await accounts.SetAccountEnabledAsync(created.Id, true, accountId);                                       // enable first: the seeding account holds no role, so it may only act on an account that holds none either
@@ -162,7 +162,6 @@ public class BackupRecoveryHardeningTests : IClassFixture<TestDatabaseFixture>, 
             builder.UseSetting("DataProtectionKeysPath", Path.Combine(extracted, ManagedAssetClasses.DataProtectionKeys));
             builder.UseSetting("Backup:Root", Path.Combine(_env.Root, "recovered-app-backup"));
             builder.UseSetting("DataProtection:ApplicationName", BackupTestEnvironment.DataProtectionApplicationName);
-            builder.UseSetting("AdminBootstrapSecret", IdentityTestHelpers.TestBootstrapSecret);
         });
         var client = factory.CreateClient();
         var login = await client.PostAsJsonAsync("/api/auth/login", new LoginRequest(username, password));
@@ -269,7 +268,6 @@ public class BackupRecoveryHardeningTests : IClassFixture<TestDatabaseFixture>, 
             builder.UseSetting("DataProtectionKeysPath", Path.Combine(extracted, ManagedAssetClasses.DataProtectionKeys));
             builder.UseSetting("Backup:Root", Path.Combine(_env.Root, $"recovered-{Guid.NewGuid():N}"));
             builder.UseSetting("DataProtection:ApplicationName", BackupTestEnvironment.DataProtectionApplicationName);
-            builder.UseSetting("AdminBootstrapSecret", IdentityTestHelpers.TestBootstrapSecret);
             if (practiceTimeZone is not null) builder.UseSetting("PracticeTimeZone", practiceTimeZone);
         });
 
@@ -890,7 +888,6 @@ public class BackupRecoveryHardeningTests : IClassFixture<TestDatabaseFixture>, 
         builder.UseSetting("StorageRoot", Path.Combine(_env.Root, "legacy-blobs"));
         builder.UseSetting("DataProtectionKeysPath", keys);
         builder.UseSetting("Backup:Root", Path.Combine(_env.Root, "legacy-backup"));
-        builder.UseSetting("AdminBootstrapSecret", IdentityTestHelpers.TestBootstrapSecret);
         builder.UseSetting("Deployment:AdoptCurrentSettings", "true"); // these apps share the fixture database; this test is about Data Protection, not the invariant monitor
         if (applicationName is not null) builder.UseSetting("DataProtection:ApplicationName", applicationName);
     }

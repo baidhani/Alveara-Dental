@@ -41,7 +41,7 @@ public abstract class SafetyTestBase : IAsyncLifetime
         db.UserAccounts.Add(new UserAccount { Id = S.Actor, Username = $"dr-{Guid.NewGuid():N}", CreatedAtUtc = DateTimeOffset.UtcNow });
         db.UserAccounts.Add(new UserAccount { Id = Other, Username = $"hyg-{Guid.NewGuid():N}", CreatedAtUtc = DateTimeOffset.UtcNow });
         await db.SaveChangesAsync();
-        var people = new StaffProviderService(db, Clock);
+        var people = TestStaff.Service(db, Clock);
         await people.CreateStaffAsync("Dr. Okafor", null, S.Actor, S.Actor, default);
         await people.CreateStaffAsync("Hana Hygienist", null, Other, S.Actor, default);
     });

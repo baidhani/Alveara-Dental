@@ -73,7 +73,6 @@ public sealed class SchedulingApiHarness(TestDatabaseFixture fixture) : IDisposa
         builder.ConfigureServices(services => services.AddSingleton<IHostedService>(sp => new HostHandle(sp.GetRequiredService<IHost>(), _hosts)));
         if (ConfigureServices is not null) builder.ConfigureServices(ConfigureServices);
         builder.UseSetting("ConnectionStrings:Alveara", fixture.ConnectionString);
-        builder.UseSetting("AdminBootstrapSecret", IdentityTestHelpers.TestBootstrapSecret);
         builder.UseSetting("AuthAttemptRateLimit:PermitLimit", "500");
         builder.UseSetting("StorageRoot", StorageRoot);
         builder.UseSetting("Notifications:ConsumerPollSeconds", "0");                                  // tests drive the consumer themselves
@@ -92,14 +91,14 @@ public sealed class SchedulingApiHarness(TestDatabaseFixture fixture) : IDisposa
         {
             var first = Factory.CreateClient();
             var adminName = $"admin-{Guid.NewGuid():N}";
-            var adminId = (await (await first.PostAsJsonAsync("/api/auth/bootstrap-admin", new BootstrapAdminRequest(adminName, "admin-password", IdentityTestHelpers.TestBootstrapSecret))).Content.ReadFromJsonAsync<JsonElement>()).GetProperty("id").GetGuid();
+            var adminId = (await (await TestAccounts.SeedFirstAdminResponseAsync(Factory, adminName, "admin-password")).Content.ReadFromJsonAsync<JsonElement>()).GetProperty("id").GetGuid();
             await first.PostAsJsonAsync("/api/auth/login", new LoginRequest(adminName, "admin-password"));
             _admin = new Session(first, await CsrfAsync(first), adminId);
         }
         if (role == "Admin") return _admin;
 
         var username = $"user-{Guid.NewGuid():N}";
-        var id = (await (await _admin.Client.PostAsJsonAsync("/api/auth/register", new RegisterRequest(username, "password"))).Content.ReadFromJsonAsync<JsonElement>()).GetProperty("id").GetGuid();
+        var id = (await (await TestAccounts.SeedRegisteredResponseAsync(Factory, username, "password")).Content.ReadFromJsonAsync<JsonElement>()).GetProperty("id").GetGuid();
         await _admin.SendAsync(HttpMethod.Put, $"/api/auth/{id}/role", new ChangeRoleRequest(role));
         await _admin.SendAsync(HttpMethod.Put, $"/api/auth/{id}/enabled", new SetEnabledRequest(true));
         var client = Factory.CreateClient();

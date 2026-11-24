@@ -37,7 +37,7 @@ public class StaffInactivationServiceTests : IAsyncLifetime
     private (AlveraDbContext Db, StaffInactivationService Service, StaffProviderService Staff) NewService(IStaffInactivationAlert alert)
     {
         var db = _fixture.CreateContext();
-        var staff = new StaffProviderService(db, Clock);
+        var staff = TestStaff.Service(db, Clock);
         var accounts = IdentityTestHelpers.CreateAccountService(db);
         return (db, new StaffInactivationService(db, staff, accounts, alert, NullLogger<StaffInactivationService>.Instance), staff);
     }
@@ -49,7 +49,7 @@ public class StaffInactivationServiceTests : IAsyncLifetime
         var accounts = IdentityTestHelpers.CreateAccountService(db);
         var admin = await IdentityTestHelpers.BootstrapAdminAsync(accounts);
         var login = await IdentityTestHelpers.RegisterEnabledAsync(accounts, db, $"staff-{Guid.NewGuid():N}", "password-1234", role, admin);
-        var profile = await new StaffProviderService(db, Clock).CreateStaffAsync($"Dr. {Guid.NewGuid():N}"[..20], "Dentist", login.Id, admin.Id, default);
+        var profile = await TestStaff.Service(db, Clock).CreateStaffAsync($"Dr. {Guid.NewGuid():N}"[..20], "Dentist", login.Id, admin.Id, default);
         return (admin, login, profile);
     }
 
@@ -137,7 +137,7 @@ public class StaffInactivationServiceTests : IAsyncLifetime
         var (admin, _, _) = await SeedLinkedAsync();
         StaffProfile plain;
         await using (var setup = _fixture.CreateContext())
-            plain = await new StaffProviderService(setup, Clock).CreateStaffAsync("No Login Person", null, null, admin.Id, default);
+            plain = await TestStaff.Service(setup, Clock).CreateStaffAsync("No Login Person", null, null, admin.Id, default);
 
         var (db, service, _) = NewService(new RecordingAlert());
         await using (db)
@@ -154,7 +154,7 @@ public class StaffInactivationServiceTests : IAsyncLifetime
         await using var setup = _fixture.CreateContext();
         var accounts = IdentityTestHelpers.CreateAccountService(setup);
         var admin = await IdentityTestHelpers.BootstrapAdminAsync(accounts);                         // the only administrator
-        var profile = await new StaffProviderService(setup, Clock).CreateStaffAsync("Only Admin Person", "Owner", admin.Id, admin.Id, default);
+        var profile = await TestStaff.Service(setup, Clock).CreateStaffAsync("Only Admin Person", "Owner", admin.Id, admin.Id, default);
 
         var alert = new RecordingAlert();
         var (db, service, _) = NewService(alert);
@@ -185,7 +185,7 @@ public class StaffInactivationServiceTests : IAsyncLifetime
         await using var setup = _fixture.CreateContext();
         var accounts = IdentityTestHelpers.CreateAccountService(setup);
         var admin = await IdentityTestHelpers.BootstrapAdminAsync(accounts);
-        var profile = await new StaffProviderService(setup, Clock).CreateStaffAsync("Alert Down Person", null, admin.Id, admin.Id, default);
+        var profile = await TestStaff.Service(setup, Clock).CreateStaffAsync("Alert Down Person", null, admin.Id, admin.Id, default);
 
         var (db, service, _) = NewService(new RecordingAlert { Throw = true });
         await using (db)
@@ -201,7 +201,7 @@ public class StaffInactivationServiceTests : IAsyncLifetime
     {
         var (admin, login, profile) = await SeedLinkedAsync();
         await using (var other = _fixture.CreateContext())
-            await new StaffProviderService(other, Clock).UpdateStaffAsync(profile.Id, profile.DisplayName, "Changed elsewhere", login.Id, Version(profile.RowVersion), admin.Id, default);
+            await TestStaff.Service(other, Clock).UpdateStaffDetailsAsync(profile.Id, profile.DisplayName, "Changed elsewhere", Version(profile.RowVersion), admin.Id, default);
 
         var alert = new RecordingAlert();
         var (db, service, _) = NewService(alert);
@@ -213,24 +213,6 @@ public class StaffInactivationServiceTests : IAsyncLifetime
         Assert.False((await AccountAsync(login.Id)).IsDisabled);                                     // the account step was rolled back too
         Assert.DoesNotContain(ConfigurationAuditEvents.StaffInactivationFailed, await AuditEventsForAsync(profile.Id));
         Assert.Empty(alert.Sent);
-    }
-
-    [Fact]
-    public async Task An_inactive_profile_s_login_link_cannot_be_swapped_by_an_ordinary_edit()
-    {
-        var (admin, _, profile) = await SeedLinkedAsync();
-        UserAccount other;
-        await using (var setup = _fixture.CreateContext())
-            other = await IdentityTestHelpers.RegisterEnabledAsync(IdentityTestHelpers.CreateAccountService(setup), setup, $"other-{Guid.NewGuid():N}", "password-1234", Role.Dentist, admin);
-
-        var (db, service, staff) = NewService(new RecordingAlert());
-        await using (db)
-        {
-            var inactive = await service.InactivateAsync(profile.Id, Version(profile.RowVersion), admin.Id, default);
-            var refused = await Assert.ThrowsAsync<ConfigurationException>(() =>
-                staff.UpdateStaffAsync(profile.Id, inactive.DisplayName, inactive.JobTitle, other.Id, Version(inactive.RowVersion), admin.Id, default));
-            Assert.Equal("staff_inactive_link", refused.Code);
-        }
     }
 
     [Fact]

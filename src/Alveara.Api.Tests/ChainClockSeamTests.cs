@@ -26,7 +26,6 @@ public class ChainClockSeamTests : IAsyncLifetime
     private void Configure(Microsoft.AspNetCore.Hosting.IWebHostBuilder builder)
     {
         builder.UseSetting("ConnectionStrings:Alveara", _fixture.ConnectionString);
-        builder.UseSetting("AdminBootstrapSecret", IdentityTestHelpers.TestBootstrapSecret);
     }
 
     // ---------- the production host ----------

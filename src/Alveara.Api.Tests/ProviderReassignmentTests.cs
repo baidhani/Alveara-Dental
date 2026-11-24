@@ -228,7 +228,7 @@ public class ProviderReassignmentTests : IAsyncLifetime
 
         var later = await BookAsync(await _s.PatientAsync("Cy", "Poe"), 13);
         await using (var db = _fixture.CreateContext())
-            await new StaffProviderService(db, Clock).AddBlockedTimeAsync(_s.ProviderB, At(12), At(15), "Course", _s.Actor, default);
+            await TestStaff.Service(db, Clock).AddBlockedTimeAsync(_s.ProviderB, At(12), At(15), "Course", _s.Actor, default);
         var blocked = await RefusedAsync(() => ReassignAsync(later, _s.ProviderB, _s.Op1));
         Assert.Equal(("provider_unavailable", "blocked_time"), (blocked.Code, blocked.Reason));
 

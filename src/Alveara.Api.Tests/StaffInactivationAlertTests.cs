@@ -50,7 +50,7 @@ public class StaffInactivationAlertTests : IAsyncLifetime
     }
 
     private static StaffInactivationService ServiceOn(AlveraDbContext db, Microsoft.Extensions.Logging.ILogger<StaffInactivationService>? log = null) =>
-        new(db, new StaffProviderService(db, Clock), IdentityTestHelpers.CreateAccountService(db),
+        new(db, TestStaff.Service(db, Clock), IdentityTestHelpers.CreateAccountService(db),
             new InAppStaffInactivationAlert(db, Clock, NullLogger<InAppStaffInactivationAlert>.Instance), log ?? NullLogger<StaffInactivationService>.Instance);
 
     /// <summary>The only administrator, linked to a staff profile (so inactivating it is refused as the last administrator), plus the other recipients and non-recipients.</summary>
@@ -64,7 +64,7 @@ public class StaffInactivationAlertTests : IAsyncLifetime
         var disabledManager = Guid.NewGuid();
         db.UserAccounts.Add(new UserAccount { Id = disabledManager, Username = $"om-off-{Guid.NewGuid():N}", Role = Role.OfficeManager, IsDisabled = true, CreatedAtUtc = DateTimeOffset.UtcNow });
         await db.SaveChangesAsync();
-        var profile = await new StaffProviderService(db, Clock).CreateStaffAsync("Only Admin Person", "Owner", admin.Id, admin.Id, default);
+        var profile = await TestStaff.Service(db, Clock).CreateStaffAsync("Only Admin Person", "Owner", admin.Id, admin.Id, default);
         return (admin, manager, dentist, disabledManager, profile);
     }
 
@@ -135,7 +135,7 @@ public class StaffInactivationAlertTests : IAsyncLifetime
             var accounts = IdentityTestHelpers.CreateAccountService(setup);
             admin = await IdentityTestHelpers.BootstrapAdminAsync(accounts);
             login = await IdentityTestHelpers.RegisterEnabledAsync(accounts, setup, $"dr-{Guid.NewGuid():N}", "password-1234", Role.Dentist, admin);
-            profile = await new StaffProviderService(setup, Clock).CreateStaffAsync("Dr. Leaving", "Dentist", login.Id, admin.Id, default);
+            profile = await TestStaff.Service(setup, Clock).CreateStaffAsync("Dr. Leaving", "Dentist", login.Id, admin.Id, default);
         }
 
         var options = new DbContextOptionsBuilder<AlveraDbContext>().UseSqlServer(_fixture.ConnectionString).AddInterceptors(new FailTheAccountStep()).Options;

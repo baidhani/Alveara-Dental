@@ -24,7 +24,6 @@ public class AuthRateLimitTests : IAsyncLifetime
         new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
             builder.UseSetting("ConnectionStrings:Alveara", _fixture.ConnectionString);
-            builder.UseSetting("AdminBootstrapSecret", IdentityTestHelpers.TestBootstrapSecret);
             builder.UseSetting("AuthAttemptRateLimit:PermitLimit", permitLimit.ToString());
             builder.UseSetting("AuthAttemptRateLimit:WindowSeconds", "60");
         });
@@ -65,17 +64,19 @@ public class AuthRateLimitTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task Registration_attempts_past_the_limit_are_also_throttled()
+    public async Task Password_reset_completion_attempts_past_the_limit_are_also_throttled()
     {
+        // ALV-N030: sign-up (this test's old subject) is removed; the other anonymous attempt route under the same caller throttle is reset completion.
         await using var factory = CreateFactory(permitLimit: 3);
         var client = factory.CreateClient();
 
         for (var i = 0; i < 3; i++)
         {
-            await client.PostAsJsonAsync("/api/auth/register", new RegisterRequest($"user-{Guid.NewGuid():N}", "password"));
+            var refused = await client.PostAsJsonAsync("/api/auth/reset-password/complete", new CompleteResetRequest(Guid.NewGuid(), "not-a-token", "Some-New-Password-1"));
+            Assert.Equal(HttpStatusCode.Unauthorized, refused.StatusCode);   // under the limit: the normal invalid-token answer
         }
 
-        var throttled = await client.PostAsJsonAsync("/api/auth/register", new RegisterRequest($"user-{Guid.NewGuid():N}", "password"));
+        var throttled = await client.PostAsJsonAsync("/api/auth/reset-password/complete", new CompleteResetRequest(Guid.NewGuid(), "not-a-token", "Some-New-Password-1"));
 
         Assert.Equal((HttpStatusCode)429, throttled.StatusCode);
     }
@@ -92,17 +93,17 @@ public class AuthRateLimitTests : IAsyncLifetime
         // must log in again (now via the MFA challenge, since MfaEnabled is true) before it can
         // make the step-up call this test is actually targeting.
         //
-        // permitLimit=5 exactly covers the five setup calls below (bootstrap, first login, the
-        // initial mfa/enroll, the second login, and the mfa/challenge that re-establishes a valid
+        // permitLimit=4 exactly covers the four limited calls below (first login, the initial
+        // mfa/enroll, the second login, and the mfa/challenge that re-establishes a valid
         // session) - so the very next mfa/enroll call, regardless of outcome, is already over the
         // limit. This avoids relying on precise segment-boundary timing for a "several attempts
-        // in, then throttled" count.
-        await using var factory = CreateFactory(permitLimit: 5);
+        // in, then throttled" count. ALV-N030: the administrator is seeded directly (the bootstrap
+        // route, formerly request 1, is gone), so the limit is one lower than before.
+        await using var factory = CreateFactory(permitLimit: 4);
         var client = factory.CreateClient();
         var username = $"admin-{Guid.NewGuid():N}";
-        await client.PostAsJsonAsync("/api/auth/bootstrap-admin",
-            new BootstrapAdminRequest(username, "password", IdentityTestHelpers.TestBootstrapSecret)); // request 1
-        await client.PostAsJsonAsync("/api/auth/login", new LoginRequest(username, "password")); // request 2
+        await TestAccounts.SeedFirstAdminResponseAsync(factory, username, "password"); // not a request: fixture
+        await client.PostAsJsonAsync("/api/auth/login", new LoginRequest(username, "password")); // request 1
         var csrfResponse = await client.GetAsync("/api/auth/csrf-token"); // not rate-limited
         var csrf = (await csrfResponse.Content.ReadFromJsonAsync<System.Text.Json.JsonElement>()).GetProperty("token").GetString()!;
 
@@ -110,7 +111,7 @@ public class AuthRateLimitTests : IAsyncLifetime
         // (current-password) path rather than the no-password-required initial-enrollment path.
         var enrollRequest = new HttpRequestMessage(HttpMethod.Post, "/api/auth/mfa/enroll");
         enrollRequest.Headers.Add("X-CSRF-Token", csrf);
-        var enrollResponse = await client.SendAsync(enrollRequest); // request 3
+        var enrollResponse = await client.SendAsync(enrollRequest); // request 2
         var enrolled = await enrollResponse.Content.ReadFromJsonAsync<System.Text.Json.JsonElement>();
         var secret = enrolled.GetProperty("base32Secret").GetString()!;
         var confirmRequest = new HttpRequestMessage(HttpMethod.Post, "/api/auth/mfa/confirm")
@@ -121,18 +122,18 @@ public class AuthRateLimitTests : IAsyncLifetime
         await client.SendAsync(confirmRequest); // mfa/confirm isn't rate-limited (not a public/unauthenticated attempt endpoint)
 
         // Re-authenticate: the old cookie is now stale (SecurityStamp rotated by confirm above).
-        var reLoginResponse = await client.PostAsJsonAsync("/api/auth/login", new LoginRequest(username, "password")); // request 4
+        var reLoginResponse = await client.PostAsJsonAsync("/api/auth/login", new LoginRequest(username, "password")); // request 3
         var reLoginBody = await reLoginResponse.Content.ReadFromJsonAsync<System.Text.Json.JsonElement>();
         var challengeToken = reLoginBody.GetProperty("challengeToken").GetString()!;
         await client.PostAsJsonAsync("/api/auth/mfa/challenge",
-            new MfaChallengeRequest(challengeToken, Totp.GenerateCodeForTests(Totp.FromBase32(secret)))); // request 5 - now at the limit, and this issues a fresh valid session cookie
+            new MfaChallengeRequest(challengeToken, Totp.GenerateCodeForTests(Totp.FromBase32(secret)))); // request 4 - now at the limit, and this issues a fresh valid session cookie
 
         var stepUpRequest = new HttpRequestMessage(HttpMethod.Post, "/api/auth/mfa/enroll")
         {
             Content = JsonContent.Create(new EnrollMfaRequest("wrong-password")),
         };
         stepUpRequest.Headers.Add("X-CSRF-Token", csrf);
-        var throttled = await client.SendAsync(stepUpRequest); // request 6 - over the limit
+        var throttled = await client.SendAsync(stepUpRequest); // request 5 - over the limit
 
         Assert.Equal((HttpStatusCode)429, throttled.StatusCode);
     }

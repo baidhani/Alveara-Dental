@@ -308,16 +308,4 @@ public class AccountServiceLoginTests : IAsyncLifetime
         Assert.DoesNotContain($"{username} ", auditEntry.Details);
     }
 
-    [Fact]
-    public async Task Registration_stores_the_trimmed_name_and_refuses_a_name_that_is_only_spaces()
-    {
-        await using var db = _fixture.CreateContext();
-        var service = IdentityTestHelpers.CreateAccountService(db);
-        var username = $"user-{Guid.NewGuid():N}";
-
-        var account = await service.RegisterAsync($" {username}  ", "password-1234");
-
-        Assert.Equal(username, account.Username);
-        await Assert.ThrowsAsync<UsernameRequiredException>(() => service.RegisterAsync("   ", "password-1234"));
-    }
 }

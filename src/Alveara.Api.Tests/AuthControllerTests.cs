@@ -20,7 +20,6 @@ public class AuthControllerTests : IAsyncLifetime
         new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
             builder.UseSetting("ConnectionStrings:Alveara", _fixture.ConnectionString);
-            builder.UseSetting("AdminBootstrapSecret", IdentityTestHelpers.TestBootstrapSecret);
         });
 
     /// <summary>Bootstraps an admin, logs in as them, and returns an HttpClient carrying that
@@ -29,8 +28,7 @@ public class AuthControllerTests : IAsyncLifetime
     {
         var client = factory.CreateClient();
         var username = $"admin-{Guid.NewGuid():N}";
-        var bootstrapResponse = await client.PostAsJsonAsync("/api/auth/bootstrap-admin",
-            new BootstrapAdminRequest(username, "admin-password", IdentityTestHelpers.TestBootstrapSecret));
+        var bootstrapResponse = await TestAccounts.SeedFirstAdminResponseAsync(factory, username, "admin-password");
         bootstrapResponse.EnsureSuccessStatusCode();
 
         var loginResponse = await client.PostAsJsonAsync("/api/auth/login", new LoginRequest(username, "admin-password"));
@@ -53,89 +51,13 @@ public class AuthControllerTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task POST_register_creates_a_disabled_unassigned_account_no_caller_selected_role()
-    {
-        await using var factory = CreateFactory();
-        var client = factory.CreateClient();
-        var username = $"user-{Guid.NewGuid():N}";
-
-        var response = await client.PostAsJsonAsync("/api/auth/register",
-            new RegisterRequest(username, "a-strong-password"));
-
-        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<System.Text.Json.JsonElement>();
-        Assert.Equal(username, body.GetProperty("username").GetString());
-        Assert.Equal("Unassigned", body.GetProperty("role").GetString());
-    }
-
-    [Fact]
-    public async Task An_unauthenticated_caller_cannot_select_a_role_at_registration_the_request_shape_has_no_role_field()
-    {
-        // ALV-001-C01's core fix, proven at the type level: RegisterRequest has no Role property
-        // at all anymore, so there is no field a caller could set to "Admin" even by guessing.
-        var properties = typeof(RegisterRequest).GetProperties().Select(p => p.Name).ToArray();
-        Assert.DoesNotContain("Role", properties);
-    }
-
-    [Fact]
-    public async Task POST_register_with_an_already_taken_username_returns_409()
-    {
-        await using var factory = CreateFactory();
-        var client = factory.CreateClient();
-        var username = $"user-{Guid.NewGuid():N}";
-        await client.PostAsJsonAsync("/api/auth/register", new RegisterRequest(username, "password-1"));
-
-        var response = await client.PostAsJsonAsync("/api/auth/register", new RegisterRequest(username, "password-2"));
-
-        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
-    }
-
-    [Fact]
-    public async Task POST_bootstrap_admin_with_the_correct_secret_creates_an_enabled_admin()
-    {
-        await using var factory = CreateFactory();
-        var client = factory.CreateClient();
-
-        var response = await client.PostAsJsonAsync("/api/auth/bootstrap-admin",
-            new BootstrapAdminRequest($"admin-{Guid.NewGuid():N}", "password", IdentityTestHelpers.TestBootstrapSecret));
-
-        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
-    }
-
-    [Fact]
-    public async Task POST_bootstrap_admin_with_the_wrong_secret_returns_401()
-    {
-        await using var factory = CreateFactory();
-        var client = factory.CreateClient();
-
-        var response = await client.PostAsJsonAsync("/api/auth/bootstrap-admin",
-            new BootstrapAdminRequest($"admin-{Guid.NewGuid():N}", "password", "wrong-secret"));
-
-        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-    }
-
-    [Fact]
-    public async Task POST_bootstrap_admin_a_second_time_returns_409()
-    {
-        await using var factory = CreateFactory();
-        var client = factory.CreateClient();
-        await client.PostAsJsonAsync("/api/auth/bootstrap-admin",
-            new BootstrapAdminRequest($"admin-{Guid.NewGuid():N}", "password", IdentityTestHelpers.TestBootstrapSecret));
-
-        var response = await client.PostAsJsonAsync("/api/auth/bootstrap-admin",
-            new BootstrapAdminRequest($"admin-{Guid.NewGuid():N}", "password", IdentityTestHelpers.TestBootstrapSecret));
-
-        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
-    }
-
-    [Fact]
     public async Task POST_login_with_the_correct_password_returns_200_for_an_enabled_account()
     {
         await using var factory = CreateFactory();
         var (adminClient, csrf) = await CreateLoggedInAdminClientAsync(factory);
 
         var username = $"user-{Guid.NewGuid():N}";
-        var registerResponse = await adminClient.PostAsJsonAsync("/api/auth/register", new RegisterRequest(username, "right-password"));
+        var registerResponse = await TestAccounts.SeedRegisteredResponseAsync(factory, username, "right-password");
         var created = await registerResponse.Content.ReadFromJsonAsync<System.Text.Json.JsonElement>();
         var userId = created.GetProperty("id").GetGuid();
 
@@ -154,7 +76,7 @@ public class AuthControllerTests : IAsyncLifetime
         await using var factory = CreateFactory();
         var client = factory.CreateClient();
         var username = $"user-{Guid.NewGuid():N}";
-        await client.PostAsJsonAsync("/api/auth/register", new RegisterRequest(username, "right-password"));
+        await TestAccounts.SeedRegisteredResponseAsync(factory, username, "right-password");
 
         var response = await client.PostAsJsonAsync("/api/auth/login", new LoginRequest(username, "right-password"));
 
@@ -167,7 +89,7 @@ public class AuthControllerTests : IAsyncLifetime
         await using var factory = CreateFactory();
         var (adminClient, csrf) = await CreateLoggedInAdminClientAsync(factory);
         var username = $"user-{Guid.NewGuid():N}";
-        var registerResponse = await adminClient.PostAsJsonAsync("/api/auth/register", new RegisterRequest(username, "right-password"));
+        var registerResponse = await TestAccounts.SeedRegisteredResponseAsync(factory, username, "right-password");
         var created = await registerResponse.Content.ReadFromJsonAsync<System.Text.Json.JsonElement>();
         var userId = created.GetProperty("id").GetGuid();
         await adminClient.SendAsync(WithCsrf(HttpMethod.Put, $"/api/auth/{userId}/role", csrf, new ChangeRoleRequest("FrontDesk")));
@@ -190,7 +112,7 @@ public class AuthControllerTests : IAsyncLifetime
         await using var factory = CreateFactory();
         var (adminClient, csrf) = await CreateLoggedInAdminClientAsync(factory);
         var username = $"user-{Guid.NewGuid():N}";
-        var registerResponse = await adminClient.PostAsJsonAsync("/api/auth/register", new RegisterRequest(username, "right-password"));
+        var registerResponse = await TestAccounts.SeedRegisteredResponseAsync(factory, username, "right-password");
         var created = await registerResponse.Content.ReadFromJsonAsync<System.Text.Json.JsonElement>();
         var userId = created.GetProperty("id").GetGuid();
         await adminClient.SendAsync(WithCsrf(HttpMethod.Put, $"/api/auth/{userId}/role", csrf, new ChangeRoleRequest("OfficeManager")));

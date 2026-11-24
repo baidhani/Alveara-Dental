@@ -51,7 +51,7 @@ public class AvailabilityConcurrencyTests : IAsyncLifetime
     private async Task<Guid> SeedProviderAsync()
     {
         await using var db = _fixture.CreateContext();
-        var service = new StaffProviderService(db, Clock);
+        var service = TestStaff.Service(db, Clock);
         var staff = await service.CreateStaffAsync("Dr. Race", null, null, _actor, default);
         return (await service.CreateProviderAsync(staff.Id, "Dentistry", _actor, default)).Id;
     }
@@ -70,8 +70,8 @@ public class AvailabilityConcurrencyTests : IAsyncLifetime
         using var barrier = new Barrier(2);
         await using var dbA = BarrierContext(barrier);
         await using var dbB = BarrierContext(barrier);
-        var a = new StaffProviderService(dbA, Clock).ReplaceAvailabilityAsync(providerId, [first], revisionBothRead, _actor, default);
-        var b = new StaffProviderService(dbB, Clock).ReplaceAvailabilityAsync(providerId, [second], revisionBothRead, _actor, default);
+        var a = TestStaff.Service(dbA, Clock).ReplaceAvailabilityAsync(providerId, [first], revisionBothRead, _actor, default);
+        var b = TestStaff.Service(dbB, Clock).ReplaceAvailabilityAsync(providerId, [second], revisionBothRead, _actor, default);
 
         var results = await Task.WhenAll(Settle(a), Settle(b));
         Assert.Equal(1, results.Count(r => r is null));                                        // exactly one winner
@@ -105,7 +105,7 @@ public class AvailabilityConcurrencyTests : IAsyncLifetime
     {
         var providerId = await SeedProviderAsync();
         await using (var db = _fixture.CreateContext())
-            await new StaffProviderService(db, Clock).ReplaceCurrentAsync(providerId, [new AvailabilityWindow(DayOfWeek.Friday, "08:00", "10:00")], _actor);
+            await TestStaff.Service(db, Clock).ReplaceCurrentAsync(providerId, [new AvailabilityWindow(DayOfWeek.Friday, "08:00", "10:00")], _actor);
 
         await RaceAsync(providerId, 1, new AvailabilityWindow(DayOfWeek.Monday, "09:00", "12:00"), new AvailabilityWindow(DayOfWeek.Monday, "11:00", "14:00"));
 
@@ -122,15 +122,15 @@ public class AvailabilityConcurrencyTests : IAsyncLifetime
         var providerId = await SeedProviderAsync();
         int staleRevision;
         await using (var reader = _fixture.CreateContext())
-            staleRevision = (await new StaffProviderService(reader, Clock).GetAvailabilityScheduleAsync(providerId, default)).Revision;
+            staleRevision = (await TestStaff.Service(reader, Clock).GetAvailabilityScheduleAsync(providerId, default)).Revision;
 
         await using (var other = _fixture.CreateContext())
-            await new StaffProviderService(other, Clock).ReplaceCurrentAsync(providerId, [new AvailabilityWindow(DayOfWeek.Tuesday, "09:00", "17:00")], _actor);
+            await TestStaff.Service(other, Clock).ReplaceCurrentAsync(providerId, [new AvailabilityWindow(DayOfWeek.Tuesday, "09:00", "17:00")], _actor);
         var before = await ReadStateAsync(providerId);
 
         await using var stale = _fixture.CreateContext();
         var ex = await Assert.ThrowsAsync<ConcurrencyConflictException>(() =>
-            new StaffProviderService(stale, Clock).ReplaceAvailabilityAsync(providerId, [new AvailabilityWindow(DayOfWeek.Monday, "08:00", "12:00")], staleRevision, _actor, default));
+            TestStaff.Service(stale, Clock).ReplaceAvailabilityAsync(providerId, [new AvailabilityWindow(DayOfWeek.Monday, "08:00", "12:00")], staleRevision, _actor, default));
         Assert.Equal("ProviderAvailability", ex.EntityType);
 
         var after = await ReadStateAsync(providerId);
@@ -145,7 +145,7 @@ public class AvailabilityConcurrencyTests : IAsyncLifetime
         var providerId = await SeedProviderAsync();
         await using var db = _fixture.CreateContext();
         var ex = await Assert.ThrowsAsync<ConfigurationException>(() =>
-            new StaffProviderService(db, Clock).ReplaceAvailabilityAsync(providerId, [new AvailabilityWindow(DayOfWeek.Monday, "08:00", "12:00")], null, _actor, default));
+            TestStaff.Service(db, Clock).ReplaceAvailabilityAsync(providerId, [new AvailabilityWindow(DayOfWeek.Monday, "08:00", "12:00")], null, _actor, default));
         Assert.Equal("revision_required", ex.Code);
     }
 
@@ -154,7 +154,7 @@ public class AvailabilityConcurrencyTests : IAsyncLifetime
     {
         var providerId = await SeedProviderAsync();
         await using var db = _fixture.CreateContext();
-        var service = new StaffProviderService(db, Clock);
+        var service = TestStaff.Service(db, Clock);
 
         var first = await service.ReplaceCurrentAsync(providerId, [new AvailabilityWindow(DayOfWeek.Monday, "08:00", "12:00")], _actor);
         Assert.Equal(1, first.Revision);

@@ -23,14 +23,13 @@ public class ConfigurationApiTests : IAsyncLifetime
         new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
             builder.UseSetting("ConnectionStrings:Alveara", _fixture.ConnectionString);
-            builder.UseSetting("AdminBootstrapSecret", IdentityTestHelpers.TestBootstrapSecret);
         });
 
     private static async Task<(HttpClient Client, string Csrf)> AdminAsync(WebApplicationFactory<Program> factory)
     {
         var client = factory.CreateClient();
         var username = $"admin-{Guid.NewGuid():N}";
-        await client.PostAsJsonAsync("/api/auth/bootstrap-admin", new BootstrapAdminRequest(username, "admin-password", IdentityTestHelpers.TestBootstrapSecret));
+        await TestAccounts.SeedFirstAdminResponseAsync(factory, username, "admin-password");
         await client.PostAsJsonAsync("/api/auth/login", new LoginRequest(username, "admin-password"));
         return (client, await CsrfAsync(client));
     }
@@ -46,10 +45,21 @@ public class ConfigurationApiTests : IAsyncLifetime
         return request;
     }
 
+    /// <summary>ALV-N030: staff are added with their login (POST /api/config/staff-members); returns the profile as GET /api/config/staff/{id} shows it.</summary>
+    private static async Task<JsonElement> AddStaffMemberAsync(HttpClient admin, string csrf, string displayName, string? jobTitle, string role = "Dentist")
+    {
+        var request = Req(HttpMethod.Post, "/api/config/staff-members", csrf, new AddStaffMemberRequest(displayName, jobTitle, $"staff-{Guid.NewGuid():N}", role));
+        request.Headers.Add("Idempotency-Key", Guid.NewGuid().ToString());
+        var created = await admin.SendAsync(request);
+        Assert.Equal(HttpStatusCode.Created, created.StatusCode);
+        var staffId = (await created.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("staffProfileId").GetGuid();
+        return await (await admin.GetAsync($"/api/config/staff/{staffId}")).Content.ReadFromJsonAsync<JsonElement>();
+    }
+
     private static async Task<HttpClient> UserWithRoleAsync(WebApplicationFactory<Program> factory, HttpClient admin, string csrf, string role)
     {
         var username = $"user-{Guid.NewGuid():N}";
-        var registered = await (await admin.PostAsJsonAsync("/api/auth/register", new RegisterRequest(username, "password"))).Content.ReadFromJsonAsync<JsonElement>();
+        var registered = await (await TestAccounts.SeedRegisteredResponseAsync(factory, username, "password")).Content.ReadFromJsonAsync<JsonElement>();
         var id = registered.GetProperty("id").GetGuid();
         await admin.SendAsync(Req(HttpMethod.Put, $"/api/auth/{id}/role", csrf, new ChangeRoleRequest(role)));
         await admin.SendAsync(Req(HttpMethod.Put, $"/api/auth/{id}/enabled", csrf, new SetEnabledRequest(true)));
@@ -69,7 +79,7 @@ public class ConfigurationApiTests : IAsyncLifetime
         var dentist = await UserWithRoleAsync(factory, admin, csrf, "Dentist");
         var manager = await UserWithRoleAsync(factory, admin, csrf, "OfficeManager");
 
-        foreach (var url in new[] { "/api/config/practice", "/api/config/staff", "/api/config/providers", "/api/config/operatories", "/api/config/appointment-types", "/api/config/locations", "/api/config/linkable-accounts" })
+        foreach (var url in new[] { "/api/config/practice", "/api/config/staff", "/api/config/providers", "/api/config/operatories", "/api/config/appointment-types", "/api/config/locations" })   // ALV-N030: linkable-accounts removed (R01 CR-1)
         {
             Assert.Equal(HttpStatusCode.Forbidden, (await frontDesk.GetAsync(url)).StatusCode);
             Assert.Equal(HttpStatusCode.Forbidden, (await dentist.GetAsync(url)).StatusCode);
@@ -172,7 +182,7 @@ public class ConfigurationApiTests : IAsyncLifetime
         await using var factory = CreateFactory();
         var (admin, csrf) = await AdminAsync(factory);
         await admin.SendAsync(Req(HttpMethod.Post, "/api/config/locations", csrf, new SaveLocationRequest("Main Office", null)));
-        var staff = await (await admin.SendAsync(Req(HttpMethod.Post, "/api/config/staff", csrf, new SaveStaffRequest("Dr. Rev", null, null, null)))).Content.ReadFromJsonAsync<JsonElement>();
+        var staff = await AddStaffMemberAsync(admin, csrf, "Dr. Rev", null);
         var provider = await (await admin.SendAsync(Req(HttpMethod.Post, "/api/config/providers", csrf, new SaveProviderRequest(staff.GetProperty("id").GetGuid(), "Dentistry", null)))).Content.ReadFromJsonAsync<JsonElement>();
         var id = provider.GetProperty("id").GetGuid();
         var window = new Alveara.Api.Architecture.Configuration.AvailabilityWindow(DayOfWeek.Monday, "09:00", "12:00");
@@ -243,7 +253,7 @@ public class ConfigurationApiTests : IAsyncLifetime
         await Ok(await admin.SendAsync(Req(HttpMethod.Post, "/api/config/locations", csrf, new SaveLocationRequest("Main Office", null))));
         var operatory = await Ok(await admin.SendAsync(Req(HttpMethod.Post, "/api/config/operatories", csrf, new SaveOperatoryRequest("Op 1", null))));
         var type = await Ok(await admin.SendAsync(Req(HttpMethod.Post, "/api/config/appointment-types", csrf, new SaveAppointmentTypeRequest("Exam", 30, null))));
-        var staff = await Ok(await admin.SendAsync(Req(HttpMethod.Post, "/api/config/staff", csrf, new SaveStaffRequest("Dr. Rivera", "Dentist", null, null))));
+        var staff = await AddStaffMemberAsync(admin, csrf, "Dr. Rivera", "Dentist");
         var provider = await Ok(await admin.SendAsync(Req(HttpMethod.Post, "/api/config/providers", csrf, new SaveProviderRequest(staff.GetProperty("id").GetGuid(), "Dentistry", null))));
         var providerId = provider.GetProperty("id").GetGuid();
         await Ok(await admin.SendAsync(Req(HttpMethod.Put, $"/api/config/providers/{providerId}/availability", csrf,
@@ -277,13 +287,9 @@ public class ConfigurationApiTests : IAsyncLifetime
         var manager = await UserWithRoleAsync(factory, admin, csrf, "OfficeManager");
         var managerCsrf = await CsrfAsync(manager);
 
-        var loginId = (await (await admin.PostAsJsonAsync("/api/auth/register", new RegisterRequest($"staffer-{Guid.NewGuid():N}", "password"))).Content.ReadFromJsonAsync<JsonElement>()).GetProperty("id").GetGuid();
-        await admin.SendAsync(Req(HttpMethod.Put, $"/api/auth/{loginId}/role", csrf, new ChangeRoleRequest("Dentist")));
-        await admin.SendAsync(Req(HttpMethod.Put, $"/api/auth/{loginId}/enabled", csrf, new SetEnabledRequest(true)));
-        var created = await admin.SendAsync(Req(HttpMethod.Post, "/api/config/staff", csrf, new SaveStaffRequest("Dr. Leaving", "Dentist", loginId, null)));
-        Assert.Equal(HttpStatusCode.Created, created.StatusCode);
-        var staff = await created.Content.ReadFromJsonAsync<JsonElement>();
+        var staff = await AddStaffMemberAsync(admin, csrf, "Dr. Leaving", "Dentist");                             // ALV-N030: profile and login together
         var staffId = staff.GetProperty("id").GetGuid();
+        var loginId = staff.GetProperty("userAccountId").GetGuid();
         async Task<JsonElement> CurrentAsync() => await (await admin.GetAsync($"/api/config/staff/{staffId}")).Content.ReadFromJsonAsync<JsonElement>();
 
         var refused = await manager.SendAsync(Req(HttpMethod.Put, $"/api/config/staff/{staffId}/active", managerCsrf, new SetActiveRequest(false, staff.GetProperty("rowVersion").GetString())));

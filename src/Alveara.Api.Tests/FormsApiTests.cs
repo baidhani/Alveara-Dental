@@ -20,7 +20,6 @@ public class FormsApiTests : IAsyncLifetime
         new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
             builder.UseSetting("ConnectionStrings:Alveara", _fixture.ConnectionString);
-            builder.UseSetting("AdminBootstrapSecret", IdentityTestHelpers.TestBootstrapSecret);
             builder.UseSetting("AuthAttemptRateLimit:PermitLimit", "500");
         });
 
@@ -54,7 +53,7 @@ public class FormsApiTests : IAsyncLifetime
         {
             var first = factory.CreateClient();
             var adminName = $"admin-{Guid.NewGuid():N}";
-            await first.PostAsJsonAsync("/api/auth/bootstrap-admin", new BootstrapAdminRequest(adminName, "admin-password", IdentityTestHelpers.TestBootstrapSecret));
+            await TestAccounts.SeedFirstAdminResponseAsync(factory, adminName, "admin-password");
             await first.PostAsJsonAsync("/api/auth/login", new LoginRequest(adminName, "admin-password"));
             _admin = new Session(first, await CsrfAsync(first));
         }
@@ -62,7 +61,7 @@ public class FormsApiTests : IAsyncLifetime
         if (role == "Admin") return _admin;
 
         var username = $"user-{Guid.NewGuid():N}";
-        var id = (await (await admin.PostAsJsonAsync("/api/auth/register", new RegisterRequest(username, "password"))).Content.ReadFromJsonAsync<JsonElement>()).GetProperty("id").GetGuid();
+        var id = (await (await TestAccounts.SeedRegisteredResponseAsync(factory, username, "password")).Content.ReadFromJsonAsync<JsonElement>()).GetProperty("id").GetGuid();
         await admin.SendAsync(Req(HttpMethod.Put, $"/api/auth/{id}/role", adminCsrf, new ChangeRoleRequest(role)));
         await admin.SendAsync(Req(HttpMethod.Put, $"/api/auth/{id}/enabled", adminCsrf, new SetEnabledRequest(true)));
         var client = factory.CreateClient();
