@@ -159,7 +159,7 @@ async function fillAdopt(page: Page, reason: string) {
 test("SETUP: a provider, a patient with an encounter, a chart finding, and one plan whose three procedures were completed the old way", async () => {
   const front = sessions.FrontDesk.page;
   const dentist = sessions.Dentist.page;
-  const staff = await api(admin, "post", "/api/config/staff", { displayName: `${NAMES.providerA} ${stamp}`, userAccountId: ids.dentistUser });
+  const staff = await api(admin, "post", "/api/test-support/staff-profiles", { displayName: `${NAMES.providerA} ${stamp}`, userAccountId: ids.dentistUser });
   expect(staff.status).toBe(201);
   const provider = await api(admin, "post", "/api/config/providers", { staffProfileId: staff.body.id, specialty: "General dentistry" });
   expect([200, 201]).toContain(provider.status);

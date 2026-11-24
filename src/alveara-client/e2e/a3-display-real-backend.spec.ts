@@ -59,7 +59,7 @@ test.beforeAll(async ({ browser }: { browser: Browser }) => {
   await signIn(admin, `admin-${stamp}`, "admin-password-1!");
   for (const role of ["Dentist", "FrontDesk"]) {
     const userId = await createUser(role, `${role.toLowerCase()}-${stamp}`);
-    if (role === "Dentist") expect((await api(admin, "post", "/api/config/staff", { displayName: `Dr. Dana Dentist ${stamp}`, userAccountId: userId })).status).toBe(201);
+    if (role === "Dentist") expect((await api(admin, "post", "/api/test-support/staff-profiles", { displayName: `Dr. Dana Dentist ${stamp}`, userAccountId: userId })).status).toBe(201);
     const context = await browser.newContext();
     const page = await context.newPage();
     await signIn(page, `${role.toLowerCase()}-${stamp}`, PASSWORD);

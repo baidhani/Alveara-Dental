@@ -69,7 +69,7 @@ test.beforeAll(async ({ browser }: { browser: Browser }) => {
   pages.dentist = dentist.page;
 
   // a provider for the dentist, a patient, a catalog procedure
-  const staff = await api(admin, "post", "/api/config/staff", { displayName: `Dr. Final ${stamp}`, userAccountId: dentist.userId });
+  const staff = await api(admin, "post", "/api/test-support/staff-profiles", { displayName: `Dr. Final ${stamp}`, userAccountId: dentist.userId });
   expect(staff.status).toBe(201);
   const provider = await api(admin, "post", "/api/config/providers", { staffProfileId: staff.body.id, specialty: "General dentistry" });
   expect([200, 201]).toContain(provider.status);

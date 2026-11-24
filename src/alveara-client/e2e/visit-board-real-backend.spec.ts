@@ -169,9 +169,13 @@ test("SETUP: the practice, six staff (the dentist linked to Dr. Rivera), five pa
   ids.op2 = (await call(admin, "post", "/api/config/operatories", { name: "Op 2" })).body.id as string;
   ids.exam = (await call(admin, "post", "/api/config/appointment-types", { name: "Exam", defaultDurationMinutes: 60 })).body.id as string;
   for (const [key, name, account] of [["rivera", "Dr. Rivera", users.dentist], ["patel", "Dr. Patel", null]] as const) {
-    const staff = await call(admin, "post", "/api/test-support/staff-profiles", { displayName: name, jobTitle: "Dentist", userAccountId: account });
+    // ALV-N030: a profile linked to the spec's login is a fixture (test-support route); a provider with no login is added through the real "Add staff member"
+    const staff = account
+      ? await call(admin, "post", "/api/test-support/staff-profiles", { displayName: name, jobTitle: "Dentist", userAccountId: account })
+      : await call(admin, "post", "/api/config/staff-members", { displayName: name, jobTitle: "Dentist", username: `staff-${crypto.randomUUID()}`, role: "Dentist" }, { "Idempotency-Key": crypto.randomUUID() });
     expect(staff.status, JSON.stringify(staff.body)).toBe(201);
-    ids[key] = (await call(admin, "post", "/api/config/providers", { staffProfileId: staff.body.id, specialty: "General dentistry" })).body.id as string;
+    const staffId = (account ? staff.body.id : staff.body.staffProfileId) as string;
+    ids[key] = (await call(admin, "post", "/api/config/providers", { staffProfileId: staffId, specialty: "General dentistry" })).body.id as string;
     const current = (await (await admin.request.get(`/api/config/providers/${ids[key]}/availability`)).json()) as { revision: number };
     const windows = [1, 2, 3, 4, 5].map((d) => ({ dayOfWeek: d, startLocal: "08:00", endLocal: "17:00" }));
     expect((await call(admin, "put", `/api/config/providers/${ids[key]}/availability`, { windows, revision: current.revision })).status).toBe(200);

@@ -201,7 +201,7 @@ test.beforeAll(async ({ browser }: { browser: Browser }) => {
     const userId = await createUser(role, `${role.toLowerCase()}-${stamp}`);
     if (role === "Dentist") {
       ids.dentistUser = userId;
-      expect((await api(admin, "post", "/api/config/staff", { displayName: `${DENTIST_NAME} ${stamp}`, userAccountId: userId })).status, "staff profile for the dentist").toBe(201);
+      expect((await api(admin, "post", "/api/test-support/staff-profiles", { displayName: `${DENTIST_NAME} ${stamp}`, userAccountId: userId })).status, "staff profile for the dentist").toBe(201);
     }
     const context = await browser.newContext();
     const page = await context.newPage();

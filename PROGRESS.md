@@ -3682,3 +3682,10 @@
   - What changed: e2e/support/testAccounts.ts (createAccount, createStaffProfile); 49 specs and 3 chain stages moved off register/bootstrap-admin (mechanical) and off the profile-only staff create (linked -> /api/test-support/staff-profiles, unlinked -> real POST /api/config/staff-members); auth-real-backend.spec.ts and chain stage 0 rewritten for the removed routes; owner-approved second fixture route POST /api/test-support/staff-profiles (TestSupport only, same guards); both runners on ChainHost in both clock modes (Test, TestSupport__Enabled, CHAIN_URL 127.0.0.1, CHAIN_CLOCK_MODE, no secret); Vite proxy to 127.0.0.1; G1/G4 extended to the new route, G7 --urls case, G8 runner and proxy checks; REAL_BACKEND_E2E.md updated
   - Verification: TestSupportGuardTests 39/39 (45 s); tsc on every changed spec - no new errors (2 pre-existing, identical at HEAD); walkthrough runs NOT yet run (owner approval required)
   - Notes: left unchecked until the approved walkthrough sample passes
+
+- [x] ALV-N030 slice 5c: owner-approved walkthrough sample on ChainHost; spec corrections; U-040 fixed, U-041 recorded
+  - Date: 2026-11-24
+  - Session: CC-20261123-q4vn
+  - What changed: 21 linked staff creates with template-literal bodies moved to /api/test-support/staff-profiles (first rewrite missed them); completion, patient-flow and visit-board specs send their UNLINKED provider through the real POST /api/config/staff-members; auth spec audit checks target the table cell (U-040); U-041 recorded (pre-existing billing assertion, unassigned)
+  - Verification: each walkthrough run alone via Invoke-RealBackendWalkthrough.ps1 on ChainHost (Test, test support, 127.0.0.1): auth 8 passed / 5 blocked by the obsolete client "Add staff profile" path (slice 6) (33 s); permission policy 7/7 (37 s); reports 7/7 (44 s); billing setup passed, then pre-existing U-041 (proven at 4e05be3) (34 s); prescriptions 10/10 (43 s); visit board 16/16 injected clock (1 m 17 s); ChainHost/runner guards + ChainHost clock tests 59/59
+  - Notes: slice 6 must rerun the complete auth walkthrough; chain stage 0 and the accumulated chain left for ALV-N028 (owner)

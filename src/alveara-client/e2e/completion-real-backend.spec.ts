@@ -141,9 +141,13 @@ test("SETUP: two providers, a patient with an encounter, a catalog, findings on 
   const front = sessions.FrontDesk.page;
   const dentist = sessions.Dentist.page;
   for (const [key, name, userAccountId] of [["providerA", `${NAMES.providerA} ${stamp}`, ids.dentistUser], ["providerB", `${NAMES.providerB} ${stamp}`, null]] as const) {
-    const staff = await api(admin, "post", "/api/test-support/staff-profiles", { displayName: name, userAccountId });
+    // ALV-N030: a profile linked to the spec's login is a fixture (test-support route); a provider with no login is added through the real "Add staff member"
+    const staff = userAccountId
+      ? await api(admin, "post", "/api/test-support/staff-profiles", { displayName: name, userAccountId })
+      : await api(admin, "post", "/api/config/staff-members", { displayName: name, username: `staff-${crypto.randomUUID()}`, role: "Dentist" }, { "Idempotency-Key": crypto.randomUUID() });
     expect(staff.status, `staff ${key}`).toBe(201);
-    const provider = await api(admin, "post", "/api/config/providers", { staffProfileId: staff.body.id, specialty: "General dentistry" });
+    const staffId = (userAccountId ? staff.body.id : staff.body.staffProfileId) as string;
+    const provider = await api(admin, "post", "/api/config/providers", { staffProfileId: staffId, specialty: "General dentistry" });
     expect([200, 201], `provider ${key}`).toContain(provider.status);
     ids[key] = provider.body.id;
   }

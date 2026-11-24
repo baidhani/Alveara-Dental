@@ -34,6 +34,21 @@ Collected while the slices are built so that nothing is lost before the handoff 
 - **Known, pre-existing.** `tsc` reports two type errors in specs, in helper lines ALV-N030 did not touch: `procedures-real-backend.spec.ts` (api helper) and `auth-real-backend.spec.ts` (TOTP helper). They are identical in the committed versions; Playwright does not type-check.
 - **For slice 7.** Databases set up by the fixture routes have no Deployment Administrator and no `BootstrapState`. Slice 7's setup mode must not put walkthrough databases into setup mode (decide there: fixture-created administrators mark setup complete, or ChainHost under Test is exempt).
 
+- **5c walkthrough sample (owner-approved 2026-11-24), each run alone on the new ChainHost path.**
+  - **Elapsed times:** auth 33 s; permission policy 37 s; reports 44 s; billing 34 s; prescriptions 43 s; visit board 1 min 17 s. The first auth run took 1 min 12 s with the build.
+  - **Auth:** 8 relevant tests passed: sign-up and bootstrap gone, the fixture administrator, the forced password change, MFA, security administration, the permission matrix, and the audit log after U-040. **The remaining 5 auth tests are blocked by the obsolete "Add staff profile" client path (slice 6).** Slice 6 must replace it with "Add staff member" and then rerun the COMPLETE auth walkthrough. The other walkthroughs need no rerun unless slice 6 touches them (owner).
+  - **Permission policy:** 7/7, the permission-management path.
+  - **Reports:** 7/7, the staff-creation path through the real "Add staff member".
+  - **Billing:** the fixture and setup steps passed. Its later assertion is blocked by pre-existing **U-041**, left unassigned (owner); no billing rerun is required for ALV-N030.
+  - **Prescriptions:** 10/10, replacing billing as the complete operational proof for a staff profile linked to an existing login.
+  - **Visit board:** 16/16 with the injected clock, the second operational role flow and the injected-clock runner path.
+  - **Guards:** ChainHost and runner guards plus the existing ChainHost clock tests, 59/59.
+  - **Out of the sample:** chain stage 0 and the accumulated chain were not run; they go to ALV-N028 (owner).
+- **5c corrections found by the sample.**
+  - My first spec rewrite missed 21 linked staff creates whose bodies held template literals; they are converted with brace counting, and no removed-route call remains.
+  - Three specs (completion, patient flow, visit board) make one linked and one UNLINKED provider in a loop. The unlinked one now uses the real "Add staff member", as the owner's rule requires; the legacy flag is used nowhere.
+- **U-040 (fixed in ALV-N030, selector only).** Since ALV-N025 slice 1 added the audit event-type filter, the auth walkthrough's bare text checks for `SessionTimeoutChanged` and `LoginSucceeded` also matched the filter's options. Both now target the table cell.
+
 ## Assumptions
 - **Minimum password length.** 12 characters for the Deployment Administrator's setup password and for a self-service change. The app had no password-length rule before.
 - **Gate scope.** The forced-change gate applies only to endpoints that require a signed-in user.
