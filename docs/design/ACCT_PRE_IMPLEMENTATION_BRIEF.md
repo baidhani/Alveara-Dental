@@ -1,6 +1,9 @@
 # ACCT: accounts, Deployment Administrator and Practice Owner. Pre-implementation brief
 
-- **Status:** **R02** draft for independent review, revised after `.alveara/reviews/ACCT/BRIEFING-R01.md` (CHANGES_REQUIRED). **No code before approval.**
+- **Status:** **R03** draft for independent review, revised after `.alveara/reviews/ACCT/BRIEFING-R01.md` and `BRIEFING-R02.md` (both CHANGES_REQUIRED; R02 approved the CR-1 to CR-3 design).
+- **R03 changes:**
+  - **CR-4:** the `MustChangePassword` contract made unambiguous, including how to recover a lost temporary password;
+  - **CR-5:** the TestHost binds to loopback only. **No code before approval.**
 
 **R02 changes** (see section 15 for how each correction is met):
 - **CR-1:** no new profile-only staff. The profile-only create route is removed, and a labelled legacy path replaces it.
@@ -67,7 +70,7 @@
 | Change | Detail |
 |---|---|
 | `UserAccounts.AccountKind` (tinyint, not null, default 0) | 0 = `Staff` (an interactive account for a human staff member), 1 = `DeploymentAdministrator`. A filtered unique index (`AccountKind = 1`) allows **at most one** Deployment Administrator. Role stays `Admin` for it, so permissions come from the existing Admin row and no new matrix exists (D-3). |
-| `UserAccounts.MustChangePassword` (bit, not null, default 0) | Set by "Add staff member" and by an administrator's password reset (see section 6). Cleared only by a successful change. |
+| `UserAccounts.MustChangePassword` (bit, not null, default 0) | **Set to 1 only by ACCT's temporary-password issuance**: "Add staff member" and the legacy-login action (CR-4). **Never set** by the existing administrator reset (`POST /api/auth/{id}/reset-password`, then `reset-password/complete`), because there the recipient chooses their own password. **Cleared** by a successful `POST /api/auth/password/change`, **or** by a successful reset-complete, since that is also a password the person chose. |
 | `SetupTokens` (new table) | `Id`, `TokenHash` (SHA-256 of a 32-byte random token; the token itself is never stored), `IssuedAtUtc`, `ExpiresAtUtc` (issued + 15 min), `ConsumedAtUtc` (null until used), `FailedAttempts`. At most one unconsumed row: issuing a new token voids earlier ones. |
 | `PracticeOwnerDesignations` (new table) | `Id`, `StaffProfileId` (FK, required), `DesignatedAtUtc`, `DesignatedByAccountId`, `Method` (`InitialByDeploymentAdministrator` or `UpgradeTransition`), `EndedAtUtc` (null while active). A filtered unique index on a constant column where `EndedAtUtc IS NULL` gives **exactly one active owner**, enforced by the database. Rows are never deleted; an update trigger refuses any change except setting `EndedAtUtc`, which only a future transfer story would do (ACCT has no code path that sets it). |
 | `BootstrapState` | Kept, so existing databases keep their history. The new setup flow writes the same singleton for exactly-once behaviour under a race, as today. |
@@ -139,7 +142,7 @@ The "Add staff member" form has an optional "Make this person the Practice Owner
   - 16 characters from an unambiguous alphabet, via `RandomNumberGenerator`;
   - stored only as the PBKDF2 hash;
   - returned once;
-  - an administrator's password reset (existing `reset-password`) is **unchanged**, since it uses a reset token, not a temporary password. *Flag for review:* should a reset also set `MustChangePassword`? Recommended no: the reset-complete flow already makes the user choose their own password.
+  - an administrator's password reset (existing `reset-password`) is **unchanged**, since it uses a reset token, not a temporary password. It **never sets** `MustChangePassword` (R01 ruling, CR-4). A successful reset-complete **clears** it, and it is the named recovery path for a lost temporary password (section 10).
 - **Setup token:**
   - issued by a CLI command, `Alveara.Api setup issue-token`. The command runs the app's DbContext against the configured database, writes the hashed row, and prints the token **to the console only** (not through `ILogger`), plus the setup page URL;
   - refused (exit code 2, message) if a Deployment Administrator already exists or setup was completed;
@@ -184,6 +187,12 @@ The "Add staff member" form has an optional "Make this person the Practice Owner
   - **G4:** the TestHost refuses to start without Test and `Enabled`, and maps the route only when both are set;
   - **G5:** a repository scan finds no reference to `Alveara.Api.TestHost` or `TestSupport__Enabled` in `Start-DevApi.ps1`, `New-DevAdmin.ps1`, deployment and installer scripts, `appsettings*.json` of the product, or any Docker or publish file; only the two runners and the tests;
   - **G6:** the OpenAPI document (if one is served by the product) does not list the route.
+  - **G7 (CR-5):** the TestHost's start-up checks every configured listen address (`urls`, `ASPNETCORE_URLS`, `Kestrel:Endpoints:*:Url`, `--urls`) and **refuses to start** (non-zero exit, clear message) unless each host is `127.0.0.1`, `::1` or `localhost`:
+    - `0.0.0.0`, `*`, `+`, `[::]`, a LAN address or a host name are all refused;
+    - with no explicit address, it binds `http://127.0.0.1:<port>` itself and never relies on a default that could be wildcard;
+    - under `WebApplicationFactory` (in-memory TestServer, no socket) there is no listen address, and the check passes. The test proves both cases.
+  - **G8 (CR-5):** a script test asserts that `Invoke-RealBackendWalkthrough.ps1` and `Invoke-AccumulatedChain.ps1` start the TestHost with an explicit `--urls http://127.0.0.1:<port>` (and the Vite proxy targets that address). A start with `--urls http://0.0.0.0:<port>` exits non-zero.
+  - CR-5 applies only to the TestHost. The product API has no test-support code at all (G1 to G3).
 - **Harness migration:**
   - backend tests create users through a helper in `IdentityTestHelpers`;
   - e2e specs call `register` and `bootstrap-admin` **inline** (77 and 59 files; there is no shared helper in `e2e/support`). Each is replaced by a new shared helper `e2e/support/testAccounts.ts`. The edit is mechanical, the flows don't change, and the test scenarios stay as they are;
@@ -206,6 +215,10 @@ The "Add staff member" form has an optional "Make this person the Practice Owner
 - **Setup fails mid-transaction:** nothing is committed and the token is not consumed (the transaction covers all of it). Retrying with the same token is safe while it is unexpired.
 - **Two setup requests race:** the `BootstrapState` primary key plus the filtered unique index on `AccountKind = 1` make exactly one succeed. The other gets the generic 400.
 - **Combined create fails:** one transaction, so there is never a profile without its account or an account without its link. An Idempotency-Key replay doesn't create twice.
+- **The one-time temporary password is lost** (CR-4). This covers a lost response, a closed panel, or the person forgetting it before first sign-in.
+  - The original is **never shown again**. Only its hash exists, and an idempotent replay returns "already created" with no password.
+  - **Recovery path:** the existing administrator reset. A holder of `IssuePasswordResets` uses "Issue password reset" on the account in Security Administration (`POST /api/auth/{id}/reset-password`) and gets a new one-time reset token. The person completes it at `reset-password/complete`, choosing their own password. That clears `MustChangePassword` and rotates the security stamp, and the old temporary password stops working.
+  - The UI's temporary-password panel says so: "If this password is lost, issue a password reset in Security Administration."
 - **Two owner designations race:** the unique index makes one win. The other gets 409.
 - **Forced-change user loses the page:** sign in again and the gate still applies.
 - **Lost setup token:** re-run the CLI. The old one is voided.
@@ -222,10 +235,14 @@ The "Add staff member" form has an optional "Make this person the Practice Owner
 | S7 | `setup issue-token` refuses once set up; re-issue voids the old token | CLI |
 | S8 | The Deployment Administrator has Admin's effective permissions and is absent from staff, providers, linkable accounts, assignee pickers and scheduling lists | API |
 | S9 | Combined create: one transaction (fault injection after the profile insert leaves nothing), idempotent replay, temporary password not in logs or audit, role subset rule (an Office Manager without ManageUsers gets 403; a non-Admin cannot create an Admin) | API |
+| S17 | CR-4:
+  - a password reset never sets `MustChangePassword` (issue plus complete on a normal account leaves it 0);
+  - for a staff member with the flag set and the temporary password lost: a replay of the create returns no password; issue a reset, then complete it; the flag is now 0, the stamp has rotated, the old temporary password fails to sign in, and the new one succeeds with no gate;
+  - the reset route still needs `IssuePasswordResets` (403 without it). | API |
 | S10 | The forced-change gate: every non-allowlisted route answers 403 while it is set (a sample of 10 representative routes, plus a reflection test that the allowlist is exactly the five listed); a change clears it and rotates the stamp (the old cookie is rejected) | API |
 | S11 | Practice Owner: the first designation succeeds; a second gets 409; the target must be active staff with a linked, enabled staff account; the Deployment Administrator cannot be designated; non-ManageUsers gets 403; the database refuses a second active row (direct SQL) and any update other than `EndedAtUtc` | API, DB |
 | S12 | Upgrade data step with **0, 1 and 2+** profile-less admins: 1 becomes the Deployment Administrator; 0 and 2+ get none, the 2+ admins keep Admin access, are labelled legacy, and no route can later select one; the D-7 owner designation works in all three; no owner is ever set by the migration | migration, API |
-| S13 | Test-support guards G1 to G6 (section 8) | API, build, repo scan |
+| S13 | Test-support guards G1 to G8 (section 8) | API, build, repo scan |
 | S16 | CR-1:
   - `POST /api/config/staff` answers 404 or 405 and creates nothing (row count unchanged);
   - `PUT /api/config/staff/{id}` with `UserAccountId` answers 400 and the link is unchanged;
@@ -263,3 +280,5 @@ Happy path, failure path, boundary cases (token expiry exactly at 15:00, a 5th v
 | CR-1: no new profile-only staff; legacy remediation path; account-only exceptions limited | 2, 4, 5, 9 | S16, S9 |
 | CR-2: a structurally separate test host; the product neither references nor recognizes test support | 8 | S13 (G1 to G6) |
 | CR-3: the several-admins path specified (path 1), no silent choice | 3, 4 | S12 |
+| CR-4: the `MustChangePassword` contract; lost temporary password recovered by the existing reset, never shown again | 3, 6, 10 | S17 |
+| CR-5: TestHost loopback-only; runners use explicit loopback URLs | 8 | S13 (G7, G8) |

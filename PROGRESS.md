@@ -3563,3 +3563,10 @@
   - What changed: docs/design/ACCT_PRE_IMPLEMENTATION_BRIEF.md revised (no profile-only create + legacy-login path; separate Alveara.Api.TestHost; several profile-less admins -> path 1); review file stored
   - Verification: documents only
   - Notes: no code before approval
+
+- [x] ACCT brief R03 (answers review BRIEFING-R02 CR-4, CR-5)
+  - Date: 2026-11-23
+  - Session: CC-20261123-q4vn
+  - What changed: MustChangePassword contract + lost temporary password recovery via existing reset (S17); TestHost loopback-only with G7/G8; review R02 stored
+  - Verification: documents only
+  - Notes: no code before approval
