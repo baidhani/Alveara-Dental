@@ -70,6 +70,12 @@ export function LoginPage() {
         </div>
       )}
 
+      {searchParams.get("setup") === "complete" && (
+        <div className="alv-login__banner" role="status">
+          Setup is complete. Sign in with the Deployment Administrator account you just created.
+        </div>
+      )}
+
       {formState.kind === "invalid-credentials" && (
         <div className="alv-login__banner alv-login__banner--danger" role="alert">
           Invalid username or password.

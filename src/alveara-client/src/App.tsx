@@ -9,6 +9,8 @@ import { SystemStatusPage } from "./pages/SystemStatusPage";
 import { LoginPage } from "./pages/LoginPage";
 import { MfaChallengePage } from "./pages/MfaChallengePage";
 import { ResetPasswordPage } from "./pages/ResetPasswordPage";
+import { SetupPage } from "./pages/SetupPage";
+import { ChangePasswordPage } from "./pages/ChangePasswordPage";
 import { LoginLayout } from "./pages/login/LoginLayout";
 import { AdminUsersPage } from "./pages/AdminUsersPage";
 import { AdminUserDetailPage } from "./pages/AdminUserDetailPage";
@@ -54,7 +56,7 @@ import { useConnectionStatus } from "./hooks/useConnectionStatus";
 import { ConnectionStatusContext } from "./contexts/connectionStatusContext";
 import { applyStoredTheme } from "./app/useAppTheme";
 
-const SIGN_IN_PATHS = ["/login", "/mfa-challenge", "/reset-password"];
+const SIGN_IN_PATHS = ["/login", "/mfa-challenge", "/reset-password", "/setup", "/change-password"];
 
 /**
  * ALV-N009: rendered above every route (auth pages included, not just the signed-in shell) -
@@ -91,6 +93,9 @@ function createAppRouter() {
         <Route path="/login" element={<LoginLayout><LoginPage /></LoginLayout>} />
         <Route path="/mfa-challenge" element={<LoginLayout><MfaChallengePage /></LoginLayout>} />
         <Route path="/reset-password" element={<LoginLayout><ResetPasswordPage /></LoginLayout>} />
+        {/* ALV-N030: first-run setup (anonymous) and the forced or voluntary password change (signed in, outside the shell) */}
+        <Route path="/setup" element={<LoginLayout><SetupPage /></LoginLayout>} />
+        <Route path="/change-password" element={<LoginLayout><ChangePasswordPage /></LoginLayout>} />
 
         {/* ALV-N009: every route behind the shell requires a real session - RequireAuth denies
             (redirecting to /login) before AppShell or any child route even mounts, so a

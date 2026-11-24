@@ -1,14 +1,18 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ConfirmStaffInactivation, UnlinkLoginAction } from "./StaffLoginDialogs";
+import { LegacyLoginAction, TemporaryPasswordPanel } from "./StaffMemberDialogs";
+import type { IssuedLogin } from "./StaffMemberDialogs";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNotifications } from "../../components/Notification";
 import { ConfigEntityPanel } from "../../components/ConfigEntityPanel";
 import type { ConfigField } from "../../components/ConfigEntityPanel";
+import { ApiError } from "../../services/authApi";
+import { addStaffMember, designatePracticeOwner, WORKING_ROLES } from "../../services/accountsApi";
 import {
-  createProvider, createStaff, listLinkableAccounts, listProviders, listStaff, setProviderActive, setStaffActive,
+  createProvider, listProviders, listStaff, setProviderActive, setStaffActive,
   updateProvider, updateStaff,
 } from "../../services/configApi";
-import type { LinkableAccount, ProviderRecord, StaffRecord } from "../../services/configApi";
+import type { ProviderRecord, StaffRecord } from "../../services/configApi";
 
 interface TabProps {
   onDirtyChange: (dirty: boolean) => void;
@@ -16,48 +20,34 @@ interface TabProps {
 
 const PERMISSION = "ManagePracticeConfiguration";
 
+/** Stable codes from "Add staff member", in the screen's own words. */
+const ADD_ERRORS: Record<string, string> = {
+  staff_name_taken: "A staff member with that display name already exists.",
+  username_taken: "That username is already in use.",
+  username_required: "Enter a username.",
+  role_invalid: "Choose a role.",
+  target_is_admin: "Only an administrator can create an administrator login.",
+  target_exceeds_actor: "You can only create a login whose permissions you hold yourself.",
+};
+
 /**
- * Staff profiles. The login-account link is optional and explicit: the picker offers only enabled,
- * not-yet-linked accounts (plus the profile's own current account), and the server re-validates.
+ * ALV-N030 (brief section 9, R01 CR-1): staff are added WITH their login ("Add staff member": display name, job title, username, role, and - while no
+ * Practice Owner exists - "Make this person the Practice Owner"). The temporary password is shown once. There is no profile-only create and no
+ * "link an existing account" picker; a record created before logins were required is labelled "Legacy record without a login" and offers
+ * "Create a login for this legacy staff record". Adding needs Manage users as well (it creates a login); the server enforces both.
  */
 export function StaffTab({ onDirtyChange }: TabProps) {
-  const [accounts, setAccounts] = useState<LinkableAccount[]>([]);
-  const [accountsKey, setAccountsKey] = useState(0);
+  const { hasPermission, state, refresh: refreshIdentity } = useAuth();
+  const { notify } = useNotifications();
+  const canManageUsers = hasPermission("ManageUsers");
+  const ownerExists = state.kind === "signed-in" && state.practiceOwnerExists === true;
+  const [issued, setIssued] = useState<IssuedLogin | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  useEffect(() => {
-    let cancelled = false;
-    listLinkableAccounts()
-      .then((a) => !cancelled && setAccounts(a))
-      .catch(() => !cancelled && setAccounts([])); // the panel surfaces its own load errors
-    return () => {
-      cancelled = true;
-    };
-  }, [accountsKey]);
-
-  const accountLabel = useCallback(
-    (id: string | null) => {
-      if (!id) return "No login account";
-      const a = accounts.find((x) => x.id === id);
-      return a ? `${a.username}${a.isDisabled ? " (disabled)" : ""}` : "Linked account";
-    },
-    [accounts]
-  );
-
-  // An account is offered only when it is free or already belongs to the profile being edited, so
-  // opening an existing linked profile preselects its own account instead of silently unlinking it.
-  const optionsFor = useCallback(
-    (editingId: string | null) =>
-      accounts
-        .filter((a) => a.linkedStaffId === null || a.linkedStaffId === editingId)
-        .map((a) => ({ value: a.id, label: `${a.username} (${a.role})${a.isDisabled ? " - disabled" : ""}` })),
-    [accounts]
-  );
+  const loginLabel = useCallback((row: StaffRecord) => (row.userAccountId ? "Has a login" : "Legacy record without a login"), []);
 
   // ALV-N020 (F-021): inactivating a profile with a login asks first (the login will be disabled); the panel waits for the answer.
   // Inactivation and unlinking also need ManageUsers (review decision 1); the server enforces it, the screen says so first.
-  const { hasPermission } = useAuth();
-  const { notify } = useNotifications();
-  const canManageUsers = hasPermission("ManageUsers");
   const [pending, setPending] = useState<{ row: StaffRecord; resolve: (ok: boolean) => void } | null>(null);
   const beforeSetActive = useCallback(
     (row: StaffRecord, active: boolean) => {
@@ -73,43 +63,74 @@ export function StaffTab({ onDirtyChange }: TabProps) {
   const answer = (ok: boolean) => {
     pending?.resolve(ok);
     setPending(null);
-    if (ok) setAccountsKey((k) => k + 1);
   };
+
+  const fields = useMemo<ConfigField[]>(() => {
+    const list: ConfigField[] = [
+      { name: "displayName", label: "Display name", type: "text", required: true, maxLength: 120 },
+      { name: "jobTitle", label: "Job title", type: "text", maxLength: 80 },
+      { name: "username", label: "Username", type: "text", required: true, maxLength: 256, createOnly: true, hint: "The name this person signs in with." },
+      { name: "role", label: "Role", type: "select", required: true, createOnly: true, options: WORKING_ROLES.map((r) => ({ value: r.value, label: r.label })) },
+    ];
+    if (!ownerExists) list.push({ name: "practiceOwner", label: "Make this person the Practice Owner", type: "checkbox", createOnly: true,
+      hint: "No Practice Owner has been designated yet. Only one person can be the Practice Owner." });
+    return list;
+  }, [ownerExists]);
 
   return (
     <>
-    {pending && <ConfirmStaffInactivation row={pending.row} loginLabel={accountLabel(pending.row.userAccountId)} onAnswer={answer} />}
+    {issued && <TemporaryPasswordPanel issued={issued} onDismiss={() => setIssued(null)} />}
+    {pending && <ConfirmStaffInactivation row={pending.row} loginLabel={loginLabel(pending.row).toLowerCase()} onAnswer={answer} />}
     <ConfigEntityPanel<StaffRecord>
-      noun="staff profile"
-      nounPlural="staff profiles"
+      noun="staff member"
+      nounPlural="staff members"
       permission={PERMISSION}
       onDirtyChange={onDirtyChange}
-      fields={[
-        { name: "displayName", label: "Display name", type: "text", required: true, maxLength: 120 },
-        { name: "jobTitle", label: "Job title", type: "text", maxLength: 80 },
-        { name: "userAccountId", label: "Login account (optional)", type: "select", optionsFor },
-      ]}
+      refreshKey={refreshKey}
+      createDisabledReason={canManageUsers ? undefined : "Adding a staff member also creates their login, which needs the Manage users permission."}
+      fields={fields}
       columns={[
         { header: "Name", render: (r) => r.displayName },
         { header: "Job title", render: (r) => r.jobTitle ?? "-" },
-        { header: "Login account", render: (r) => accountLabel(r.userAccountId) },
+        { header: "Login account", render: (r) => loginLabel(r) },
       ]}
       load={listStaff}
       create={async (v) => {
-        const created = await createStaff(v.displayName.trim(), v.jobTitle.trim(), v.userAccountId || null);
-        setAccountsKey((k) => k + 1);
+        let created;
+        try {
+          created = await addStaffMember(v.displayName.trim(), v.jobTitle.trim(), v.username.trim(), v.role);
+        } catch (err) {
+          throw err instanceof ApiError && ADD_ERRORS[err.code] ? new ApiError(err.status, err.code, ADD_ERRORS[err.code], err.body) : err;
+        }
+        if (!created.temporaryPassword) {
+          notify("warning", "This staff member was already added. If the temporary password was lost, issue a password reset in Security Administration.");
+          return created;
+        }
+        setIssued({ displayName: v.displayName.trim(), username: created.username, temporaryPassword: created.temporaryPassword });
+        if (v.practiceOwner === "true") {
+          try {
+            await designatePracticeOwner(created.staffProfileId);
+            notify("success", `${v.displayName.trim()} is now the Practice Owner.`);
+          } catch (err) {
+            notify("warning", err instanceof ApiError && err.code === "owner_already_designated"
+              ? "A Practice Owner was already designated, so this person was added without that designation."
+              : "The staff member was added, but the Practice Owner could not be designated. Try again from the dashboard.");
+          }
+          await refreshIdentity();
+        }
         return created;
       }}
-      update={async (row, v) => {
-        const updated = await updateStaff(row.id, v.displayName.trim(), v.jobTitle.trim(), v.userAccountId || null, row.rowVersion);
-        setAccountsKey((k) => k + 1);
-        return updated;
-      }}
+      update={(row, v) => updateStaff(row.id, v.displayName.trim(), v.jobTitle.trim(), row.rowVersion)}
       setActive={(row, active) => setStaffActive(row.id, active, row.rowVersion)}
-      toValues={(r) => ({ displayName: r.displayName, jobTitle: r.jobTitle ?? "", userAccountId: r.userAccountId ?? "" })}
+      toValues={(r) => ({ displayName: r.displayName, jobTitle: r.jobTitle ?? "" })}
       searchText={(r) => r.displayName}
       beforeSetActive={beforeSetActive}
-      rowActions={(row, reload) => canManageUsers && <UnlinkLoginAction row={row} onDone={async () => { setAccountsKey((k) => k + 1); await reload(); }} />}
+      rowActions={(row, reload) => canManageUsers && (
+        <>
+          <UnlinkLoginAction row={row} onDone={reload} />
+          <LegacyLoginAction row={row} onIssued={async (login) => { setIssued(login); setRefreshKey((k) => k + 1); }} />
+        </>
+      )}
     />
     </>
   );

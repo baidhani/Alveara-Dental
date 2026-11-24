@@ -1,5 +1,6 @@
 import { PageHeader } from "../components/PageHeader";
 import { EmptyState } from "../components/StatePatterns";
+import { PracticeOwnerNotice } from "./dashboard/PracticeOwnerNotice";
 
 /**
  * Placeholder primary workspace region. No feature story has shipped yet,
@@ -12,6 +13,7 @@ export function DashboardPage() {
         title="Dashboard"
         description="The primary workspace region. Real content arrives with later feature stories."
       />
+      <PracticeOwnerNotice />
       <EmptyState
         title="Nothing to show yet"
         description="No feature modules have been built on top of this shell yet. This is the correct state for ALV-N001 — not a bug."

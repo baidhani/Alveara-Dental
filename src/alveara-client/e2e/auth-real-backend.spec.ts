@@ -221,11 +221,17 @@ test.describe("Real backend — no sign-up, forced password change, login, MFA, 
     await expect(page.getByRole("cell", { name: "E2E Op 1", exact: true })).toBeVisible();
 
     // Staff -> provider -> weekly hours (practice-local wall clock).
+    // ALV-N030: staff are added with their login ("Add staff member"); the temporary password is shown once, then hidden.
     await page.getByRole("tab", { name: "Staff" }).click();
-    await page.getByRole("button", { name: "Add staff profile" }).click();
+    await page.getByRole("button", { name: "Add staff member" }).click();
     await page.getByLabel("Display name").fill("Dr. E2E");
     await page.getByLabel("Job title").fill("Dentist");
-    await page.getByRole("button", { name: "Add staff profile" }).last().click();
+    await page.getByLabel("Username").fill(`dr-e2e-${Date.now()}`);
+    await page.getByLabel("Role").selectOption("Dentist");
+    await page.getByRole("button", { name: "Add staff member" }).last().click();
+    await expect(page.getByTestId("temporary-password")).toHaveText(/^.{16}$/);
+    await page.getByRole("button", { name: "Done, hide the password" }).click();
+    await expect(page.getByTestId("temporary-password")).toHaveCount(0);
     await expect(page.getByRole("cell", { name: "Dr. E2E", exact: true })).toBeVisible();
 
     await page.getByRole("tab", { name: "Providers" }).click();
@@ -321,7 +327,7 @@ test.describe("Real backend — no sign-up, forced password change, login, MFA, 
 
     // A real SQL Server backup of the real database, encrypted to the recovery key.
     await page.getByRole("button", { name: "Run backup now" }).click();
-    await expect(page.getByText("Backup completed.")).toBeVisible();
+    await expect(page.getByText("Backup completed.", { exact: true })).toBeVisible();   // U-042: the notification, not the "The backup completed." status line ALV-N026 S3 added
     const historyRow = page.getByRole("row").filter({ hasText: "Manual" }).first();
     await expect(historyRow).toContainText("Succeeded");
     await expect(historyRow).toContainText("File hash verified only"); // backed up != proven restorable

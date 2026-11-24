@@ -53,3 +53,14 @@
 .alv-admin-users a:hover {
   text-decoration-thickness: 2px;
 }
+
+/* ALV-N030: account labels beside the username (Deployment Administrator, Practice Owner, legacy, must change password) */
+.alv-account-label {
+  display: inline-block;
+  margin-left: var(--space-2);
+  padding: 0 var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+}

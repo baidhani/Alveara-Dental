@@ -15,6 +15,8 @@ import {
   setEnabled,
 } from "../services/authApi";
 import type { AdminUserSummary } from "../services/authApi";
+import { getPracticeOwner } from "../services/accountsApi";
+import { accountLabels } from "./accountLabels";
 import "./AdminUsersPage.css";
 
 const ROLES = ["Dentist", "Hygienist", "Assistant", "FrontDesk", "Billing", "OfficeManager", "Admin"];
@@ -36,6 +38,17 @@ export function AdminUsersPage() {
   const [state, setState] = useState<PageState>({ kind: "loading" });
   const { notify } = useNotifications();
   const { hasPermission } = useAuth();
+  // ALV-N030: the Practice Owner's staff name, for the label (only a Manage users holder may read it; others see no owner label)
+  const [ownerName, setOwnerName] = useState<string | null>(null);
+  const canReadOwner = hasPermission("ManageUsers");
+  useEffect(() => {
+    if (!canReadOwner) return;
+    let cancelled = false;
+    getPracticeOwner()
+      .then((r) => { if (!cancelled) setOwnerName(r.owner?.displayName ?? null); })
+      .catch((err) => console.warn("Reading the Practice Owner failed; the label is not shown", err));
+    return () => { cancelled = true; };
+  }, [canReadOwner]);
 
   const load = useCallback(async () => {
     setState({ kind: "loading" });
@@ -129,7 +142,12 @@ export function AdminUsersPage() {
           <tbody>
             {state.users.map((user) => (
               <tr key={user.id}>
-                <td>{user.username}</td>
+                <td>
+                  {user.username}
+                  {accountLabels(user, ownerName).map((label) => (
+                    <span key={label} className="alv-account-label">{label}</span>
+                  ))}
+                </td>
                 <td>
                   {canManageRoles ? (
                     <select

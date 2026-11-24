@@ -7,7 +7,14 @@ export type AuthState =
   | { kind: "signed-out" }
   | { kind: "signed-in"; username: string; role: string; permissions: string[]; sessionExpiresAtUtc: string | null;
       /** ALV-N021 A3: the practice zone from the newest authenticated session response, or null when it is missing or this browser cannot use it. */
-      practiceTimeZoneId: string | null };
+      practiceTimeZoneId: string | null;
+      /** ALV-N030: the account must choose its own password first (temporary password); every route but the change page sends it there. */
+      mustChangePassword?: boolean;
+      /** ALV-N030: "Staff" or "DeploymentAdministrator" (the account-only first-run administrator). */
+      accountKind?: string;
+      /** ALV-N030: this account's staff member is the Practice Owner; and whether the practice has one at all. */
+      isPracticeOwner?: boolean;
+      practiceOwnerExists?: boolean };
 
 export interface AuthContextValue {
   state: AuthState;

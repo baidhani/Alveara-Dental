@@ -338,7 +338,21 @@ export function ConfigEntityPanel<T extends ConfigRecord>(props: ConfigEntityPan
           {fields
             .filter((f) => editing === null || !f.createOnly)
             .map((field) =>
-              field.type === "select" ? (
+              field.type === "checkbox" ? (
+                <div className="alv-form-field alv-form-field--checkbox" key={field.name}>
+                  <label className="alv-form-field__label" htmlFor={`cfg-${field.name}`}>
+                    <input
+                      id={`cfg-${field.name}`}
+                      type="checkbox"
+                      checked={values[field.name] === "true"}
+                      aria-describedby={field.hint ? `cfg-${field.name}-hint` : undefined}
+                      onChange={(e) => setValues({ ...values, [field.name]: e.target.checked ? "true" : "" })}
+                    />{" "}
+                    {field.label}
+                  </label>
+                  {field.hint && <p id={`cfg-${field.name}-hint`} className="alv-form-field__hint">{field.hint}</p>}
+                </div>
+              ) : field.type === "select" ? (
                 <div className="alv-form-field" key={field.name}>
                   <label className="alv-form-field__label" htmlFor={`cfg-${field.name}`}>
                     {field.label}

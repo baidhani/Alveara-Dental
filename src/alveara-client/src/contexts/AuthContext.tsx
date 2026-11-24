@@ -98,6 +98,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         permissions: [...(result.permissions ?? []), ...(result.accountPermissions ?? [])],
         sessionExpiresAtUtc: result.sessionExpiresAtUtc,
         practiceTimeZoneId: zone,
+        // ALV-N030: the forced-change flag and the account facts the dashboard notices and the staff screen read
+        mustChangePassword: result.mustChangePassword,
+        accountKind: result.accountKind,
+        isPracticeOwner: result.isPracticeOwner,
+        practiceOwnerExists: result.practiceOwnerExists,
       });
     } catch {
       if (seq !== requestSeqRef.current) return;

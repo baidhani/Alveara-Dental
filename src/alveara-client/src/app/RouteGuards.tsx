@@ -28,6 +28,11 @@ export function RequireAuth({ children }: { children: ReactNode }) {
     }
     return <Navigate to="/login" replace />;
   }
+  // ALV-N030: a temporary password must be replaced before anything else. This redirect is presentation only; the server refuses every other route
+  // (403 password_change_required) until the change is made.
+  if (state.mustChangePassword) {
+    return <Navigate to="/change-password" replace />;
+  }
   return <>{children}</>;
 }
 

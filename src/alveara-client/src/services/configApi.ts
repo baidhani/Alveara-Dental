@@ -52,15 +52,6 @@ export interface ProviderRecord extends Versioned {
   displayName: string | null;
   specialty: string;
 }
-export interface LinkableAccount {
-  id: string;
-  username: string;
-  role: string;
-  isDisabled: boolean;
-  /** The staff profile that already holds this account, or null if it is free. */
-  linkedStaffId: string | null;
-}
-
 /** One weekly working window, in practice-local wall-clock time. dayOfWeek: 0 = Sunday .. 6 = Saturday. */
 export interface AvailabilityWindow {
   dayOfWeek: number;
@@ -137,11 +128,10 @@ export const setAppointmentTypeActive = (id: string, isActive: boolean, rowVersi
 
 // ---------- Staff ----------
 export const listStaff = (includeInactive: boolean) => request<StaffRecord[]>(`/api/config/staff${q(includeInactive)}`);
-export const listLinkableAccounts = () => request<LinkableAccount[]>("/api/config/linkable-accounts");
-export const createStaff = (displayName: string, jobTitle: string, userAccountId: string | null) =>
-  requestWithCsrf<StaffRecord>("/api/config/staff", "POST", { displayName, jobTitle, userAccountId });
-export const updateStaff = (id: string, displayName: string, jobTitle: string, userAccountId: string | null, rowVersion: string) =>
-  requestWithCsrf<StaffRecord>(`/api/config/staff/${id}`, "PUT", { displayName, jobTitle, userAccountId, rowVersion });
+// ALV-N030 (R01 CR-1): no profile-only create and no link picker. New staff are added with their login (accountsApi.addStaffMember); an edit changes the
+// name and job title only - the login link is never sent.
+export const updateStaff = (id: string, displayName: string, jobTitle: string, rowVersion: string) =>
+  requestWithCsrf<StaffRecord>(`/api/config/staff/${id}`, "PUT", { displayName, jobTitle, rowVersion });
 export const setStaffActive = (id: string, isActive: boolean, rowVersion: string) =>
   requestWithCsrf<StaffRecord>(`/api/config/staff/${id}/active`, "PUT", { isActive, rowVersion });
 /** ALV-N020 (F-021): an administrator removes the login link from an INACTIVE staff profile, with a reason. */

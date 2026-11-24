@@ -2,7 +2,8 @@
 export interface ConfigField {
   name: string;
   label: string;
-  type: "text" | "number" | "select";
+  /** ALV-N030: "checkbox" stores "true" when ticked and "" when not. */
+  type: "text" | "number" | "select" | "checkbox";
   required?: boolean;
   maxLength?: number;
   min?: number;

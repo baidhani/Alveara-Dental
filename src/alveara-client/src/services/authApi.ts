@@ -22,6 +22,10 @@ export interface AdminUserSummary {
   /** ALV-N020 (F-021): the staff profile linked to this account, if any, and whether it is active. */
   linkedStaffDisplayName?: string | null;
   linkedStaffIsActive?: boolean | null;
+  /** ALV-N030: "Staff" or "DeploymentAdministrator" (the account-only first-run administrator); absent from older servers. */
+  accountKind?: string;
+  /** ALV-N030: the account was given a temporary password and has not chosen its own yet. */
+  mustChangePassword?: boolean;
 }
 
 export interface MyPermissions {
@@ -36,6 +40,14 @@ export interface MyPermissions {
   /** ALV-N021 A3 (briefing 4.1-1): the practice time zone (canonical IANA id) every instant is shown in; the same for every signed-in user. Missing from a
    *  server older than A3, in which case times show as unavailable (never in the browser's zone). */
   practiceTimeZoneId?: string | null;
+  /** ALV-N030: the account must choose its own password before anything else (the server refuses other routes until it does). */
+  mustChangePassword?: boolean;
+  /** ALV-N030: "Staff" or "DeploymentAdministrator". */
+  accountKind?: string;
+  /** ALV-N030: this account's staff member is the Practice Owner. */
+  isPracticeOwner?: boolean;
+  /** ALV-N030: a Practice Owner has been designated for the practice. */
+  practiceOwnerExists?: boolean;
 }
 
 export interface PermissionMatrixEntry {
