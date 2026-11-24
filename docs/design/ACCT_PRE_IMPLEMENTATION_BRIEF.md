@@ -13,6 +13,7 @@
 - **CR-2:** a separate `Alveara.Api.TestHost` executable replaces the `--test-support` startup path.
 - **CR-3:** path 1 chosen. With several profile-less administrators, no Deployment Administrator is selected, and an administrator designates the owner directly.
 - **Section 14:** questions resolved by the review.
+- **R05 addendum (2026-11-24, owner-requested, PD-38):** section 16 adds setup mode with a controlled restart. The R04 approval stands for sections 1 to 15; **R05 asks for review of section 16 only**, plus its test rows S18 to S21 and slice 7.
 - **Story id:** **ALV-N030** (owner, 2026-11-24; plan item 63a; working name ACCT). **Approved for implementation:** `.alveara/reviews/ACCT/BRIEFING-R04.md`.
 - **Session:** CC-20261123-q4vn, 2026-11-23.
 - **Surveyed tree:** `d459025` (read-only).
@@ -285,3 +286,55 @@ Happy path, failure path, boundary cases (token expiry exactly at 15:00, a 5th v
 | CR-3: the several-admins path specified (path 1), no silent choice | 3, 4 | S12 |
 | CR-4: the `MustChangePassword` contract; lost temporary password recovered by the existing reset, never shown again | 3, 6, 10 | S17 |
 | CR-5: TestHost loopback-only; runners use explicit loopback URLs | 8 | S13 (G7, G8) |
+
+## 16. R05 addendum: setup mode and controlled restart (PD-38)
+
+### 16.1 Owner rulings (2026-11-24)
+PD-38 (`docs/design/OWNER_REQUEST_FIRST_RUN_SETUP.md`) asked that a person never has to run a database script. The owner ruled:
+- **Q2, who creates the database:** the **installer or upgrade tool only, run automatically**. It creates the database, enables `READ_COMMITTED_SNAPSHOT` and `ALLOW_SNAPSHOT_ISOLATION`, applies the migrations, creates and configures the least-privilege API database identity, and starts the application with only that identity. **The running API never holds server-level SQL rights and never keeps a setup SQL login.**
+- **Q4, migrations on upgrade:** **detect and refuse.** The API never auto-migrates a live database. With pending migrations, normal routes and background services stay off and the application shows an upgrade-required state. The installer or upgrade command takes the backup checkpoint and applies the migrations, and normal start-up follows only after that succeeds.
+- **Q3, setup mode:** **yes, with a controlled restart after completion.** Setup mode exists **only** when the database is present and current but no Deployment Administrator exists. A missing database or pending migrations is **not** setup mode; those are installation, repair and upgrade states that belong to the installer.
+- **Placement:** ALV-N030 stays focused on account bootstrap. Database provisioning, the upgrade command and its backup checkpoint belong to the deployment and installer architecture, **ALV-N013**.
+
+### 16.2 What ALV-N030 builds (API side only)
+**Start-up readiness check.** Before the host is built, one read decides the host's **mode** for the life of the process. The read has an explicit 15 s timeout and up to 3 retries with backoff, on connection-level failures only.
+
+| Condition | Mode | What answers |
+|---|---|---|
+| Database unreachable or does not exist | `NotInstalled` | Every route answers **503** `{error:"installation_incomplete"}`. The client shows "DentalKeep is not installed yet. Run the installer." No hosted service is registered. |
+| Database exists, and EF reports pending migrations (`GetPendingMigrations`, read-only) | `UpgradeRequired` | Every route answers **503** `{error:"upgrade_required"}`. The client shows "An upgrade is waiting. An administrator must run the upgrade tool." No hosted service is registered. **The API never calls `Migrate()`.** |
+| Current schema, no Deployment Administrator, **and** no `BootstrapState` | `Setup` | Only `GET /api/setup/status`, `POST /api/setup/deployment-administrator`, `GET /api/auth/csrf-token` and the static client files. Every other route answers **503** `{error:"setup_required"}`. **No hosted service is registered**: notifications, follow-ups, the backup scheduler, background jobs, audit expiry, the policy drain, the invariant monitor and the rest. |
+| Current schema, and set up | `Normal` | Today's behaviour, unchanged |
+
+- The mode is chosen **before** `builder.Build()`, and hosted services and routes are registered for that mode only. Nothing switches inside a running process, which is the owner's reason for the restart.
+- `NotInstalled` and `UpgradeRequired` only make the API refuse to run without the installer. ALV-N013 builds what resolves them (provisioning, the upgrade command, the backup). The API needs the check anyway to tell setup mode apart from a broken install.
+
+**Controlled restart.**
+- After `POST /api/setup/deployment-administrator` commits and its 201 response has been sent, the API calls `IHostApplicationLifetime.StopApplication()` and exits with the documented code **75** ("restart requested"). Shutdown is graceful, and there is no work in flight because no hosted service ran.
+- The process supervisor starts it again, and it comes up `Normal`:
+  - in production, the Windows service recovery that ALV-N013's installer configures;
+  - in dev, a restart loop in `Start-DevApi.ps1`, only on code 75;
+  - in tests, the TestHost harness and the runners restart it.
+- The client's setup page shows "Setup is complete. DentalKeep is restarting…" and checks `GET /api/setup/status` every 2 s until it answers `setupAvailable: false`, then goes to sign-in. After 120 s it gives up with "DentalKeep did not come back. Check that the service is running."
+- If nothing restarts the process, it has simply stopped, so nothing runs in a half state. The next manual start comes up `Normal`, because setup completion is recorded in the database.
+
+**Logging.** Each start-up logs its decision once, as a structured `event=startup_mode` line with the mode and the pending-migration count. It never includes the connection string or credentials.
+
+### 16.3 Failure-first answers
+- **The setup transaction fails:** nothing commits, there is no restart, and the API stays in `Setup`. The token stays valid until it expires.
+- **The commit succeeds but the response is lost before the restart:** the restarted API comes up `Normal`. The client's check sees `setupAvailable: false` and goes to sign-in, and the operator signs in with the password they just chose.
+- **The database becomes unreachable after start-up:** the mode doesn't change. Today's per-request error handling applies; the mode is decided only at start-up.
+- **A migration is added but not applied** (an upgrade done without the tool): the API starts `UpgradeRequired`, refuses, and never touches the data.
+
+### 16.4 Tests added (rows for the section 11 matrix)
+| # | Test | Layer |
+|---|---|---|
+| S18 | Mode decision: no database gives `NotInstalled`. A pending migration (a test database migrated to the second-to-last migration) gives `UpgradeRequired`, and **the migration is still pending afterwards** (the API never migrates). A current schema with no Deployment Administrator gives `Setup`. A set-up install gives `Normal`. | API, DB |
+| S19 | In `Setup`, `NotInstalled` and `UpgradeRequired`: the built host has no hosted services, a sample of 10 normal routes answers 503 with that mode's error, and in `Setup` the setup and status routes work | API |
+| S20 | Controlled restart: a successful setup stops the host with exit code 75 (TestHost harness), a failed setup does not stop it, and a new host on the same database starts `Normal` | API |
+| S21 | Browser: setup page, then "restarting…", then the status checks, then sign-in, with the runner restarting the TestHost on code 75. Against an unreachable server, the readiness check gives up within its timeout and retry bound and the API answers `NotInstalled`. | Playwright, API |
+
+### 16.5 Slice and scope
+- **Slice 7** (after slice 6): the readiness check, mode-based registration, the restart, the dev script's restart loop and the client's restart page; then tests S18 to S21.
+- **Owned by ALV-N013** (recorded there, not built here): database creation and its snapshot options, applying migrations, the least-privilege identity, the upgrade command with its backup checkpoint, Windows service recovery on code 75, and calling the setup-token command at install.
+- **Dev:** `Initialize-DevDatabase.ps1` keeps provisioning AlveraDev as the dev stand-in for the installer, unchanged.

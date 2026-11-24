@@ -40,3 +40,6 @@ Status: **RECORDED, NOT AUTHORIZED.** This is a candidate decision, `PD-38`, nex
 1. Keep ALV-N019 as approved.
 2. When ALV-N027's briefing is written, include this request, answer Q1 to Q7 with options and a recommendation, and let the owner decide.
 3. Because it touches database creation, startup, privileges and production infrastructure, treat it as an escalation (CLAUDE.md "Strategic decisions") and ask for the reviewer's view in the briefing.
+
+## Owner rulings (2026-11-24)
+Q1 by the ALV-N030 setup token. Q2: installer/upgrade tool only (automatic; the API never holds server-level rights or a setup login). Q3: setup mode only when the database is present and current with no Deployment Administrator, controlled restart after. Q4: detect and refuse, never auto-migrate. Built: setup mode, readiness check and restart in ALV-N030 (brief section 16, R05); provisioning, upgrade command, backup checkpoint and service recovery in ALV-N013.

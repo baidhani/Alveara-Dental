@@ -3584,3 +3584,10 @@
   - What changed: owner id ALV-N030 (plan item 63a) added to the execution plan v4, EXECUTION_STATUS (PLANNED, fullRegression DEFERRED_TO_ALV-N028, releaseCertified false; N027/N028 deps), story_catalog, HANDOFF_SCHEMA, regression ledger, BUILD_STATE; review BRIEFING-R04 stored and transitioned to APPROVED_FOR_IMPLEMENTATION
   - Verification: documents only; both JSON files parse
   - Notes: implementation waits for the owner's Go
+
+- [x] ALV-N030 brief R05 addendum (PD-38 setup mode + controlled restart)
+  - Date: 2026-11-24
+  - Session: CC-20261123-q4vn
+  - What changed: ACCT_PRE_IMPLEMENTATION_BRIEF.md section 16 (startup modes, no auto-migrate, exit code 75 restart, S18-S21, slice 7); PD-38 owner rulings recorded
+  - Verification: documents only
+  - Notes: R04 approval stands for sections 1-15; review of section 16 requested
