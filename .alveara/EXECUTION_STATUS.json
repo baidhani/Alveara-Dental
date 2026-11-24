@@ -234,7 +234,7 @@
       "tests": {"status": "not_started", "summary": null}, "demo": "not_started", "parentRegression": "n/a", "implementationCommit": null, "evidenceCommit": null, "handoffPath": null,
       "fullRegression": "DEFERRED_TO_ALV-N028", "releaseCertified": false, "regressionLedger": ".alveara/PROGRAM_REGRESSION_LEDGER.md",
       "review": {"decision": "pending", "decisionArtifact": null, "approvedAttempt": null, "reviewedImplementationCommit": null, "reviewedEvidenceCommit": null},
-      "briefing": {"brief": "docs/design/ACCT_PRE_IMPLEMENTATION_BRIEF.md", "approvedRound": "R04", "decisionArtifact": ".alveara/reviews/ACCT/BRIEFING-R04.md"},
+      "briefing": {"brief": "docs/design/ACCT_PRE_IMPLEMENTATION_BRIEF.md", "approvedRound": "R06", "decisionArtifact": ".alveara/reviews/ACCT/BRIEFING-R06.md", "sections1to15ApprovedAt": ".alveara/reviews/ACCT/BRIEFING-R04.md"},
       "blockingIssues": [],
       "controlNotes": "Owner-approved plan amendment of 2026-11-24 (plan item 63a): accounts, Deployment Administrator and Practice Owner (PD-04, split out of ALV-N027; working name ACCT). Placed immediately after ALV-N026 and before ALV-N027; ALV-N027 implementation does not start until ALV-N030 is approved and closed. Post-Gate-E focused-proof route: fullRegression DEFERRED_TO_ALV-N028, not release-certified.",
       "revalidation": {"required": false, "reason": null}, "completedAt": null

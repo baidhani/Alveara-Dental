@@ -1,6 +1,6 @@
 # ACCT: accounts, Deployment Administrator and Practice Owner. Pre-implementation brief
 
-- **Status:** **R04** draft for independent review, revised after `.alveara/reviews/ACCT/BRIEFING-R01.md`, `BRIEFING-R02.md` and `BRIEFING-R03.md` (all CHANGES_REQUIRED; R03 left only CR-6, consistency).
+- **Status:** **APPROVED FOR IMPLEMENTATION.** Sections 1 to 15 were approved at R04 (`.alveara/reviews/ACCT/BRIEFING-R04.md`, after R01 to R03). The section 16 addendum was approved at R06 (`.alveara/reviews/ACCT/BRIEFING-R06.md`, after R05). Boundary: database creation, SQL snapshot settings, applying migrations, a production service wrapper and update distribution stay with ALV-N013; the production automatic-restart proof is ALV-N013's dependency proof, not an ALV-N030 acceptance item. Revision history follows.
 - **R04 changes (CR-6):**
   - the audit event `DeploymentAdministratorAssigned` is limited to the migration's single-candidate conversion; the superseded "administrator pick" wording is removed;
   - slice 5, the matrix and the evidence all use guards G1 to G8.

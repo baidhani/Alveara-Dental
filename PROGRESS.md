@@ -3598,3 +3598,10 @@
   - What changed: section 16: static files and /api/setup/status in all modes (minimal bodies), three rendered states in S21; exit code 75 via Environment.ExitCode in Response.OnCompleted, runner/dev-script propagation (S20 real process, S22), ALV-N013 supervisor contract and proof; review R05 stored
   - Verification: documents only
   - Notes: no code before approval
+
+- [x] ALV-N030 brief approved (R06); status line and ledger briefing reference updated
+  - Date: 2026-11-24
+  - Session: CC-20261123-q4vn
+  - What changed: brief status line names R04 + R06 approvals and the ALV-N013 boundary; EXECUTION_STATUS ALV-N030 briefing -> R06; review R06 stored
+  - Verification: documents only; JSON parses
+  - Notes: implementation waits for the owner's Go
