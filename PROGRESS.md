@@ -3556,3 +3556,10 @@
   - What changed: docs/design/ACCT_PRE_IMPLEMENTATION_BRIEF.md; owner answers Q-ACCT-1..3 recorded in the PD-04 architecture doc
   - Verification: documents only; read-only survey at d459025
   - Notes: no code before review approval
+
+- [x] ACCT brief R02 (answers review BRIEFING-R01 CR-1..CR-3)
+  - Date: 2026-11-23
+  - Session: CC-20261123-q4vn
+  - What changed: docs/design/ACCT_PRE_IMPLEMENTATION_BRIEF.md revised (no profile-only create + legacy-login path; separate Alveara.Api.TestHost; several profile-less admins -> path 1); review file stored
+  - Verification: documents only
+  - Notes: no code before approval

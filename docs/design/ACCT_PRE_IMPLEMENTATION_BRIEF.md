@@ -1,6 +1,12 @@
 # ACCT: accounts, Deployment Administrator and Practice Owner. Pre-implementation brief
 
-- **Status:** DRAFT for independent review. **No code before approval.**
+- **Status:** **R02** draft for independent review, revised after `.alveara/reviews/ACCT/BRIEFING-R01.md` (CHANGES_REQUIRED). **No code before approval.**
+
+**R02 changes** (see section 15 for how each correction is met):
+- **CR-1:** no new profile-only staff. The profile-only create route is removed, and a labelled legacy path replaces it.
+- **CR-2:** a separate `Alveara.Api.TestHost` executable replaces the `--test-support` startup path.
+- **CR-3:** path 1 chosen. With several profile-less administrators, no Deployment Administrator is selected, and an administrator designates the owner directly.
+- **Section 14:** questions resolved by the review.
 - **Story id:** to be assigned by the owner (working name ACCT).
 - **Session:** CC-20261123-q4vn, 2026-11-23.
 - **Surveyed tree:** `d459025` (read-only).
@@ -71,8 +77,13 @@
 **Data step on upgrade** (in the migration, deterministic, idempotent):
 - **Deployment Administrator:** exactly the Admin accounts with no linked staff profile are candidates.
   - If there is one, it gets `AccountKind = 1`.
-  - If there are **several**, none is converted automatically, since a choice would violate "never silently choose". The upgrade designation notice then also lists them, and an Administrator picks one, confirmed and audited.
-  - If there are none, there is no Deployment Administrator, and the owner transition (D-7) applies.
+  - If there are **several** (R01 CR-3, **path 1 chosen**):
+    - none is converted, and **no Deployment Administrator is selected at all**. The installation runs without one, which is allowed because the Deployment Administrator exists only to bootstrap a new installation;
+    - the profile-less Administrators stay ordinary Administrators, labelled "legacy account without a staff profile" in Security Administration, with no change to their access;
+    - an active Administrator designates the initial Practice Owner directly through the D-7 transition (`POST /api/practice-owner/initial`, section 4).
+    - There is **no** route that selects a Deployment Administrator after upgrade; the only way one is created is the setup flow on a never-set-up installation.
+  - If there are none, there is no Deployment Administrator, and the same D-7 transition applies.
+  - **Why path 1:** it adds no second designation mechanism, and the Deployment Administrator's only purpose (guiding first-owner creation) is served by the D-7 notice to any active Administrator.
 - **Practice Owner:** never set by the migration.
 - **Pinning:** a migration test pins the step's behaviour for 0, 1 and 2 profile-less admins.
 
@@ -89,8 +100,11 @@
 | `GET /api/setup/status` | anonymous | New. Returns only `{ setupAvailable: bool }`, which is true while no Deployment Administrator exists **and** the install has never been set up (`BootstrapState` absent). Nothing else is disclosed. |
 | `POST /api/setup/deployment-administrator` | anonymous, token in the **JSON body** | New. Body: `token`, `username`, `password`. Rate-limited (`AuthAttempts` plus a dedicated stricter `SetupAttempts` policy). Every failure (bad, expired, used or missing token; setup no longer available) answers the same **400 `{error:"setup_failed"}`**, except password-policy and username validation, which are only checked **after** the token verifies, so they disclose nothing to someone without one. On success: in one transaction, the token is consumed, `BootstrapState` is written, the account is created (`Admin`, `AccountKind = 1`, `MustChangePassword = 0`, D-5 last point) and the presentation administrator is staged (as `StageBootstrapHolder` does today); then 201. |
 | `POST /api/config/staff-members` | ManagePracticeConfiguration **and** ManageUsers, CSRF | New combined create (D-1). Body: display name, job title, username, role, optional provider fields left to the existing provider route. The server generates the temporary password and returns it **once** in the 201 body, never logged or audited. Profile, account (`AccountKind = 0`, enabled, `MustChangePassword = 1`) and link are made in one transaction. Idempotency-Key is required (replay returns the same result **without** the password again, only "already created"). The target-role rule reuses the ALV-N018 full-subset rule: an actor can only create a role whose permission set is a subset of its own; an Admin can create any. |
-| `POST /api/config/staff` (profile-only create) | existing | **Kept** for a staff profile **without** a login (a staff member who never signs in). The UI label becomes "Add staff profile (no login)" under an "Add staff member" primary action. The `UserAccountId` link-existing-account field is **removed** from create; linking existing legacy accounts stays possible only in Security Administration. *Reviewer note: if the owner wants profile-only creation removed entirely, this row changes.* |
-| `GET /api/config/linkable-accounts` | existing | Excludes the Deployment Administrator. |
+| `POST /api/config/staff` (profile-only create) | existing | **Removed** (R01 CR-1). The action is deleted, so the route answers 404 or 405 like any unmapped route, and no UI offers a profile-only create. `CreateStaffAsync` loses its public create path; the service keeps only the combined create. |
+| `PUT /api/config/staff/{id}` | existing | Still edits display name, job title and prescriber fields. It **no longer accepts `UserAccountId`**: the field is dropped from the request contract, and a request that sends it gets 400 `link_not_editable`, so an update can't make or change a link. |
+| `GET /api/config/linkable-accounts` | existing | **Removed.** It existed only to link existing accounts on create or update. |
+| `POST /api/config/staff/{id}/legacy-login` | ManagePracticeConfiguration **and** ManageUsers, CSRF, Idempotency-Key | New, **legacy remediation only** (CR-1). For an existing **active** staff profile with **no** linked account, created before ACCT. It creates a new account plus the link plus a temporary password plus `MustChangePassword`, in one transaction, under the same rules as the combined create. It refuses with 409 if the profile already has an account. In the UI it is the action "Create a login for this legacy staff record", shown only on such rows, which are labelled "Legacy record without a login". It never links an *existing* account. |
+| Legacy accounts with no profile (`Unassigned` self-registrations, extra profile-less admins) | Security Administration | Stay readable, auditable and able to be disabled. They are labelled "Legacy account without a staff profile". ACCT offers no linking path, so legacy accounts are only reviewed or disabled. |
 | `POST /api/auth/password/change` | signed in, CSRF | New (no self-service change route exists today; only the reset-complete flow). Body: current password, new password. On success: `MustChangePassword = 0`, the security stamp rotates, the session is re-issued and an audit row is written. |
 | `GET /api/auth/whoami` | signed in | Adds `mustChangePassword`, `accountKind`, `isPracticeOwner`, `practiceOwnerExists`. |
 | `GET /api/practice-owner` | signed in, ManageUsers | New. Returns the active owner's display name and staff id, or none. |
@@ -109,7 +123,8 @@ The "Add staff member" form has an optional "Make this person the Practice Owner
   - no extra permissions in ACCT;
   - the designation only drives the setup-wizard entry (next story) and is shown in Security Administration and Staff;
   - no route in ACCT ends or changes a designation.
-- **"Add staff member":** needs both ManagePracticeConfiguration (the profile) and ManageUsers (the account), because it creates a login. An Office Manager without ManageUsers sees only "Add staff profile (no login)".
+- **"Add staff member"** and the legacy-login action need both ManagePracticeConfiguration (the profile) and ManageUsers (the account), because they create a login. An Office Manager without ManageUsers sees no create action at all (CR-1: there is no profile-only alternative). They can still edit existing staff details as today.
+- **Account-only exceptions:** the Deployment Administrator, and legacy rows that existed before ACCT. Technical service accounts are a future, out-of-scope exception.
 - **Forced change gate** (server-side). While `MustChangePassword = 1`, every authenticated request except the following answers **403 `{error:"password_change_required"}`**:
   - `GET /api/auth/whoami`;
   - `GET /api/auth/csrf-token`;
@@ -148,19 +163,27 @@ The "Add staff member" form has an optional "Make this person the Practice Owner
 | `DeploymentAdministratorAssigned` | upgrade: migration auto (one candidate) or administrator pick (several) | account, method | |
 | `AccountRegistered` | kept as a constant | existing rows still read | no longer written |
 
-## 8. The test-only provisioning route (D-6)
-- **Where it lives:**
-  - the controller lives in a **separate assembly, `Alveara.Api.TestSupport`**, which the production API project does not reference;
-  - only the test host loads it, through `WebApplicationFactory` configuration in `Alveara.Api.Tests` and a `--test-support` startup path used only by the walkthrough and chain runners;
-  - production and deployed builds do not contain the code, so no flag can switch it on.
-- **Second condition:** registration also requires `ASPNETCORE_ENVIRONMENT=Test` (a new dedicated environment name) **and** `TestSupport:Enabled=true`. A startup check throws if the assembly is loaded under any other environment, so it fails closed.
-- **Walkthrough and chain runners** change their API environment from `Development` to `Test` (`Invoke-RealBackendWalkthrough.ps1:103`, `Invoke-AccumulatedChain.ps1`), and the Vite proxy is unchanged.
+## 8. The test-only provisioning route (D-6, revised for R01 CR-2)
+- **Three projects, with references in one direction only:**
+  - **`Alveara.Api`** (the product executable). It is unchanged except that its startup is split:
+    - `Program.cs` calls a public `AlvearaApplication.CreateBuilder(args)` / `AlvearaApplication.Configure(app)` pair, moved out of the top-level statements without changing behaviour;
+    - it has **no** reference to test support and **no** test-support startup argument or setting. An unknown argument such as `--test-support` is simply ignored by the configuration system, and **nothing reads it**; a guard test proves this.
+  - **`Alveara.Api.TestSupport`** (class library). It holds `TestAccountsController` and its service, and references `Alveara.Api`.
+  - **`Alveara.Api.TestHost`** (a separate executable). It references `Alveara.Api` and `Alveara.Api.TestSupport`:
+    - its `Program` calls `AlvearaApplication.CreateBuilder`, adds the TestSupport assembly as an MVC application part, then calls `Configure`;
+    - **at startup it refuses to run** (throws and exits non-zero) unless `ASPNETCORE_ENVIRONMENT=Test` **and** `TestSupport:Enabled=true`.
+- **Who starts what:**
+  - **backend tests:** `Alveara.Api.Tests` uses `WebApplicationFactory<Alveara.Api.TestHost.Program>`, so the test-support route exists only in that host;
+  - **walkthrough and chain runners:** `Invoke-RealBackendWalkthrough.ps1` and `Invoke-AccumulatedChain.ps1` run `dotnet run --project src/Alveara.Api.TestHost` with `ASPNETCORE_ENVIRONMENT=Test` and `TestSupport__Enabled=true`, instead of the product API (today they run it as `Development`). The Vite proxy is unchanged;
+  - **dev and production:** `Start-DevApi.ps1`, any publish profile and the future installer run only `Alveara.Api`.
 - **The route:** `POST /api/test-support/accounts` with body `{ username, password, role, kind?, withStaffProfile?, mustChangePassword? }`. It creates an enabled account directly, so tests that need an Admin call it instead of the bootstrap.
-- **Guard tests:**
-  - the production `Program` host (Development and Production environments) answers 404 on the route;
-  - the API project file has no reference to `Alveara.Api.TestSupport`;
-  - the published output (`dotnet publish`) has no `Alveara.Api.TestSupport.dll`;
-  - the OpenAPI document (if one is served) does not list it.
+- **Guard tests (CR-2 proof):**
+  - **G1:** `WebApplicationFactory<Alveara.Api.Program>` (the product host) under the Development, Production **and Test** environments, **with** `TestSupport:Enabled=true` and the argument `--test-support` supplied, answers **404** on `POST /api/test-support/accounts`;
+  - **G2:** `Alveara.Api.csproj` has no ProjectReference or PackageReference to TestSupport or TestHost (a project-file assertion);
+  - **G3:** `dotnet publish src/Alveara.Api` output has no `Alveara.Api.TestSupport.dll` or `Alveara.Api.TestHost.dll`;
+  - **G4:** the TestHost refuses to start without Test and `Enabled`, and maps the route only when both are set;
+  - **G5:** a repository scan finds no reference to `Alveara.Api.TestHost` or `TestSupport__Enabled` in `Start-DevApi.ps1`, `New-DevAdmin.ps1`, deployment and installer scripts, `appsettings*.json` of the product, or any Docker or publish file; only the two runners and the tests;
+  - **G6:** the OpenAPI document (if one is served by the product) does not list the route.
 - **Harness migration:**
   - backend tests create users through a helper in `IdentityTestHelpers`;
   - e2e specs call `register` and `bootstrap-admin` **inline** (77 and 59 files; there is no shared helper in `e2e/support`). Each is replaced by a new shared helper `e2e/support/testAccounts.ts`. The edit is mechanical, the flows don't change, and the test scenarios stay as they are;
@@ -173,7 +196,7 @@ The "Add staff member" form has an optional "Make this person the Practice Owner
   - the token is a form field (never read from the URL);
   - success goes to sign-in.
 - **Choose a new password page:** forced when `mustChangePassword`.
-- **Practice Configuration → Staff:** the primary action becomes "Add staff member" (username, role, the optional owner checkbox while none exists). The temporary password is shown once in a copyable, dismiss-to-hide panel with "Give this password to the person; they must change it when they first sign in."
+- **Practice Configuration → Staff:** the primary action becomes "Add staff member" (username, role, the optional owner checkbox while none exists). The temporary password is shown once in a copyable, dismiss-to-hide panel with "Give this password to the person; they must change it when they first sign in." There is no profile-only create (CR-1). Existing profiles without a login are labelled "Legacy record without a login" and offer "Create a login for this legacy staff record". The "link an existing account" picker is removed from the create and edit forms.
 - **Dashboard notices:**
   - for the Deployment Administrator with no owner: "No Practice Owner has been created yet. We recommend creating one before you configure the practice: add the owner as a staff member and tick Practice Owner. You can still configure the practice by hand; the guided setup is reserved for the Practice Owner." (owner wording to approve);
   - for an Administrator after an upgrade with no owner: the transition notice with a "Designate the Practice Owner" action (eligible staff list, confirm step).
@@ -201,8 +224,14 @@ The "Add staff member" form has an optional "Make this person the Practice Owner
 | S9 | Combined create: one transaction (fault injection after the profile insert leaves nothing), idempotent replay, temporary password not in logs or audit, role subset rule (an Office Manager without ManageUsers gets 403; a non-Admin cannot create an Admin) | API |
 | S10 | The forced-change gate: every non-allowlisted route answers 403 while it is set (a sample of 10 representative routes, plus a reflection test that the allowlist is exactly the five listed); a change clears it and rotates the stamp (the old cookie is rejected) | API |
 | S11 | Practice Owner: the first designation succeeds; a second gets 409; the target must be active staff with a linked, enabled staff account; the Deployment Administrator cannot be designated; non-ManageUsers gets 403; the database refuses a second active row (direct SQL) and any update other than `EndedAtUtc` | API, DB |
-| S12 | Upgrade data step with 0, 1 and 2 profile-less admins; no owner is ever set by the migration | migration |
-| S13 | The test-support guard: 404 under Development and Production; no project reference; not in the publish output | API, build |
+| S12 | Upgrade data step with **0, 1 and 2+** profile-less admins: 1 becomes the Deployment Administrator; 0 and 2+ get none, the 2+ admins keep Admin access, are labelled legacy, and no route can later select one; the D-7 owner designation works in all three; no owner is ever set by the migration | migration, API |
+| S13 | Test-support guards G1 to G6 (section 8) | API, build, repo scan |
+| S16 | CR-1:
+  - `POST /api/config/staff` answers 404 or 405 and creates nothing (row count unchanged);
+  - `PUT /api/config/staff/{id}` with `UserAccountId` answers 400 and the link is unchanged;
+  - `GET /api/config/linkable-accounts` answers 404;
+  - legacy-login works only on an active profile without a login: a profile that already has an account gets 409, and an inactive one is refused;
+  - existing unlinked profiles and accounts still list, read and appear in the audit log. | API |
 | S14 | Browser: setup page to sign-in; Add staff member to temporary password to first sign-in to forced change to dashboard; the Deployment Administrator's dashboard notice; the upgrade notice | Playwright |
 | S15 | `ExportDomainCatalogTests` and `PatientOwnedDataTests` green with the new tables | API |
 
@@ -212,8 +241,8 @@ Happy path, failure path, boundary cases (token expiry exactly at 15:00, a 5th v
 1. Schema, migration and data step, with S12 and S15.
 2. Setup token CLI, setup route, removal of register and bootstrap: S1 to S7.
 3. Forced-change gate, change-password route and whoami fields: S10.
-4. Combined create, Deployment Administrator exclusion and Practice Owner routes: S8, S9, S11.
-5. The test-support assembly and guard (S13), then the **harness migration**: backend helpers, the 77+59 e2e files, the runners' environment.
+4. Combined create, legacy-login, removal of profile-only create and linking, Deployment Administrator exclusion, Practice Owner routes: S8, S9, S11, S16.
+5. The startup split (`AlvearaApplication`, no behaviour change), the TestSupport library and the TestHost executable, guards G1 to G6 (S13); then the **harness migration**: backend tests to `WebApplicationFactory<TestHost.Program>`, the 77+59 e2e files, and the runners started on the TestHost.
 6. Client: setup page, change-password page, Add staff member, notices, Security Administration labels: vitest plus S14.
 
 ## 13. Test cost (owner's 5-minute rule)
@@ -221,9 +250,16 @@ Happy path, failure path, boundary cases (token expiry exactly at 15:00, a 5th v
 - **Slice 5 touches every e2e spec.** Proving the harness migration needs the walkthrough suites, which take far longer than 5 minutes. I will **ask before** any such run and propose a sample (the auth, permission-policy and two domain walkthroughs) for the focused proof, deferring the full set to ALV-N028's regression.
 - No Stage 2 or full-suite run without explicit approval.
 
-## 14. Points for the reviewer
-1. Keeping profile-only staff creation (section 4) versus removing it.
-2. Whether an administrator's password reset should also force a change (section 6; recommended no).
-3. Several profile-less admins on upgrade means none is auto-converted (section 3).
-4. Isolating the test-support code in a separate assembly as the "cannot be enabled by a flag" mechanism (section 8).
-5. The dashboard notice wording needs the owner's approval.
+## 14. Questions resolved by review R01
+1. **Profile-only staff creation:** removed for new staff (CR-1, sections 4 and 5).
+2. **Administrator password reset:** unchanged. The existing reset-complete flow does not set `MustChangePassword`; the recipient chooses their own password.
+3. **Several profile-less admins:** path 1 (CR-3, section 3).
+4. **Test-support isolation:** a separate TestHost executable (CR-2, section 8).
+5. **Dashboard notice wording:** directionally approved, subject to copy-editing. It stays advisory: manual configuration remains available, and the wizard is reserved for the Practice Owner.
+
+## 15. R01 corrections: where each is met
+| Correction | Sections | Tests |
+|---|---|---|
+| CR-1: no new profile-only staff; legacy remediation path; account-only exceptions limited | 2, 4, 5, 9 | S16, S9 |
+| CR-2: a structurally separate test host; the product neither references nor recognizes test support | 8 | S13 (G1 to G6) |
+| CR-3: the several-admins path specified (path 1), no silent choice | 3, 4 | S12 |
