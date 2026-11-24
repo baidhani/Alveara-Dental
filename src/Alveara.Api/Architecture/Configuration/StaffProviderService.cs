@@ -8,7 +8,6 @@ namespace Alveara.Api.Architecture.Configuration;
 
 public record AvailabilityWindow(DayOfWeek DayOfWeek, string StartLocal, string EndLocal);
 public record ProviderAvailabilitySchedule(int Revision, IReadOnlyList<ProviderWeeklyAvailability> Windows);
-public record LinkableAccount(Guid Id, string Username, string Role, bool IsDisabled, Guid? LinkedStaffId);
 
 /// <summary>
 /// ALV-N003: staff profiles, clinical provider profiles, the explicit optional account linkage,
@@ -26,7 +25,9 @@ public class StaffProviderService(AlveraDbContext db, IPracticeClock clock)
     public async Task<StaffProfile> GetStaffAsync(Guid id, CancellationToken ct) =>
         await db.StaffProfiles.AsNoTracking().SingleOrDefaultAsync(s => s.Id == id, ct) ?? throw PracticeConfigurationService.NotFound("Staff profile");
 
-    public async Task<StaffProfile> CreateStaffAsync(string? displayName, string? jobTitle, Guid? userAccountId, Guid actor, CancellationToken ct)
+    // ALV-N030 (R01 CR-1): no product route creates a profile on its own or links an existing account any more (StaffMemberService does both together).
+    // Kept internal only for the existing test fixtures until slice 5 moves them; deleted there.
+    internal async Task<StaffProfile> CreateStaffAsync(string? displayName, string? jobTitle, Guid? userAccountId, Guid actor, CancellationToken ct)
     {
         var name = ConfigurationWrite.RequireName(displayName, "Display name");
         var title = ConfigurationWrite.OptionalText(jobTitle, "Job title", 80);
@@ -69,7 +70,24 @@ public class StaffProviderService(AlveraDbContext db, IPracticeClock clock)
         return staff;
     }
 
-    public async Task<StaffProfile> UpdateStaffAsync(Guid id, string? displayName, string? jobTitle, Guid? userAccountId, string? rowVersion, Guid actor, CancellationToken ct)
+    /// <summary>ALV-N030: the product edit - display name and job title only; the login link is never touched here.</summary>
+    public async Task<StaffProfile> UpdateStaffDetailsAsync(Guid id, string? displayName, string? jobTitle, string? rowVersion, Guid actor, CancellationToken ct)
+    {
+        var name = ConfigurationWrite.RequireName(displayName, "Display name");
+        var title = ConfigurationWrite.OptionalText(jobTitle, "Job title", 80);
+        var staff = await db.StaffProfiles.SingleOrDefaultAsync(s => s.Id == id, ct) ?? throw PracticeConfigurationService.NotFound("Staff profile");
+        if (await db.StaffProfiles.AnyAsync(s => s.Id != id && s.DisplayName == name, ct))
+            throw new ConfigurationException("staff_name_taken", "A staff profile with that display name already exists.", 409);
+        ConfigurationWrite.ApplyExpectedVersion(db, staff, rowVersion);
+        staff.DisplayName = name;
+        staff.JobTitle = title;
+        ConfigurationWrite.Audit(db, ConfigurationAuditEvents.Updated, nameof(StaffProfile), id, actor, "Staff profile updated.");
+        await ConfigurationWrite.SaveAsync(db, nameof(StaffProfile), id, ct);
+        return staff;
+    }
+
+    // ALV-N030: the old edit that could also set or change the link. No route calls it; kept internal for the existing test fixtures until slice 5.
+    internal async Task<StaffProfile> UpdateStaffAsync(Guid id, string? displayName, string? jobTitle, Guid? userAccountId, string? rowVersion, Guid actor, CancellationToken ct)
     {
         var name = ConfigurationWrite.RequireName(displayName, "Display name");
         var title = ConfigurationWrite.OptionalText(jobTitle, "Job title", 80);
@@ -132,27 +150,6 @@ public class StaffProviderService(AlveraDbContext db, IPracticeClock clock)
         ConfigurationWrite.Audit(db, ConfigurationAuditEvents.StaffAccountUnlinked, nameof(StaffProfile), id, actor, "Login account link removed from an inactive staff profile.", why);
         await ConfigurationWrite.SaveAsync(db, nameof(StaffProfile), id, ct);
         return staff;
-    }
-
-    /// <summary>
-    /// Accounts the link picker may show: every ENABLED account, plus any account that already has
-    /// a staff link (even if since disabled, so an existing link still displays rather than vanishing
-    /// from the picker). <see cref="LinkableAccount.LinkedStaffId"/> says who holds it, so the UI
-    /// offers an account only when it is free or belongs to the profile being edited; the server
-    /// re-validates every link regardless.
-    /// </summary>
-    public async Task<List<LinkableAccount>> ListLinkableAccountsAsync(CancellationToken ct)
-    {
-        var links = await db.StaffProfiles.AsNoTracking().Where(s => s.UserAccountId != null)
-            .Select(s => new { StaffId = s.Id, AccountId = s.UserAccountId!.Value }).ToListAsync(ct);
-        var staffByAccount = links.ToDictionary(l => l.AccountId, l => l.StaffId);
-        var linkedIds = staffByAccount.Keys.ToList();
-        var accounts = await db.UserAccounts.AsNoTracking()
-            .Where(a => !a.IsDisabled || linkedIds.Contains(a.Id))
-            .OrderBy(a => a.Username)
-            .Select(a => new { a.Id, a.Username, a.Role, a.IsDisabled }).ToListAsync(ct);
-        return accounts.Select(a => new LinkableAccount(
-            a.Id, a.Username, a.Role.ToString(), a.IsDisabled, staffByAccount.TryGetValue(a.Id, out var staffId) ? staffId : null)).ToList();
     }
 
     /// <summary>The link must point at an existing, enabled account that no other staff profile already uses.</summary>

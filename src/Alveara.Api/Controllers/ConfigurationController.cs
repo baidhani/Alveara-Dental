@@ -15,6 +15,7 @@ public record SaveVisitWorkflowRequest(bool? ConfirmationRequired, bool? MarkRea
 public record SaveLocationRequest(string? Name, string? RowVersion);
 public record SaveOperatoryRequest(string? Name, string? RowVersion);
 public record SaveAppointmentTypeRequest(string? Name, int DefaultDurationMinutes, string? RowVersion);
+/// <summary>ALV-N030: <see cref="UserAccountId"/> is no longer accepted; it is kept only so a request that still sends it is refused with 400 <c>link_not_editable</c>.</summary>
 public record SaveStaffRequest(string? DisplayName, string? JobTitle, Guid? UserAccountId, string? RowVersion);
 public record SavePrescriberDetailsRequest(string? CredentialLabel, string? LicenseNumber, string? LicenseJurisdiction, string? Npi, string? RowVersion);   // ALV-N026 S6
 public record SaveProviderRequest(Guid? StaffProfileId, string? Specialty, string? RowVersion);
@@ -197,26 +198,23 @@ public class ConfigurationController(
     public Task<IActionResult> ListStaff([FromQuery] bool includeInactive, CancellationToken ct) =>
         Run(async () => Ok((await staffProviders.ListStaffAsync(includeInactive, ct)).Select(StaffDto)));
 
-    [HttpGet("linkable-accounts")]
-    [RequirePermission(Permission.ManagePracticeConfiguration)]
-    public Task<IActionResult> ListLinkableAccounts(CancellationToken ct) =>
-        Run(async () => Ok(await staffProviders.ListLinkableAccountsAsync(ct)));
-
     [HttpGet("staff/{id:guid}")]
     [RequirePermission(Permission.ManagePracticeConfiguration)]
     public Task<IActionResult> GetStaff(Guid id, CancellationToken ct) => Run(async () => Ok(StaffDto(await staffProviders.GetStaffAsync(id, ct))));
 
-    [HttpPost("staff")]
-    [RequirePermission(Permission.ManagePracticeConfiguration)]
-    [RequireCsrfToken]
-    public Task<IActionResult> CreateStaff([FromBody] SaveStaffRequest request, CancellationToken ct) =>
-        Run(async () => StatusCode(StatusCodes.Status201Created, StaffDto(await staffProviders.CreateStaffAsync(request.DisplayName, request.JobTitle, request.UserAccountId, Actor, ct))));
+    // ALV-N030 (R01 CR-1): no profile-only create and no linkable-accounts list. New staff come from POST /api/config/staff-members (profile and login
+    // together, StaffMembersController); a legacy profile without a login gets one through .../legacy-login. An edit can never make or change a link.
 
     [HttpPut("staff/{id:guid}")]
     [RequirePermission(Permission.ManagePracticeConfiguration)]
     [RequireCsrfToken]
     public Task<IActionResult> UpdateStaff(Guid id, [FromBody] SaveStaffRequest request, CancellationToken ct) =>
-        Run(async () => Ok(StaffDto(await staffProviders.UpdateStaffAsync(id, request.DisplayName, request.JobTitle, request.UserAccountId, request.RowVersion, Actor, ct))));
+        Run(async () =>
+        {
+            if (request.UserAccountId is not null)
+                return BadRequest(new { error = "link_not_editable", message = "A staff member's login cannot be changed here." });
+            return Ok(StaffDto(await staffProviders.UpdateStaffDetailsAsync(id, request.DisplayName, request.JobTitle, request.RowVersion, Actor, ct)));
+        });
 
     [HttpPut("staff/{id:guid}/active")]
     [RequirePermission(Permission.ManagePracticeConfiguration)]

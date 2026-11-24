@@ -171,7 +171,7 @@ public partial class FollowUpService(AlveraDbContext db, IPracticeClock clock, I
         var roles = new List<Role>();
         foreach (var r in Enum.GetValues<Role>())
             if (await permissions.HasAsync(r, Permission.ViewFollowUps, ct)) roles.Add(r);
-        var rows = await db.UserAccounts.AsNoTracking().Where(u => !u.IsDisabled && roles.Contains(u.Role)).OrderBy(u => u.Username).Take(500).Select(u => new { u.Id, u.Username, u.Role }).ToListAsync(ct);
+        var rows = await db.UserAccounts.AsNoTracking().Where(u => !u.IsDisabled && roles.Contains(u.Role) && u.AccountKind != AccountKind.DeploymentAdministrator).OrderBy(u => u.Username).Take(500).Select(u => new { u.Id, u.Username, u.Role }).ToListAsync(ct);
         var names = await Clinical.ClinicalNames.ResolveAsync(db, rows.Select(u => (Guid?)u.Id), ct);              // ALV-N025 (U-011): the person's name, the username only without a staff profile
         return rows.Select(u => new FollowUpAssignee(u.Id, Clinical.ClinicalNames.Name(names, u.Id) ?? u.Username, u.Role.ToString())).OrderBy(a => a.Name, StringComparer.OrdinalIgnoreCase).ToList();
     }

@@ -121,34 +121,7 @@ public class StaffProviderServiceTests : IAsyncLifetime
         }
     }
 
-    [Fact]
-    public async Task The_link_picker_offers_enabled_accounts_plus_already_linked_ones_and_says_who_holds_them()
-    {
-        var free = await SeedAccountAsync(enabled: true);
-        var disabledFree = await SeedAccountAsync(enabled: false);
-        var linked = await SeedAccountAsync(enabled: true);
-        Guid staffId;
-        var (db, service) = NewService();
-        await using (db)
-        {
-            staffId = (await service.CreateStaffAsync("Dr. Linked", null, linked.Id, _actor, default)).Id;
-        }
-        await using (var accountsDb = _fixture.CreateContext())
-        {
-            await IdentityTestHelpers.CreateAccountService(accountsDb).SetAccountEnabledAsync(linked.Id, false, _actor); // linked, then disabled
-        }
-
-        var (db2, service2) = NewService();
-        await using (db2)
-        {
-            var accounts = await service2.ListLinkableAccountsAsync(default);
-            Assert.Null(accounts.Single(a => a.Id == free.Id).LinkedStaffId);
-            Assert.DoesNotContain(accounts, a => a.Id == disabledFree.Id); // disabled and unlinked: not offered
-            var existing = accounts.Single(a => a.Id == linked.Id);          // disabled but linked: still shown so the link is visible
-            Assert.Equal(staffId, existing.LinkedStaffId);
-            Assert.True(existing.IsDisabled);
-        }
-    }
+    // ALV-N030 (R01 CR-1): the link picker (ListLinkableAccountsAsync, GET /api/config/linkable-accounts) was removed; its test went with it.
 
     [Fact]
     public async Task Changing_the_account_link_is_audited_as_its_own_event()

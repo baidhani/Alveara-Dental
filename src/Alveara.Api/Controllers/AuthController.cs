@@ -25,7 +25,7 @@ public record CompleteResetRequest(Guid UserId, string Token, string NewPassword
 public record AccountResponse(Guid Id, string Username, string Role);
 /// <summary>ALV-N020 (F-021): <see cref="LinkedStaffDisplayName"/> and <see cref="LinkedStaffIsActive"/> name the staff profile linked to the account, when there is one.</summary>
 public record AdminUserSummary(Guid Id, string Username, string Role, bool IsDisabled, bool MfaEnabled, int SessionTimeoutMinutes, DateTimeOffset CreatedAtUtc,
-    string? LinkedStaffDisplayName = null, bool? LinkedStaffIsActive = null);
+    string? LinkedStaffDisplayName = null, bool? LinkedStaffIsActive = null, string AccountKind = "Staff", bool MustChangePassword = false);
 
 /// <summary>
 /// STORY-001 + ALV-001-C01: login (with MFA/lockout/disabled; ALV-N030 removed sign-up and the first-admin bootstrap route - first-run setup is SetupController
@@ -260,7 +260,8 @@ public class AuthController(AccountService accountService, AlveraDbContext db, I
             .OrderBy(u => u.Username)
             .Select(u => new AdminUserSummary(u.Id, u.Username, u.Role.ToString(), u.IsDisabled, u.MfaEnabled, u.SessionTimeoutMinutes, u.CreatedAtUtc,
                 db.StaffProfiles.Where(s => s.UserAccountId == u.Id).Select(s => s.DisplayName).FirstOrDefault(),
-                db.StaffProfiles.Where(s => s.UserAccountId == u.Id).Select(s => (bool?)s.IsActive).FirstOrDefault()))
+                db.StaffProfiles.Where(s => s.UserAccountId == u.Id).Select(s => (bool?)s.IsActive).FirstOrDefault(),
+                u.AccountKind.ToString(), u.MustChangePassword))   // ALV-N030: Security Administration labels the Deployment Administrator, legacy rows and pending first sign-ins
             .ToListAsync(cancellationToken);
         return Ok(users);
     }

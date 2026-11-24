@@ -167,7 +167,7 @@ public class MessageService(AlveraDbContext db, IPracticeClock clock)
     /// <summary>The people a message can be addressed to: enabled accounts, by name and role only, so a person can be chosen. Nothing else about them is returned.</summary>
     public async Task<IReadOnlyList<MessageRecipientChoice>> RecipientsAsync(string? search, CancellationToken ct)
     {
-        var accounts = await db.UserAccounts.AsNoTracking().Where(u => !u.IsDisabled && u.Role != Role.Unassigned).Select(u => new { u.Id, u.Username, u.Role }).ToListAsync(ct);
+        var accounts = await db.UserAccounts.AsNoTracking().Where(u => !u.IsDisabled && u.Role != Role.Unassigned && u.AccountKind != AccountKind.DeploymentAdministrator).Select(u => new { u.Id, u.Username, u.Role }).ToListAsync(ct);
         var names = await ClinicalNames.ResolveAsync(db, accounts.Select(a => (Guid?)a.Id), ct);
         var term = (search ?? "").Trim();
         return accounts.Select(a => new MessageRecipientChoice(a.Id, names.TryGetValue(a.Id, out var n) ? n : a.Username, a.Role.ToString()))
