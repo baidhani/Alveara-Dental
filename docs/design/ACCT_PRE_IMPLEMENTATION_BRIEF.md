@@ -1,6 +1,9 @@
 # ACCT: accounts, Deployment Administrator and Practice Owner. Pre-implementation brief
 
-- **Status:** **R03** draft for independent review, revised after `.alveara/reviews/ACCT/BRIEFING-R01.md` and `BRIEFING-R02.md` (both CHANGES_REQUIRED; R02 approved the CR-1 to CR-3 design).
+- **Status:** **R04** draft for independent review, revised after `.alveara/reviews/ACCT/BRIEFING-R01.md`, `BRIEFING-R02.md` and `BRIEFING-R03.md` (all CHANGES_REQUIRED; R03 left only CR-6, consistency).
+- **R04 changes (CR-6):**
+  - the audit event `DeploymentAdministratorAssigned` is limited to the migration's single-candidate conversion; the superseded "administrator pick" wording is removed;
+  - slice 5, the matrix and the evidence all use guards G1 to G8.
 - **R03 changes:**
   - **CR-4:** the `MustChangePassword` contract made unambiguous, including how to recover a lost temporary password;
   - **CR-5:** the TestHost binds to loopback only. **No code before approval.**
@@ -163,7 +166,7 @@ The "Add staff member" form has an optional "Make this person the Practice Owner
 | `PasswordChanged` | self change | account id; whether it was forced | either password |
 | `PasswordChangeRequiredRefusal` | gate refusal | counted per session, not per request | |
 | `PracticeOwnerDesignated` | initial and transition designation | staff profile, account, actor, method | |
-| `DeploymentAdministratorAssigned` | upgrade: migration auto (one candidate) or administrator pick (several) | account, method | |
+| `DeploymentAdministratorAssigned` | **only** the upgrade migration's deterministic conversion when exactly one profile-less Administrator exists (written by the migration's data step, actor "system (upgrade)", method `UpgradeSingleCandidate`). It is kept so that the change of an existing account's kind has an audit trail. **No route writes it**, and no route selects a Deployment Administrator after upgrade (path 1). | account, method | |
 | `AccountRegistered` | kept as a constant | existing rows still read | no longer written |
 
 ## 8. The test-only provisioning route (D-6, revised for R01 CR-2)
@@ -259,7 +262,7 @@ Happy path, failure path, boundary cases (token expiry exactly at 15:00, a 5th v
 2. Setup token CLI, setup route, removal of register and bootstrap: S1 to S7.
 3. Forced-change gate, change-password route and whoami fields: S10.
 4. Combined create, legacy-login, removal of profile-only create and linking, Deployment Administrator exclusion, Practice Owner routes: S8, S9, S11, S16.
-5. The startup split (`AlvearaApplication`, no behaviour change), the TestSupport library and the TestHost executable, guards G1 to G6 (S13); then the **harness migration**: backend tests to `WebApplicationFactory<TestHost.Program>`, the 77+59 e2e files, and the runners started on the TestHost.
+5. The startup split (`AlvearaApplication`, no behaviour change), the TestSupport library and the TestHost executable, guards **G1 to G8** (S13; G7 and G8 are the loopback-only binding and the runners' explicit loopback URLs); then the **harness migration**: backend tests to `WebApplicationFactory<TestHost.Program>`, the 77+59 e2e files, and the runners started on the TestHost.
 6. Client: setup page, change-password page, Add staff member, notices, Security Administration labels: vitest plus S14.
 
 ## 13. Test cost (owner's 5-minute rule)
@@ -278,7 +281,7 @@ Happy path, failure path, boundary cases (token expiry exactly at 15:00, a 5th v
 | Correction | Sections | Tests |
 |---|---|---|
 | CR-1: no new profile-only staff; legacy remediation path; account-only exceptions limited | 2, 4, 5, 9 | S16, S9 |
-| CR-2: a structurally separate test host; the product neither references nor recognizes test support | 8 | S13 (G1 to G6) |
+| CR-2: a structurally separate test host; the product neither references nor recognizes test support | 8 | S13 (G1 to G8) |
 | CR-3: the several-admins path specified (path 1), no silent choice | 3, 4 | S12 |
 | CR-4: the `MustChangePassword` contract; lost temporary password recovered by the existing reset, never shown again | 3, 6, 10 | S17 |
 | CR-5: TestHost loopback-only; runners use explicit loopback URLs | 8 | S13 (G7, G8) |

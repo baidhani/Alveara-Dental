@@ -3570,3 +3570,10 @@
   - What changed: MustChangePassword contract + lost temporary password recovery via existing reset (S17); TestHost loopback-only with G7/G8; review R02 stored
   - Verification: documents only
   - Notes: no code before approval
+
+- [x] ACCT brief R04 (answers review BRIEFING-R03 CR-6)
+  - Date: 2026-11-23
+  - Session: CC-20261123-q4vn
+  - What changed: DeploymentAdministratorAssigned limited to the migration single-candidate conversion; slice 5/matrix/evidence use G1-G8; review R03 stored
+  - Verification: documents only; grep shows no remaining G1-G6 or administrator-pick wording
+  - Notes: no code before approval
