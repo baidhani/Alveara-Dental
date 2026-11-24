@@ -1,4 +1,4 @@
-using System.Threading.RateLimiting;
+﻿using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.RateLimiting;
@@ -235,6 +235,7 @@ builder.Services.AddHostedService<BackgroundJobHostedService>();
 // LAN-only app. The default challenge/forbid behavior redirects to a login *page*, which makes
 // no sense for a JSON API, so both are overridden to return plain status codes instead.
 builder.Services.AddScoped<AccountService>();
+builder.Services.AddScoped<DeploymentSetupService>();   // ALV-N030: first-run setup (token CLI and setup route)
 builder.Services.AddScoped<AccountPermissionService>();                                              // ALV-N020-C01: account-scoped permissions
 
 // Data Protection backs both the MFA-secret-at-rest protector and the short-lived MFA challenge
@@ -393,9 +394,25 @@ builder.Services.AddRateLimiter(options =>
             SegmentsPerWindow = 4,
             QueueLimit = 0,
         }));
+    // ALV-N030: first-run setup gets its own, stricter window on top of the token's five-failure limit
+    options.AddPolicy(Alveara.Api.Controllers.SetupController.RateLimitPolicy, httpContext => RateLimitPartition.GetFixedWindowLimiter(
+        partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+        factory: _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = builder.Configuration.GetValue<int?>("SetupAttemptRateLimit:PermitLimit") ?? 5,
+            Window = TimeSpan.FromSeconds(builder.Configuration.GetValue<int?>("SetupAttemptRateLimit:WindowSeconds") ?? 300),
+            QueueLimit = 0,
+        }));
 });
 
 var app = builder.Build();
+
+// ALV-N030: the installer's command `setup issue-token` issues a first-run setup token, prints it to the console only and exits without serving requests.
+if (SetupCommand.Matches(args))
+{
+    Environment.ExitCode = await SetupCommand.RunAsync(app.Services, Console.Out, Console.Error, builder.Configuration["SetupPageUrl"] ?? "http://localhost:5173/setup");
+    return;
+}
 
 // Configure the HTTP request pipeline.
 

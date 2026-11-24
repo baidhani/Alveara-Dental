@@ -6,14 +6,11 @@
   Sets the settings the API reads from the environment of THIS terminal only:
     ConnectionStrings__Alveara   -> AlveraDev on the configured SQL Server (Windows authentication)
     StorageRoot / DataProtectionKeysPath / Backup__Root -> <root>\Dev-Data\Storage, Keys, Backup
-    AdminBootstrapSecret         -> the one-time secret used by New-DevAdmin.ps1
     AuthAttemptRateLimit__PermitLimit -> 500 (so signing in as several users in a row is not locked out)
   Then runs dotnet run, which uses the launch profile: http://localhost:5072. Run Initialize-DevDatabase.ps1 first.
 #>
 [CmdletBinding()]
-param(
-    [string]$BootstrapSecret = 'dev-bootstrap-secret'   # dev-only; the same value New-DevAdmin.ps1 sends
-)
+param()
 
 # The repository folder name contains [ ], which PowerShell treats as a wildcard: escape the path, and stop at once if the shared settings cannot load.
 $ErrorActionPreference = 'Stop'
@@ -34,7 +31,6 @@ $env:Backup__Root                      = $DevBackupDir
 $env:Pdf__EngineDirectory              = Join-Path $DevData 'PdfEngine'
 $env:Pdf__FontDirectory                = Join-Path $DevData 'PdfEngine\fonts'
 $env:Pdf__WorkDirectory                = Join-Path $DevData 'PdfWork'
-$env:AdminBootstrapSecret              = $BootstrapSecret
 $env:AuthAttemptRateLimit__PermitLimit = '500'
 
 Write-Host "API -> $ApiUrl   database $DevDatabaseName on $SqlServer   files under $DevData"

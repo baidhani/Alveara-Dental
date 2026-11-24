@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Data.SqlClient;
@@ -81,7 +81,8 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
     /// created as Role.Unassigned and disabled; only an authorized administrator (via
     /// <see cref="ChangeRoleAsync"/> and <see cref="SetAccountEnabledAsync"/>) can make it usable.
     /// </summary>
-    public async Task<UserAccount> RegisterAsync(string username, string password, CancellationToken cancellationToken = default)
+    // ALV-N030: no product route calls this any more (sign-up is removed, D-8). Kept internal only for the existing tests until slice 5 moves them to the TestHost; deleted there.
+    internal async Task<UserAccount> RegisterAsync(string username, string password, CancellationToken cancellationToken = default)
     {
         username = NormalizeUsername(username);
         if (username.Length == 0) throw new UsernameRequiredException();
@@ -122,7 +123,8 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
     /// fixed singleton id, not application-level check-then-act: two simultaneous callers both
     /// attempt the same INSERT; exactly one can ever succeed.
     /// </summary>
-    public async Task<UserAccount> BootstrapFirstAdminAsync(string username, string password, string suppliedSecret, string configuredSecret, CancellationToken cancellationToken = default)
+    // ALV-N030: the bootstrap-admin route is removed (first-run setup replaces it). Internal only for existing tests until slice 5; deleted there.
+    internal async Task<UserAccount> BootstrapFirstAdminAsync(string username, string password, string suppliedSecret, string configuredSecret, CancellationToken cancellationToken = default)
     {
         username = NormalizeUsername(username);
         if (string.IsNullOrEmpty(configuredSecret) ||

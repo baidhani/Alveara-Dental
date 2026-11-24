@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -13,8 +13,6 @@ using Alveara.Api.Data;
 
 namespace Alveara.Api.Controllers;
 
-public record RegisterRequest(string Username, string Password);
-public record BootstrapAdminRequest(string Username, string Password, string Secret);
 public record LoginRequest(string Username, string Password);
 public record MfaChallengeRequest(string ChallengeToken, string Code);
 public record ConfirmMfaRequest(string Code);
@@ -29,7 +27,7 @@ public record AdminUserSummary(Guid Id, string Username, string Role, bool IsDis
     string? LinkedStaffDisplayName = null, bool? LinkedStaffIsActive = null);
 
 /// <summary>
-/// STORY-001 + ALV-001-C01: registration, first-admin bootstrap, login (with MFA/lockout/disabled
+/// STORY-001 + ALV-001-C01: login (with MFA/lockout/disabled; ALV-N030 removed sign-up and the first-admin bootstrap route - first-run setup is SetupController
 /// handling), MFA enrollment, and administrative account/role/session management. Every failure
 /// path returns a status code and a generic message only — never the underlying exception, a
 /// stack trace, or (for login) any detail that would let a caller distinguish account states in a
@@ -37,70 +35,9 @@ public record AdminUserSummary(Guid Id, string Username, string Role, bool IsDis
 /// </summary>
 [ApiController]
 [Route("api/auth")]
-public class AuthController(AccountService accountService, IConfiguration configuration, AlveraDbContext db, IEffectivePermissions permissions, IPracticeClock clock,
+public class AuthController(AccountService accountService, AlveraDbContext db, IEffectivePermissions permissions, IPracticeClock clock,
     ILogger<Alveara.Api.Architecture.Auditing.AuditSessionStore> sessionLogger) : ControllerBase
 {
-    [HttpPost("register")]
-    [EnableRateLimiting("AuthAttempts")]
-    public async Task<IActionResult> Register([FromBody] RegisterRequest request, CancellationToken cancellationToken)
-    {
-        try
-        {
-            var account = await accountService.RegisterAsync(request.Username, request.Password, cancellationToken);
-            return StatusCode(StatusCodes.Status201Created, new
-            {
-                account.Id,
-                account.Username,
-                Role = account.Role.ToString(),
-                message = "Account created. An administrator must enable it and assign a role before you can sign in.",
-            });
-        }
-        catch (UsernameAlreadyRegisteredException)
-        {
-            return Conflict(new { error = "username_taken", message = "That username is already registered." });
-        }
-        catch (UsernameRequiredException)
-        {
-            return BadRequest(new { error = "username_required", message = "A username is required." });
-        }
-    }
-
-    /// <summary>One-time, offline-capable first-admin provisioning. Disabled forever after the first success.</summary>
-    [HttpPost("bootstrap-admin")]
-    [EnableRateLimiting("AuthAttempts")]
-    public async Task<IActionResult> BootstrapAdmin([FromBody] BootstrapAdminRequest request, CancellationToken cancellationToken)
-    {
-        var configuredSecret = configuration["AdminBootstrapSecret"];
-        if (string.IsNullOrEmpty(configuredSecret))
-        {
-            return StatusCode(StatusCodes.Status503ServiceUnavailable, new { error = "bootstrap_not_configured", message = "AdminBootstrapSecret is not configured on this server." });
-        }
-
-        try
-        {
-            var account = await accountService.BootstrapFirstAdminAsync(request.Username, request.Password, request.Secret, configuredSecret, cancellationToken);
-            // ALV-N020-C01: the installer is told that this first administrator is also the sign-in presentation administrator (extra fields; existing readers keep working).
-            return StatusCode(StatusCodes.Status201Created, new { id = account.Id, username = account.Username, role = account.Role.ToString(), presentationAdministrator = true,
-                notice = "This administrator account is also the sign-in presentation administrator (ManageLoginPresentation): it can change the sign-in screen background and footer notice." });
-        }
-        catch (InvalidBootstrapSecretException)
-        {
-            return Unauthorized(new { error = "invalid_bootstrap_secret" });
-        }
-        catch (BootstrapAlreadyConsumedException)
-        {
-            return Conflict(new { error = "bootstrap_already_used" });
-        }
-        catch (UsernameAlreadyRegisteredException)
-        {
-            return Conflict(new { error = "username_taken" });
-        }
-        catch (UsernameRequiredException)
-        {
-            return BadRequest(new { error = "username_required" });
-        }
-    }
-
     [HttpPost("login")]
     [EnableRateLimiting("AuthAttempts")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request, CancellationToken cancellationToken)
