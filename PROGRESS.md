@@ -3731,3 +3731,10 @@
   - What changed: DeploymentSetupService.CountFailureAsync is one atomic UPDATE ... OUTPUT (increment, void at the fifth, single SetupTokenRejected row in the same transaction); StartupModeProbe opens without connection pooling (the pool's blocking period had made retries 3 and 4 a no-op - found by the new S21 test); tests: simultaneous failures (5 and 12), S21 silent-server timeout/retry bound, S21 refusing-server application start, S18 creates nothing
   - Verification: DeploymentSetupServiceTests + S18 9/9 (56 s); S21 silent 67.0 s with 4 connections (bound 60-82 s), S21 refusing 67.5 s (bound 97 s); S19 + S20 + AccountBootstrapMigrationTests + ExportDomainCatalogTests + PatientOwnedDataTests 24/24 (1 m 24 s); AccountBootstrap.test.tsx 23/23 incl. the final notice wording
   - Notes: the first S21 run failed (37 s, 2 connections) and exposed the pooling defect
+
+- [x] ALV-N030 R02 Stage 1 handoff recorded (documents and control only)
+  - Date: 2026-11-24
+  - Session: CC-20261123-q4vn
+  - What changed: R02.md and R02-evidence (TEST_RESULTS, ACCEPTANCE_EVIDENCE, CHANGED_FILES); EXECUTION_STATUS ALV-N030 AWAITING_REVIEW attempt R02, implementation 4428049, blocking issues cleared; BUILD_STATE line
+  - Verification: documents only; JSON parses
+  - Notes: R01 files untouched
