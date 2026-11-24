@@ -228,16 +228,16 @@
       "dependencies": ["ALV-N026"],
       "optional": false,
       "qualityGateContribution": ["Gate F"],
-      "status": "AWAITING_REVIEW",
+      "status": "COMPLETE",
       "attempt": "R02",
       "acceptance": {"total": 5, "passed": 5},
       "tests": {"status": "passed", "summary": "Attempt R02 (Stage 1, focused proof, corrections to review R01): CR-1 atomic setup-token failure limit - setup service + S18 9/9 incl. 5 and 12 simultaneous failures; CR-2 S21 silent server 67.0 s with 4 connections (bound 60-82 s), refusing server 67.5 s (bound 97 s), probe pooling defect found and fixed; CR-3 S19 + S20 + S12 + S15 24/24 and AccountBootstrap.test 23/23 on the final tree. R01 results stand for the unchanged rest (.alveara/handoffs/ALV-N030/R01-evidence/TEST_RESULTS.md). No broad regression or accumulated chain claimed."}, "demo": "real_backend_walkthroughs_sample_auth_13_S14_S21", "parentRegression": "n/a", "implementationCommit": "44280495496ec32778c264091fad0e0e4c008ac5", "evidenceCommit": "efbaa4e79a742791607c9e17b12bc677af9a7139", "handoffPath": ".alveara/handoffs/ALV-N030/R02.md",
       "fullRegression": "DEFERRED_TO_ALV-N028", "releaseCertified": false, "regressionLedger": ".alveara/PROGRAM_REGRESSION_LEDGER.md",
-      "review": {"decision": "pending", "decisionArtifact": null, "priorAttemptDecision": "CHANGES_REQUIRED", "priorAttemptDecisionArtifact": ".alveara/reviews/ALV-N030/R01.md", "approvedAttempt": null, "reviewedImplementationCommit": null, "reviewedEvidenceCommit": null},
+      "review": {"decision": "APPROVED", "scope": "attempt R02 (Stage 1 focused proof; 5/5 focused acceptance; deferred-regression route; not release certification)", "decisionArtifact": ".alveara/reviews/ALV-N030/R02.md", "priorAttemptDecision": "CHANGES_REQUIRED", "priorAttemptDecisionArtifact": ".alveara/reviews/ALV-N030/R01.md", "approvedAttempt": "R02", "reviewedImplementationCommit": "44280495496ec32778c264091fad0e0e4c008ac5", "reviewedEvidenceCommit": "efbaa4e79a742791607c9e17b12bc677af9a7139", "packageSha256": "5C05C113D8A952DC9683957F090FBBAC609BC07567782B8656FFBE2162EEE810"},
       "briefing": {"brief": "docs/design/ACCT_PRE_IMPLEMENTATION_BRIEF.md", "approvedRound": "R07", "decisionArtifact": ".alveara/reviews/ACCT/BRIEFING-R07.md", "sections1to15ApprovedAt": ".alveara/reviews/ACCT/BRIEFING-R04.md", "section16ApprovedAt": ".alveara/reviews/ACCT/BRIEFING-R06.md", "section17ApprovedAt": ".alveara/reviews/ACCT/BRIEFING-R07.md"},
       "blockingIssues": [],
       "controlNotes": "Owner-approved plan amendment of 2026-11-24 (plan item 63a): accounts, Deployment Administrator and Practice Owner (PD-04, split out of ALV-N027; working name ACCT). Placed immediately after ALV-N026 and before ALV-N027; ALV-N027 implementation does not start until ALV-N030 is approved and closed. Post-Gate-E focused-proof route: fullRegression DEFERRED_TO_ALV-N028, not release-certified.",
-      "revalidation": {"required": false, "reason": null}, "completedAt": null
+      "revalidation": {"required": false, "reason": null}, "completedAt": "2026-11-24T21:59:18Z", "stage2": "NOT_REQUIRED_BY_REVIEW_R02"
     },
     {
       "schemaVersion": "2",
