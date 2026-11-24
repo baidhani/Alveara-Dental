@@ -3710,3 +3710,10 @@
   - What changed: DEPLOYMENT_ADMINISTRATOR_NOTICE replaced by the owner-approved text; the S14 spec's check follows it
   - Verification: NOT re-run (owner: no further tests before the Stage 1 review); the vitest notice test compares against the same constant; the S14 browser check of this text last ran with the previous wording
   - Notes: disclosed in the Stage 1 handoff
+
+- [x] ALV-N030 R01 Stage 1 handoff recorded (documents and control only)
+  - Date: 2026-11-24
+  - Session: CC-20261123-q4vn
+  - What changed: .alveara/handoffs/ALV-N030/R01.md and R01-evidence (TEST_RESULTS, ACCEPTANCE_EVIDENCE, DEMO_EVIDENCE, PARENT_REGRESSION, CHANGED_FILES, NEXT_STORY_IMPACT); BUILD_STATE line; EXECUTION_STATUS ALV-N030 AWAITING_REVIEW, attempt R01, implementation 44545eb
+  - Verification: documents only; JSON parses; no test run (owner instruction)
+  - Notes: no broad regression or accumulated chain claimed; fullRegression DEFERRED_TO_ALV-N028
