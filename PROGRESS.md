@@ -3647,3 +3647,10 @@
   - What changed: review BRIEFING-R07 (APPROVED_FOR_IMPLEMENTATION) stored; brief status names R04 + R06 + R07 as the approved set; EXECUTION_STATUS ALV-N030 briefing -> R07
   - Verification: documents only; JSON parses
   - Notes: review requirements - no second TestHost or startup split; owner approval before 5c walkthroughs; handoff separates R07 ChainHost evidence from ALV-N013's installer proof
+
+- [x] ALV-N030 slice 5a: Alveara.Api.TestSupport, ChainHost test support and explicit clock mode, guards G1-G7
+  - Date: 2026-11-24
+  - Session: CC-20261123-q4vn
+  - What changed: new Alveara.Api.TestSupport (internal TestAccountsController POST /api/test-support/accounts, TestAccountService, TestSupportRegistration: Test + TestSupport:Enabled + loopback, explicit feature provider); ChainHost requires CHAIN_CLOCK_MODE injected|real, default CHAIN_URL 127.0.0.1, loopback-only Kestrel listen, start refusal (exit 3), Test environment cookie SameAsRequest + quiet logs, test support only on an enabled decision; solution and project references; Alveara.Api unchanged; TestSupportGuardTests (G1-G7, 34 cases)
+  - Verification: focused TestSupportGuardTests + ChainClockAdvance/ChainClockSeam/ChainHostClockParse/TimeCultureGuard + slice 2-4 groups: 103/104 passed (1 m 5 s); the 1 failure is pre-existing U-037 (ALV-N026 PrescriptionPdf.cs, untouched), recorded, not fixed
+  - Notes: G3 reads MSBuild's publish list (ComputeResolvedFilesToPublishList) because a full publish runs npm ci/build; runners need CHAIN_CLOCK_MODE and the test-support route - updated in 5c
