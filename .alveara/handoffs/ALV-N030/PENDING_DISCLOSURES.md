@@ -49,6 +49,17 @@ Collected while the slices are built so that nothing is lost before the handoff 
   - Three specs (completion, patient flow, visit board) make one linked and one UNLINKED provider in a loop. The unlinked one now uses the real "Add staff member", as the owner's rule requires; the legacy flag is used nowhere.
 - **U-040 (fixed in ALV-N030, selector only).** Since ALV-N025 slice 1 added the audit event-type filter, the auth walkthrough's bare text checks for `SessionTimeoutChanged` and `LoginSucceeded` also matched the filter's options. Both now target the table cell.
 
+- **Slice 6 (client).**
+  - **Proof:** the complete auth walkthrough passes 13/13, which closes the 5c boundary. S14 passes 6/6. Evidence is in `6-walkthrough-evidence/`.
+  - **For owner approval:** the Deployment Administrator's dashboard notice uses the brief's wording verbatim, which the brief marks "owner wording to approve".
+  - **No link from the sign-in page:** the sign-in page does not link to `/setup`. The installer prints the setup page address, and `/setup` itself says when setup is already complete.
+  - **Voluntary use:** `/change-password` also serves a voluntary change by anyone signed in, not only the forced one.
+  - **Owner box:** "Make this person the Practice Owner" calls `POST /api/practice-owner/initial` after the create, as a separate audited action (brief section 4). If that call fails, the person stays added and a warning says so.
+  - **Temporary password:** it is held only in page memory and never stored in the browser. "Copy" uses the clipboard; a copy failure is shown, not swallowed.
+  - **Idempotency keys:** "Add staff member" uses `staff-member:<username>`, so a retried submission is a replay. The legacy login uses `legacy-login:<staffId>:<username>`.
+  - **U-042 (fixed, selector only):** a pre-existing auth-walkthrough check from ALV-N026 S3.
+  - **Unit suite:** 2176/2177 pass; the one failure is the known flaky U-018.
+
 ## Assumptions
 - **Minimum password length.** 12 characters for the Deployment Administrator's setup password and for a self-service change. The app had no password-length rule before.
 - **Gate scope.** The forced-change gate applies only to endpoints that require a signed-in user.
