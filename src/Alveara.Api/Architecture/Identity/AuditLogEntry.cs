@@ -161,4 +161,15 @@ public static class AuditEventTypes
     public const string PermissionPolicyInvalidRowDetected = "PermissionPolicyInvalidRowDetected";
     public const string InvalidPolicyRowRemoved = "InvalidPolicyRowRemoved";
     public const string MessageBreakGlassRefused = "MessageBreakGlassRefused";
+
+    // ALV-N030: first-run setup, staff-member creation, forced password change and the Practice Owner. Never a token, a password or a username tried.
+    public const string SetupTokenIssued = "SetupTokenIssued";
+    public const string SetupTokenRejected = "SetupTokenRejected";
+    public const string DeploymentAdministratorCreated = "DeploymentAdministratorCreated";
+    public const string DeploymentAdministratorAssigned = "DeploymentAdministratorAssigned";   // written only by the upgrade migration (exactly one profile-less Administrator)
+    public const string StaffMemberCreated = "StaffMemberCreated";
+    public const string TemporaryPasswordIssued = "TemporaryPasswordIssued";
+    public const string PasswordChanged = "PasswordChanged";
+    public const string PasswordChangeRequiredRefusal = "PasswordChangeRequiredRefusal";
+    public const string PracticeOwnerDesignated = "PracticeOwnerDesignated";
 }

@@ -3605,3 +3605,10 @@
   - What changed: brief status line names R04 + R06 approvals and the ALV-N013 boundary; EXECUTION_STATUS ALV-N030 briefing -> R06; review R06 stored
   - Verification: documents only; JSON parses
   - Notes: implementation waits for the owner's Go
+
+- [x] ALV-N030 slice 1: schema, upgrade data step, database rules (+ U-036)
+  - Date: 2026-11-24
+  - Session: CC-20261123-q4vn
+  - What changed: UserAccount.AccountKind/MustChangePassword, SetupToken, PracticeOwnerDesignation (one active, 51311 protection), migration AddAccountKindSetupTokensAndPracticeOwner with the single-candidate upgrade step, 9 audit event types, export catalog; AccountBootstrapMigrationTests; U-036 four ALV-N025 classes added to RealMigrationInventory
+  - Verification: focused group AccountBootstrapMigrationTests + ExportDomainCatalogTests + PatientOwnedDataTests + RealMigrationInventoryTests 23/23 passed (35 s)
+  - Notes: disabled profile-less admins count as upgrade candidates (brief wording); dev servers stopped for the build

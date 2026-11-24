@@ -48,7 +48,7 @@ public static class ExportDomainCatalog
     [
         new("accounts_and_credentials",
             "Sign-in accounts, staff profiles and one-time codes hold credentials and staff identities. They are never in a package; staff appear in a record by display name only.",
-            ["UserAccounts", "StaffProfiles", "ProviderProfiles", "MfaRecoveryCodes", "MfaChallenges", "PasswordResetTokens", "BootstrapStates"]),
+            ["UserAccounts", "StaffProfiles", "ProviderProfiles", "MfaRecoveryCodes", "MfaChallenges", "PasswordResetTokens", "BootstrapStates", "PracticeOwnerDesignations"]),
         new("access_policy",
             "Who may do what in this practice is security configuration of the practice, not part of any patient's record.",
             ["RolePermissionOverrides", "RolePermissionHistories", "PermissionDelegations", "PermissionPolicyState", "AccountPermissionGrants"]),
@@ -60,7 +60,7 @@ public static class ExportDomainCatalog
             ["PracticeSettings", "PatientRegistrationSettings", "RecallSettings", "DocumentSettings", "BlockedFileExtensions", "ProviderWeeklyAvailabilities", "ProviderBlockedTimes", "ConditionTypeEvents", "ProcedureEvents", "LoginBackgroundImages", "LoginPresentationSettings"]),
         new("system_operations",
             "Technical bookkeeping of the running system (job queue, replay protection, backups, measurements, counters, per-user cursors) with no clinical or administrative content about a patient.",
-            ["ImportBatches", "ImportBatchRows", "ReportBaselines", "ReportBaselineMetrics", "BackgroundJobs", "BackgroundJobEffectReceipts", "MeasurementEvents", "IdempotencyReceipts", "BackupSettings", "BackupRecords", "RestoreDrills", "BackupNotifications", "BackupAlertAcknowledgements", "DeploymentInvariants", "DocumentEventCounter", "NotificationCursors"]),
+            ["ImportBatches", "ImportBatchRows", "ReportBaselines", "ReportBaselineMetrics", "BackgroundJobs", "BackgroundJobEffectReceipts", "MeasurementEvents", "IdempotencyReceipts", "BackupSettings", "BackupRecords", "RestoreDrills", "BackupNotifications", "BackupAlertAcknowledgements", "DeploymentInvariants", "DocumentEventCounter", "NotificationCursors", "SetupTokens"]),
     ];
 
     public static IEnumerable<string> IncludedTables => Domains.SelectMany(d => d.Tables);

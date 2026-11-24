@@ -55,6 +55,21 @@ public class UserAccount
     /// already-established factor.
     /// </summary>
     public string? PendingMfaSecretProtected { get; set; }
+
+    /// <summary>ALV-N030: what kind of account this is. Every human staff member's interactive account is <see cref="AccountKind.Staff"/>; the one account-only
+    /// <see cref="AccountKind.DeploymentAdministrator"/> (at most one, enforced by a filtered unique index) is created by first-run setup and holds the Admin role.</summary>
+    public AccountKind AccountKind { get; set; } = AccountKind.Staff;
+
+    /// <summary>ALV-N030: set only when ALV-N030 issues a temporary password (Add staff member, legacy login). While it is set the server refuses every request but
+    /// the password-change, sign-out and session-bootstrap routes. Cleared by a successful password change or a completed password reset; never set by a reset.</summary>
+    public bool MustChangePassword { get; set; }
+}
+
+/// <summary>ALV-N030: the kind of a login account. Stored as a tinyint; values are append-only.</summary>
+public enum AccountKind : byte
+{
+    Staff = 0,
+    DeploymentAdministrator = 1,
 }
 
 /// <summary>An employment/staff record — may or may not have a login (e.g. a biller might not).</summary>

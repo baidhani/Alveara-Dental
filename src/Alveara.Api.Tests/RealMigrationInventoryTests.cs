@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using Xunit;
@@ -133,7 +133,7 @@ public class RealMigrationInventoryTests
     {
         Assert.Equal(2, RealMigrationInventory.All.Count(e => e.Reason == RealMigrationReason.MigratesFromAnEmptyDatabase));
         Assert.Equal(5, RealMigrationInventory.All.Count(e => e.Reason == RealMigrationReason.TestsTheFixtureItself));
-        Assert.Equal(32, RealMigrationInventory.All.Count(e => e.Reason == RealMigrationReason.RollsTheSchemaBackAndForwardOnAClone));   // ALV-N015 added NotificationSchemaTests; STORY-009 added FollowUpSchemaTests; ALV-009-C01 added WorkQueueSchemaTests; ALV-009-C02 added ExternalCaseSchemaTests; STORY-017 added PatientMergeSchemaTests; ALV-017-C01 added PatientDuplicateReviewTests RetiredRecordGuardTests and PatientUnmergeSchemaTests; ALV-N020 added StaffInactivationNotificationSchemaTests; ALV-N020-C01 added LoginPresentationSchemaTests; ALV-N021 A2 added VisitCheckoutMigrationTests, AppointmentMoveDestinationMigrationTests, BlockedTimeCalendarLabelMigrationTests and AppointmentMergeScopeMigrationTests; ALV-N022 A2-R02 added DiagnosisFinalizedGuardMigrationTests; ALV-N022 A3 added TypedLinkGuardMigrationTests; ALV-N023 added TreatmentPlanAppointmentLinkMigrationTests; ALV-N024 added BillingDocumentReplacementMigrationTests
+        Assert.Equal(37, RealMigrationInventory.All.Count(e => e.Reason == RealMigrationReason.RollsTheSchemaBackAndForwardOnAClone));   // ALV-N015 added NotificationSchemaTests; STORY-009 added FollowUpSchemaTests; ALV-009-C01 added WorkQueueSchemaTests; ALV-009-C02 added ExternalCaseSchemaTests; STORY-017 added PatientMergeSchemaTests; ALV-017-C01 added PatientDuplicateReviewTests RetiredRecordGuardTests and PatientUnmergeSchemaTests; ALV-N020 added StaffInactivationNotificationSchemaTests; ALV-N020-C01 added LoginPresentationSchemaTests; ALV-N021 A2 added VisitCheckoutMigrationTests, AppointmentMoveDestinationMigrationTests, BlockedTimeCalendarLabelMigrationTests and AppointmentMergeScopeMigrationTests; ALV-N022 A2-R02 added DiagnosisFinalizedGuardMigrationTests; ALV-N022 A3 added TypedLinkGuardMigrationTests; ALV-N023 added TreatmentPlanAppointmentLinkMigrationTests; ALV-N024 added BillingDocumentReplacementMigrationTests; ALV-N030 added AccountBootstrapMigrationTests and listed the four ALV-N025 classes (U-036)
         Assert.All(RealMigrationInventory.All.Where(e => e.Reason == RealMigrationReason.RollsTheSchemaBackAndForwardOnAClone), e => Assert.True(e.CallsMigratorDirectly));   // every rollback class really calls the migrator
     }
 }

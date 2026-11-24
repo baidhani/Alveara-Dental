@@ -4488,6 +4488,51 @@ namespace Alveara.Api.Migrations
                     b.ToTable("PasswordResetTokens");
                 });
 
+            modelBuilder.Entity("Alveara.Api.Architecture.Identity.PracticeOwnerDesignation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("DesignatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("DesignatedByAccountId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("EndedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Method")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<byte>("Slot")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint")
+                        .HasDefaultValue((byte)1);
+
+                    b.Property<Guid>("StaffProfileId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Slot")
+                        .IsUnique()
+                        .HasDatabaseName("UX_PracticeOwnerDesignations_OneActive")
+                        .HasFilter("[EndedAtUtc] IS NULL");
+
+                    b.HasIndex("StaffProfileId");
+
+                    b.ToTable("PracticeOwnerDesignations", t =>
+                        {
+                            t.HasTrigger("TR_PracticeOwnerDesignations_Protected");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
             modelBuilder.Entity("Alveara.Api.Architecture.Identity.ProviderProfile", b =>
                 {
                     b.Property<Guid>("Id")
@@ -4528,6 +4573,41 @@ namespace Alveara.Api.Migrations
                         .IsUnique();
 
                     b.ToTable("ProviderProfiles");
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Identity.SetupToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("ConsumedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("ExpiresAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("FailedAttempts")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("IssuedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(64)");
+
+                    b.Property<DateTimeOffset?>("VoidedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.ToTable("SetupTokens");
                 });
 
             modelBuilder.Entity("Alveara.Api.Architecture.Identity.StaffProfile", b =>
@@ -4599,6 +4679,11 @@ namespace Alveara.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<byte>("AccountKind")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint")
+                        .HasDefaultValue((byte)0);
+
                     b.Property<DateTimeOffset>("CreatedAtUtc")
                         .HasColumnType("datetimeoffset");
 
@@ -4616,6 +4701,11 @@ namespace Alveara.Api.Migrations
 
                     b.Property<string>("MfaSecretProtected")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("MustChangePassword")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
@@ -4637,6 +4727,11 @@ namespace Alveara.Api.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AccountKind")
+                        .IsUnique()
+                        .HasDatabaseName("UX_UserAccounts_OneDeploymentAdministrator")
+                        .HasFilter("[AccountKind] = 1");
 
                     b.HasIndex("Username")
                         .IsUnique();
@@ -10215,6 +10310,17 @@ namespace Alveara.Api.Migrations
                         .HasForeignKey("UserAccountId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Identity.PracticeOwnerDesignation", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Identity.StaffProfile", "StaffProfile")
+                        .WithMany()
+                        .HasForeignKey("StaffProfileId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("StaffProfile");
                 });
 
             modelBuilder.Entity("Alveara.Api.Architecture.Identity.ProviderProfile", b =>

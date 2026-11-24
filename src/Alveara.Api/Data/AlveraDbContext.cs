@@ -29,6 +29,8 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<MfaRecoveryCode> MfaRecoveryCodes => Set<MfaRecoveryCode>();
     public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
     public DbSet<BootstrapState> BootstrapStates => Set<BootstrapState>();
+    public DbSet<SetupToken> SetupTokens => Set<SetupToken>();
+    public DbSet<PracticeOwnerDesignation> PracticeOwnerDesignations => Set<PracticeOwnerDesignation>();
     public DbSet<MfaChallenge> MfaChallenges => Set<MfaChallenge>();
     // ALV-N020-C01: account-scoped permissions and the sign-in presentation (model in LoginPresentationModel).
     public DbSet<AccountPermissionGrant> AccountPermissionGrants => Set<AccountPermissionGrant>();
@@ -177,6 +179,27 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
             e.HasIndex(u => u.Username).IsUnique();
             // ALV-N017: the database backstop of the last-enabled-administrator rule (error 51207, busy 51208): raw SQL and bulk updates cannot leave the practice without an enabled administrator
             e.ToTable(t => t.HasTrigger("TR_UserAccounts_LastAdmin"));
+            // ALV-N030: the account kind (tinyint) and the forced-password-change flag; at most one Deployment Administrator
+            e.Property(u => u.AccountKind).HasConversion<byte>().HasDefaultValue(AccountKind.Staff);
+            e.Property(u => u.MustChangePassword).HasDefaultValue(false);
+            e.HasIndex(u => u.AccountKind).IsUnique().HasFilter("[AccountKind] = 1").HasDatabaseName("UX_UserAccounts_OneDeploymentAdministrator");
+        });
+
+        // ALV-N030: first-run setup tokens (hash only) and the Practice Owner designation
+        modelBuilder.Entity<SetupToken>(e =>
+        {
+            e.Property(t => t.TokenHash).HasMaxLength(64).IsUnicode(false);
+            e.HasIndex(t => t.TokenHash).IsUnique();
+        });
+        modelBuilder.Entity<PracticeOwnerDesignation>(e =>
+        {
+            e.HasOne(d => d.StaffProfile).WithMany().HasForeignKey(d => d.StaffProfileId).OnDelete(DeleteBehavior.Restrict);
+            e.Property(d => d.Method).HasConversion<string>().HasMaxLength(40);
+            e.Property(d => d.Slot).HasDefaultValue((byte)1);
+            e.HasIndex(d => d.Slot).IsUnique().HasFilter("[EndedAtUtc] IS NULL").HasDatabaseName("UX_PracticeOwnerDesignations_OneActive");
+            e.HasIndex(d => d.StaffProfileId);
+            // ALV-N030: the database refuses deletes and every change except ending an active designation (51311)
+            e.ToTable(t => t.HasTrigger("TR_PracticeOwnerDesignations_Protected"));
         });
 
         modelBuilder.Entity<StaffProfile>(e =>
