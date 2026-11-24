@@ -200,6 +200,7 @@ public class AccountSafetyTests : SafetyTestBase
     [Fact]
     public async Task Ordinary_updates_to_accounts_and_the_first_administrator_setup_are_unaffected()
     {
+        await Fixture.ClearSetupCompletedAsync();   // ALV-N030 slice 7: a never-set-up database (test databases carry the setup-completed mark)
         await using (var db = Fixture.CreateContext())
         {
             // ALV-N030: the first administrator now comes from first-run setup (the static-secret bootstrap is gone); the guard must not stand in its way

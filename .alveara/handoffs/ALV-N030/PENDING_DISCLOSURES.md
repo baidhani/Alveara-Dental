@@ -60,6 +60,40 @@ Collected while the slices are built so that nothing is lost before the handoff 
   - **U-042 (fixed, selector only):** a pre-existing auth-walkthrough check from ALV-N026 S3.
   - **Unit suite:** 2176/2177 pass; the one failure is the known flaky U-018.
 
+- **Slice 7 (section 16: setup mode and the controlled restart).**
+  - **As the brief says:** the mode is decided before `builder.Build()` by `StartupModeProbe`.
+    - Settings: a 15 s connection and command timeout, and up to 3 retries with 1/2/4 s backoff on connection-level failures only. A missing database or a refused login is answered NotInstalled at once. It never migrates.
+    - Outside Normal mode, the nine application background services are not registered, and `StartupModeMiddleware` answers 503 `{error}` on `/api` except what the mode allows.
+    - The status route returns exactly the four 16.2a bodies. A successful setup registers `Response.OnCompleted`, which leads to exit code 75 and a graceful stop.
+    - Each start logs `startup_mode`, without the connection string. EF's design-time tools skip the probe (`EF.IsDesignTime`).
+  - **Product change not named in the brief:** `DeploymentGuardMiddleware` now exempts `/api/setup`, as it exempts `/api/auth`, `/api/health` and backup.
+    - **Why:** in Setup mode the invariant monitor, a background service, is not registered, so the guard refused the setup routes the mode allows.
+    - **Why it is safe:** the setup routes read and write nothing that depends on the deployment settings.
+  - **Restart seam:** `ISetupRestart` (the product's `ProcessSetupRestart`) is a DI seam. Backend tests replace it with a recorder so that a successful setup neither stops the test host nor sets the test run's exit code. ChainHost keeps the real one.
+  - **Status within one process:** the status route answers from the process's mode. In the same process, after a successful setup, it still says "setup" until the restart; the restarted process says "normal".
+  - **R07 retargeting (17.6):**
+    - S20 runs a real ChainHost process. ChainHost now stops when the application stops and returns `Environment.ExitCode`.
+    - A crash during shutdown (a disposed cancellation source cancelled by the process-exit handler) used to replace the code. It was found by S20 and fixed.
+    - The guard test checks Program.cs's `app.Run()` shape and ChainHost's `return Environment.ExitCode`.
+  - **Test data, not product:**
+    - Every backend test database is marked as set up (a `BootstrapStates` row, `TestDatabaseFixture`), so ordinary tests run in Normal mode. Setup tests call `ClearSetupCompletedAsync`.
+    - `TestAccounts.SeedFirstAdmin` now treats an administrator as "first" when no sign-in presentation administrator has been staged yet.
+    - The walkthrough runner gained `-DatabaseState SetUp|Fresh|UpgradeRequired|NotInstalled` (default SetUp, which marks the database set up), and the chain runner marks its database as set up.
+  - **Runner restart:** Playwright now runs as a watched process. On ChainHost exit 75 the runner restarts it on the same URL and database (at most 3 times); any other host exit fails the run. The readiness wait accepts any answer from the status route.
+  - **Dev:** `Start-DevApi.ps1` runs the API through `scripts/RestartLoop.ps1`. It restarts only on 75 (bounded at 10), the first start builds, restarts use `--no-build`, and the script exits with the last code.
+  - **Client:**
+    - `StartupGate` asks the status route first. It shows the installer or upgrade message, sends Setup mode to `/setup`, and otherwise renders as before; a failed check never blocks the app.
+    - The setup page waits through the restart (polling every 2 s, giving up after 120 s).
+    - The gate asks again when the page leaves `/setup`; S14 Fresh found the stale-mode bug and it is fixed.
+  - **Tests:**
+    - **S18:** "one migration behind" is made by removing the newest `__EFMigrationsHistory` row, which is what the probe reads; no real down-migration is run.
+    - **S21:** the "unreachable server gives up within its bound" case is not a browser test. The probe's bounds are in code, and the S18 tests cover a missing database, which is decided at once. An unreachable-server timing test (about 1 minute) was left out to respect the time budget.
+  - **Results:**
+    - The first slice 7 focused backend group ran **8 min 8 s**, against my 3 to 4 minute estimate. It ran in the background, so it could not be stopped at a safe point; this is disclosed.
+    - After the fixes: StartupModeTests + DeploymentSetupApiTests 10/10; S20 2/2; RestartLoopScriptTests + TestSupportGuardTests 43/43.
+    - Client: vitest 2181/2183 (the 2 failures are the known flaky U-018); AccountBootstrap.test.tsx 23/23.
+    - Walkthroughs: S14 Fresh 4/4 (one restart on exit 75); S14 SetUp 1/1; S21 NotInstalled and UpgradeRequired 1/1 each; auth 13/13. Evidence is in `7-walkthrough-evidence/`.
+
 ## Assumptions
 - **Minimum password length.** 12 characters for the Deployment Administrator's setup password and for a self-service change. The app had no password-length rule before.
 - **Gate scope.** The forced-change gate applies only to endpoints that require a signed-in user.

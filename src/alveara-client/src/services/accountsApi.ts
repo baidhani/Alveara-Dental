@@ -5,8 +5,8 @@ import { request, requestWithCsrf, fetchCsrfToken } from "./authApi";
  * Every refusal arrives as an ApiError with the server's stable error code; screens map codes to their own wording.
  */
 
-/** GET /api/setup/status: whether this installation has never been set up. Anonymous; nothing else is disclosed. */
-export const getSetupStatus = () => request<{ setupAvailable: boolean }>("/api/setup/status", { cache: "no-store" });
+/** GET /api/setup/status (brief 16.2a): the server's mode. 200 {mode:"setup"|"normal", setupAvailable}; 503 {mode:"installation_incomplete"|"upgrade_required"}. */
+export const getSetupStatus = () => request<{ mode?: string; setupAvailable: boolean }>("/api/setup/status", { cache: "no-store" });
 
 /** POST /api/setup/deployment-administrator: the token goes in the JSON body only, never a URL. Every token failure is the same 400 "setup_failed". */
 export const completeSetup = (token: string, username: string, password: string) =>

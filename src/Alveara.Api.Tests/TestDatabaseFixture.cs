@@ -124,6 +124,11 @@ public partial class TestDatabaseFixture : IAsyncLifetime
             // pool alive for the first pooled open the owner's setup makes next (the open that failed in the two R03 Stage 2 runs). A pruning race at this open is retried by the same narrow classifier
             // (pool-acquisition timeout only, bounded; the first exception is rethrown unchanged); nothing else is retried here.
             if (_warmUp) await RunWithTransientRetryAsync(WarmPoolAsync, IsPoolAcquisitionTimeout, "pool warm-up", _databaseName, MaxInitializationAttempts, InitializationRetryDelays, _delay, _log, beforeRetry: null);
+
+            // ALV-N030 (brief section 16): a host started on a database with no Deployment Administrator and no BootstrapState comes up in SETUP mode, where every
+            // /api route but setup answers 503. Ordinary tests are about a set-up practice, so every test database is marked as set up here (test data only; the
+            // product is unchanged). A test about first-run setup removes the mark with ClearSetupCompletedAsync before its host starts.
+            await MarkSetupCompletedAsync();
         }
         catch
         {
@@ -171,6 +176,27 @@ public partial class TestDatabaseFixture : IAsyncLifetime
     {
         using var context = CreateContext();
         SqlConnection.ClearPool((SqlConnection)context.Database.GetDbConnection());
+    }
+
+    /// <summary>The setup-completed mark every test database gets (see InitializeAsync). Does nothing when the table does not exist (a database migrated to an early version).</summary>
+    internal async Task MarkSetupCompletedAsync()
+    {
+        await using var connection = new SqlConnection(ConnectionString);
+        await connection.OpenAsync();
+        await using var command = connection.CreateCommand();
+        command.CommandText = "IF OBJECT_ID(N'[BootstrapStates]') IS NOT NULL AND NOT EXISTS (SELECT 1 FROM [BootstrapStates]) " +
+            "INSERT INTO [BootstrapStates] ([Id], [ConsumedAtUtc], [ConsumedForUsername]) VALUES ('00000000-0000-0000-0000-00000000b007', SYSDATETIMEOFFSET(), N'test-fixture');";
+        await command.ExecuteNonQueryAsync();
+    }
+
+    /// <summary>ALV-N030: for a test about first-run setup - removes the setup-completed mark so a host started afterwards comes up in Setup mode.</summary>
+    public async Task ClearSetupCompletedAsync()
+    {
+        await using var connection = new SqlConnection(ConnectionString);
+        await connection.OpenAsync();
+        await using var command = connection.CreateCommand();
+        command.CommandText = "IF OBJECT_ID(N'[BootstrapStates]') IS NOT NULL DELETE FROM [BootstrapStates];";
+        await command.ExecuteNonQueryAsync();
     }
 
     public async Task DisposeAsync()

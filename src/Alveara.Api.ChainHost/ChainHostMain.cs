@@ -90,10 +90,15 @@ public static class ChainHostMain
         Console.WriteLine($"ChainHost ready on {url} environment={environmentName} clockMode={(injected ? "injected" : "real")}"
             + (injected ? $" clockUtc={start:O} clockAdvance={(control.AdvanceEnabled ? "on" : "off")}" : "") + $" testSupport={(decision.Enabled ? "on" : "off")}");
 
-        using var stop = new CancellationTokenSource();
+        // Not disposed: the process-exit handler can still run after Main returns, and cancelling a disposed source there would crash the process and
+        // replace its exit code (ALV-N030: the code 75 must reach the runner). The process is ending, so nothing leaks.
+        var stop = new CancellationTokenSource();
         Console.CancelKeyPress += (_, e) => { e.Cancel = true; stop.Cancel(); };
         AppDomain.CurrentDomain.ProcessExit += (_, _) => stop.Cancel();
+        // ALV-N030 (brief 16.2b, R07 17.6): when the application stops itself (first-run setup completed: Environment.ExitCode = 75), this process ends too
+        // and passes the code on, so the runner can restart it exactly as a production supervisor would.
+        factory.Services.GetRequiredService<Microsoft.Extensions.Hosting.IHostApplicationLifetime>().ApplicationStopping.Register(() => stop.Cancel());
         try { await Task.Delay(Timeout.Infinite, stop.Token); } catch (OperationCanceledException) { }
-        return 0;
+        return Environment.ExitCode;
     }
 }

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
+import { MemoryRouter, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { SetupPage } from "./SetupPage";
 import { ChangePasswordPage } from "./ChangePasswordPage";
 import { PracticeOwnerNotice, DEPLOYMENT_ADMINISTRATOR_NOTICE } from "./dashboard/PracticeOwnerNotice";
@@ -8,6 +8,7 @@ import { TemporaryPasswordPanel } from "./configuration/StaffMemberDialogs";
 import { StaffTab } from "./configuration/PeopleTabs";
 import { accountLabels } from "./accountLabels";
 import { RequireAuth } from "../app/RouteGuards";
+import { StartupGate } from "../app/StartupGate";
 import { AuthProvider } from "../contexts/AuthContext";
 import { NotificationProvider } from "../components/Notification";
 import { signedInSession } from "../test/signedInSession";
@@ -43,18 +44,26 @@ function Where() {
 }
 
 describe("first-run setup page", () => {
-  it("sends the token in the JSON body only and goes to sign-in on success", async () => {
+  it("sends the token in the JSON body only, waits while the server restarts, then goes to sign-in", async () => {
+    let restarted = false;
+    let downChecks = 0;
     const calls = stubFetch((url) => {
-      if (url.includes("/api/setup/status")) return json({ setupAvailable: true });
-      if (url.includes("/api/setup/deployment-administrator")) return json({ id: "1", username: "deploy" }, 201);
+      if (url.includes("/api/setup/status")) {
+        if (!restarted) return json({ mode: "setup", setupAvailable: true });
+        if (downChecks++ < 2) throw new TypeError("Failed to fetch");                     // the server is down while it restarts
+        return json({ mode: "normal", setupAvailable: false });
+      }
+      if (url.includes("/api/setup/deployment-administrator")) { restarted = true; return json({ id: "1", username: "deploy" }, 201); }
     });
-    render(<MemoryRouter initialEntries={["/setup"]}><Routes><Route path="/setup" element={<SetupPage />} /><Route path="/login" element={<Where />} /></Routes></MemoryRouter>);
+    render(<MemoryRouter initialEntries={["/setup"]}><Routes><Route path="/setup" element={<SetupPage pollMs={10} />} /><Route path="/login" element={<Where />} /></Routes></MemoryRouter>);
     fireEvent.change(await screen.findByLabelText("Setup token"), { target: { value: "  abc123  " } });
     fireEvent.change(screen.getByLabelText("Username"), { target: { value: "deploy" } });
     fireEvent.change(screen.getByLabelText(/^Password/), { target: { value: "a-long-enough-pass" } });
     fireEvent.change(screen.getByLabelText("Confirm the password"), { target: { value: "a-long-enough-pass" } });
     fireEvent.click(screen.getByRole("button", { name: "Create the Deployment Administrator" }));
+    expect(await screen.findByText("Setup is complete. DentalKeep is restarting…")).toBeInTheDocument();
     await waitFor(() => expect(screen.getByTestId("where").textContent).toBe("/login?setup=complete"));
+    expect(downChecks).toBeGreaterThanOrEqual(2);
     const post = calls.find((c) => c.url.includes("/api/setup/deployment-administrator"))!;
     expect(post.url).not.toContain("abc123");
     expect(JSON.parse(String(post.init?.body))).toEqual({ token: "abc123", username: "deploy", password: "a-long-enough-pass" });
@@ -78,6 +87,21 @@ describe("first-run setup page", () => {
     fireEvent.change(screen.getByLabelText("Confirm the password"), { target: { value: "a-long-enough-pass" } });
     fireEvent.click(screen.getByRole("button", { name: "Create the Deployment Administrator" }));
     await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("The setup token is not valid"));
+  });
+
+  it("says the server did not come back when it never returns in time", async () => {
+    let done = false;
+    stubFetch((url) => {
+      if (url.includes("/api/setup/status")) { if (done) throw new TypeError("Failed to fetch"); return json({ mode: "setup", setupAvailable: true }); }
+      if (url.includes("/api/setup/deployment-administrator")) { done = true; return json({ id: "1", username: "deploy" }, 201); }
+    });
+    render(<MemoryRouter><SetupPage pollMs={5} giveUpMs={60} /></MemoryRouter>);
+    fireEvent.change(await screen.findByLabelText("Setup token"), { target: { value: "t" } });
+    fireEvent.change(screen.getByLabelText("Username"), { target: { value: "deploy" } });
+    fireEvent.change(screen.getByLabelText(/^Password/), { target: { value: "a-long-enough-pass" } });
+    fireEvent.change(screen.getByLabelText("Confirm the password"), { target: { value: "a-long-enough-pass" } });
+    fireEvent.click(screen.getByRole("button", { name: "Create the Deployment Administrator" }));
+    expect(await screen.findByText("DentalKeep did not come back. Check that the service is running.")).toBeInTheDocument();
   });
 
   it("says so once the installation is set up, with no form", async () => {
@@ -256,5 +280,67 @@ describe("Security Administration labels", () => {
     [{ linkedStaffDisplayName: "Pat", mustChangePassword: true }, null, ["Must change password"]],
   ])("%j -> %j", (fields, owner, expected) => {
     expect(accountLabels({ ...base, ...fields } as AdminUserSummary, owner)).toEqual(expected);
+  });
+});
+
+describe("the start-up check (brief 16.2a)", () => {
+  function renderGate(initial = "/") {
+    render(
+      <MemoryRouter initialEntries={[initial]}>
+        <StartupGate>
+          <Routes>
+            <Route path="/setup" element={<span>setup page</span>} />
+            <Route path="*" element={<span>the app</span>} />
+          </Routes>
+        </StartupGate>
+      </MemoryRouter>
+    );
+  }
+
+  it.each([
+    ["installation_incomplete", "DentalKeep is not installed yet. Run the installer."],
+    ["upgrade_required", "An upgrade is waiting. An administrator must run the upgrade tool."],
+  ])("a server in %s shows only its message", async (mode, text) => {
+    stubFetch((url) => (url.includes("/api/setup/status") ? json({ mode }, 503) : undefined));
+    renderGate();
+    expect(await screen.findByText(text)).toBeInTheDocument();
+    expect(screen.queryByText("the app")).toBeNull();
+  });
+
+  it("a never-set-up server opens first-run setup", async () => {
+    stubFetch((url) => (url.includes("/api/setup/status") ? json({ mode: "setup", setupAvailable: true }) : undefined));
+    renderGate("/login");
+    expect(await screen.findByText("setup page")).toBeInTheDocument();
+  });
+
+  it("after setup and the restart, leaving /setup asks again instead of returning to setup", async () => {
+    let restarted = false;
+    stubFetch((url) => (url.includes("/api/setup/status") ? json(restarted ? { mode: "normal", setupAvailable: false } : { mode: "setup", setupAvailable: true }) : undefined));
+    function Leave() { return <button onClick={() => { restarted = true; navigateTo("/login"); }}>leave</button>; }
+    let navigateTo: (to: string) => void = () => {};
+    function Capture() { const n = useNavigate(); navigateTo = n; return null; }
+    render(
+      <MemoryRouter initialEntries={["/setup"]}>
+        <StartupGate>
+          <Capture />
+          <Routes>
+            <Route path="/setup" element={<Leave />} />
+            <Route path="/login" element={<span>sign in</span>} />
+          </Routes>
+        </StartupGate>
+      </MemoryRouter>
+    );
+    fireEvent.click(await screen.findByRole("button", { name: "leave" }));
+    expect(await screen.findByText("sign in")).toBeInTheDocument();
+  });
+
+  it("a set-up server, or one that cannot be asked, shows the app as before", async () => {
+    stubFetch((url) => (url.includes("/api/setup/status") ? json({ mode: "normal", setupAvailable: false }) : undefined));
+    renderGate();
+    expect(await screen.findByText("the app")).toBeInTheDocument();
+    vi.unstubAllGlobals();
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new TypeError("Failed to fetch")));
+    renderGate();
+    expect((await screen.findAllByText("the app")).length).toBeGreaterThan(0);
   });
 });

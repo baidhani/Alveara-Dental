@@ -47,6 +47,13 @@ var connectionString = builder.Configuration.GetConnectionString("Alveara")
     ?? "Server=.\\SQLEXPRESS;Database=AlveraDev;Trusted_Connection=True;TrustServerCertificate=True";
 builder.Services.AddDbContext<AlveraDbContext>(options => options.UseSqlServer(connectionString));
 
+// ALV-N030 (brief section 16, PD-38): one read decides this process's mode for its whole life, before the host is built (EF's design-time tools skip it).
+// In every mode but Normal no application background service is registered and the /api routes are refused (StartupModeMiddleware); the API never migrates.
+var startupMode = EF.IsDesignTime ? new Alveara.Api.Architecture.Startup.StartupModeState(Alveara.Api.Architecture.Startup.StartupMode.Normal, 0)
+    : await Alveara.Api.Architecture.Startup.StartupModeProbe.DetectAsync(connectionString);
+builder.Services.AddSingleton(startupMode);
+builder.Services.AddSingleton<Alveara.Api.Architecture.Startup.ISetupRestart, Alveara.Api.Architecture.Startup.ProcessSetupRestart>();
+
 // Practice time zone — configurable, defaults to America/Chicago. All appointment-local
 // conversions go through this, never the server's own local time zone.
 var practiceTimeZoneId = builder.Configuration["PracticeTimeZone"] ?? "America/Chicago";
@@ -409,7 +416,16 @@ builder.Services.AddRateLimiter(options =>
         }));
 });
 
+// ALV-N030 (brief 16.2): outside Normal mode, none of this application's background services is registered (the framework's own, such as the web server, stay).
+if (startupMode.Mode != Alveara.Api.Architecture.Startup.StartupMode.Normal)
+{
+    var appHosted = builder.Services.Where(d => d.ServiceType == typeof(Microsoft.Extensions.Hosting.IHostedService)
+        && (d.ImplementationType ?? d.ImplementationInstance?.GetType() ?? d.ImplementationFactory?.Method.DeclaringType)?.Assembly == typeof(Program).Assembly).ToList();
+    foreach (var d in appHosted) builder.Services.Remove(d);
+}
+
 var app = builder.Build();
+app.Logger.LogInformation("startup_mode {Mode} {PendingMigrations}", startupMode.Mode, startupMode.PendingMigrations);   // never the connection string
 
 // ALV-N030: the installer's command `setup issue-token` issues a first-run setup token, prints it to the console only and exits without serving requests.
 if (SetupCommand.Matches(args))
@@ -424,6 +440,7 @@ if (SetupCommand.Matches(args))
 // carrying literal database values) reaches the built-in developer-exception-page/hosting
 // diagnostics logger before this safe summary does.
 app.UseMiddleware<Alveara.Api.Architecture.Logging.SafeExceptionHandlingMiddleware>();
+app.UseMiddleware<Alveara.Api.Architecture.Startup.StartupModeMiddleware>();   // ALV-N030: outside Normal mode, /api answers 503 except what the mode allows
 
 if (app.Environment.IsDevelopment())
 {

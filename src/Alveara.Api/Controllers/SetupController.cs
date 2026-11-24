@@ -1,4 +1,5 @@
 using Alveara.Api.Architecture.Identity;
+using Alveara.Api.Architecture.Startup;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
@@ -14,16 +15,27 @@ public record CompleteSetupRequest(string? Token, string? Username, string? Pass
 /// </summary>
 [ApiController]
 [Route("api/setup")]
-public class SetupController(DeploymentSetupService setup) : ControllerBase
+public class SetupController(DeploymentSetupService setup, StartupModeState startup, ISetupRestart restart) : ControllerBase
 {
     public const string RateLimitPolicy = "SetupAttempts";
 
+    /// <summary>
+    /// ALV-N030 (brief 16.2a): mapped in every mode. The whole body is one of exactly four, decided by this process's start-up mode, so the client can show
+    /// the right screen before any sign-in: 503 <c>{mode:"installation_incomplete"}</c>, 503 <c>{mode:"upgrade_required"}</c>,
+    /// 200 <c>{mode:"setup", setupAvailable:true}</c> or 200 <c>{mode:"normal", setupAvailable:false}</c>. Nothing else is ever in it.
+    /// </summary>
     [HttpGet("status")]
     [EnableRateLimiting("AuthAttempts")]
-    public async Task<IActionResult> Status(CancellationToken ct)
+    public IActionResult Status()
     {
         Response.Headers.CacheControl = "no-store";
-        return Ok(new { setupAvailable = await setup.SetupAvailableAsync(ct) });
+        return startup.Mode switch
+        {
+            StartupMode.NotInstalled => StatusCode(StatusCodes.Status503ServiceUnavailable, new { mode = "installation_incomplete" }),
+            StartupMode.UpgradeRequired => StatusCode(StatusCodes.Status503ServiceUnavailable, new { mode = "upgrade_required" }),
+            StartupMode.Setup => Ok(new { mode = "setup", setupAvailable = true }),
+            _ => Ok(new { mode = "normal", setupAvailable = false }),
+        };
     }
 
     [HttpPost("deployment-administrator")]
@@ -34,6 +46,8 @@ public class SetupController(DeploymentSetupService setup) : ControllerBase
         try
         {
             var account = await setup.CompleteAsync(request?.Token, request?.Username, request?.Password, ct);
+            // ALV-N030 (brief 16.2b): only after the 201 has been sent does the process ask to be restarted (exit 75); a failed setup never gets here
+            Response.OnCompleted(() => { restart.RequestRestart(); return Task.CompletedTask; });
             return StatusCode(StatusCodes.Status201Created, new { id = account.Id, username = account.Username });
         }
         catch (SetupFailedException)

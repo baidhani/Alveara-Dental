@@ -2,6 +2,7 @@ import { useState } from "react";
 import { createBrowserRouter, createRoutesFromElements, Outlet, Route, RouterProvider, useLocation } from "react-router-dom";
 import { AppShell } from "./app/AppShell";
 import { NavigationGuard } from "./app/NavigationGuard";
+import { StartupGate } from "./app/StartupGate";
 import { RequireAnyPermission, RequireAuth, RequirePermission } from "./app/RouteGuards";
 import { DashboardPage } from "./pages/DashboardPage";
 import { ShowcasePage } from "./pages/ShowcasePage";
@@ -78,7 +79,10 @@ function RootLayout() {
     <ConnectionStatusContext.Provider value={connectionStatus}>
       {connectionStatus === "disconnected" && <DisconnectedBanner variant={SIGN_IN_PATHS.includes(pathname) ? "sign-in" : "app"} />}
       <NavigationGuard />
-      <Outlet />
+      {/* ALV-N030 (16.2a): the server's mode first - not installed, upgrade waiting, or first-run setup - before any sign-in */}
+      <StartupGate>
+        <Outlet />
+      </StartupGate>
     </ConnectionStatusContext.Provider>
   );
 }

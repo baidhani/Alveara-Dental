@@ -248,7 +248,9 @@ public sealed class DeploymentInvariantMonitor(
 /// </summary>
 public sealed class DeploymentGuardMiddleware(RequestDelegate next, DeploymentInvariantStatus status, ILogger<DeploymentGuardMiddleware>? logger = null)
 {
-    private static readonly string[] Allowed = ["/api/health", "/api/systemstatus", "/api/auth", "/api/backup"];
+    // ALV-N030 (brief section 16): first-run setup and the mode report are exempt too. They run in Setup mode, where no background service (the invariant
+    // monitor included) is registered, and they read or write nothing whose meaning depends on the deployment settings.
+    private static readonly string[] Allowed = ["/api/health", "/api/systemstatus", "/api/auth", "/api/backup", "/api/setup"];
     private static readonly TimeSpan EarlyVerificationTimeout = TimeSpan.FromSeconds(5);
 
     public async Task InvokeAsync(HttpContext context)

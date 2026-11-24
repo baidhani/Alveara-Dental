@@ -115,6 +115,9 @@ try {
     finally { $ErrorActionPreference = 'Stop'; Pop-Location }
 
     $schemaVersion = (Invoke-DevSql "SET NOCOUNT ON; SELECT TOP 1 MigrationId FROM __EFMigrationsHistory ORDER BY MigrationId DESC" $Database | Select-Object -First 1).Trim()
+    # ALV-N030 (brief section 16): a never-set-up database would start the host in Setup mode (every other /api route 503). The chain is about a set-up
+    # practice, so the database is marked as set up, as the walkthrough runner does by default.
+    Invoke-DevSql "IF NOT EXISTS (SELECT 1 FROM [BootstrapStates]) INSERT INTO [BootstrapStates] ([Id], [ConsumedAtUtc], [ConsumedForUsername]) VALUES ('00000000-0000-0000-0000-00000000b007', SYSDATETIMEOFFSET(), N'chain-runner');" $Database | Out-Null
 
     $dll = Join-Path $RepoRoot 'src\Alveara.Api.ChainHost\bin\Debug\net10.0\Alveara.Api.ChainHost.dll'   # ALV-N030: both clock modes run on the chain host
     if (-not (Test-Path -LiteralPath $dll)) { throw "The built host was not found at $dll." }

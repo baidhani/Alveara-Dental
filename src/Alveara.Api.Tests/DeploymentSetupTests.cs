@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Alveara.Api.Architecture.Identity;
+using Alveara.Api.Architecture.Startup;
 using Alveara.Api.Controllers;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
@@ -23,7 +24,7 @@ public class DeploymentSetupServiceTests : IAsyncLifetime
     private static readonly DateTimeOffset T0 = new(2026, 11, 24, 15, 0, 0, TimeSpan.Zero);
     private const string Password = "a-long-enough-password";
 
-    public Task InitializeAsync() => _fixture.InitializeAsync();
+    public async Task InitializeAsync() { await _fixture.InitializeAsync(); await _fixture.ClearSetupCompletedAsync(); }   // ALV-N030 slice 7: a never-set-up database
     public Task DisposeAsync() => _fixture.DisposeAsync();
 
     private DeploymentSetupService Service(AlveraDbContextScope scope, DateTimeOffset at) => new(scope.Db, new TestClock(at));
@@ -136,18 +137,31 @@ public class DeploymentSetupApiTests : IAsyncLifetime
 {
     private readonly TestDatabaseFixture _fixture = new();
     private readonly CapturingLoggerProvider _logs = new();
+    private readonly RecordingSetupRestart _restart = new();
     private WebApplicationFactory<Program> _factory = null!;
+
+    /// <summary>ALV-N030 slice 7: stands in for the real restart (exit code 75 and a stop), which would end this test's host and set the test run's exit code.</summary>
+    public sealed class RecordingSetupRestart : ISetupRestart
+    {
+        private int _requests;
+        public int Requests => Volatile.Read(ref _requests);
+        public void RequestRestart() => Interlocked.Increment(ref _requests);
+    }
+
+    private WebApplicationFactory<Program> NewHost() => new WebApplicationFactory<Program>().WithWebHostBuilder(b =>
+    {
+        b.UseSetting("ConnectionStrings:Alveara", _fixture.ConnectionString);
+        b.UseSetting("AuthAttemptRateLimit:PermitLimit", "500");
+        b.UseSetting("SetupAttemptRateLimit:PermitLimit", "8");
+        b.ConfigureLogging(l => l.AddProvider(_logs));
+        b.ConfigureServices(services => services.AddSingleton<ISetupRestart>(_restart));
+    });
 
     public async Task InitializeAsync()
     {
         await _fixture.InitializeAsync();
-        _factory = new WebApplicationFactory<Program>().WithWebHostBuilder(b =>
-        {
-            b.UseSetting("ConnectionStrings:Alveara", _fixture.ConnectionString);
-            b.UseSetting("AuthAttemptRateLimit:PermitLimit", "500");
-            b.UseSetting("SetupAttemptRateLimit:PermitLimit", "8");
-            b.ConfigureLogging(l => l.AddProvider(_logs));
-        });
+        await _fixture.ClearSetupCompletedAsync();   // a never-set-up installation: the host starts in Setup mode
+        _factory = NewHost();
     }
 
     public async Task DisposeAsync() { await _factory.DisposeAsync(); await _fixture.DisposeAsync(); }
@@ -172,6 +186,8 @@ public class DeploymentSetupApiTests : IAsyncLifetime
     {
         // No controller owns these paths any more. The answer is 404, or 405 when a built client exists locally: the SPA fallback
         // (Program.cs, MapFallbackToFile) is GET-only, so a POST to an unowned path meets it and is refused with 405. Either way nothing handles it.
+        // ALV-N030 slice 7: asked of a SET-UP installation (Normal mode); in Setup mode every other /api route answers 503 anyway.
+        await _fixture.MarkSetupCompletedAsync();
         var client = _factory.CreateClient();
         HttpStatusCode[] refused = [HttpStatusCode.NotFound, HttpStatusCode.MethodNotAllowed];
         Assert.Contains((await client.PostAsJsonAsync("/api/auth/register", new { username = "x", password = "y" })).StatusCode, refused);
@@ -186,7 +202,7 @@ public class DeploymentSetupApiTests : IAsyncLifetime
         var client = _factory.CreateClient();
         var status = await client.GetAsync("/api/setup/status");
         Assert.Equal("no-store", status.Headers.CacheControl?.ToString());
-        Assert.Equal("{\"setupAvailable\":true}", await status.Content.ReadAsStringAsync());
+        Assert.Equal("{\"mode\":\"setup\",\"setupAvailable\":true}", await status.Content.ReadAsStringAsync());   // ALV-N030 slice 7 (16.2a)
 
         var (exit, output, _) = await IssueViaCliAsync();
         Assert.Equal(SetupCommand.ExitIssued, exit);
@@ -199,11 +215,17 @@ public class DeploymentSetupApiTests : IAsyncLifetime
         var voided = await SetupAsync(client, stale);
         var missing = await SetupAsync(client, null);
         Assert.All(new[] { wrong, voided, missing }, r => { Assert.Equal(HttpStatusCode.BadRequest, r.Status); Assert.Equal("{\"error\":\"setup_failed\"}", r.Body); });
+        Assert.Equal(0, _restart.Requests);                                                    // a failed setup never asks for a restart
 
         Assert.Equal(HttpStatusCode.Created, (await SetupAsync(client, token)).Status);
+        await WaitForAsync(() => _restart.Requests == 1);                                       // asked once, after the 201 was sent
         var used = await SetupAsync(client, token, "second");
         Assert.Equal((HttpStatusCode.BadRequest, "{\"error\":\"setup_failed\"}"), used);
-        Assert.Equal("{\"setupAvailable\":false}", await (await client.GetAsync("/api/setup/status")).Content.ReadAsStringAsync());
+        Assert.Equal(1, _restart.Requests);
+
+        // the restarted process (a new host on the same database) comes up Normal
+        await using (var restarted = NewHost())
+            Assert.Equal("{\"mode\":\"normal\",\"setupAvailable\":false}", await (await restarted.CreateClient().GetAsync("/api/setup/status")).Content.ReadAsStringAsync());
 
         var (exit3, _, err3) = await IssueViaCliAsync();
         Assert.Equal(SetupCommand.ExitAlreadyCompleted, exit3);
@@ -212,13 +234,19 @@ public class DeploymentSetupApiTests : IAsyncLifetime
         Assert.DoesNotContain(_logs.Entries, e => e.Message.Contains(token) || e.Message.Contains(stale) || e.Message.Contains("a-long-enough-password"));
     }
 
+    private static async Task WaitForAsync(Func<bool> condition)
+    {
+        for (var i = 0; i < 50 && !condition(); i++) await Task.Delay(100);
+        Assert.True(condition());
+    }
+
     [Fact]
     public async Task The_setup_route_is_rate_limited()
     {
         var client = _factory.CreateClient();
         var statuses = new List<HttpStatusCode>();
         for (var i = 0; i < 9; i++) statuses.Add((await SetupAsync(client, "wrong-" + i)).Status);
-        Assert.Equal(8, statuses.Count(s => s == HttpStatusCode.BadRequest));
+        Assert.True(statuses.Count(s => s == HttpStatusCode.BadRequest) == 8, "statuses: " + string.Join(",", statuses.Select(s => (int)s)));
         Assert.Equal(HttpStatusCode.TooManyRequests, statuses[^1]);
     }
 }

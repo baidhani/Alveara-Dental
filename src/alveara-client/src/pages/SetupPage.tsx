@@ -15,9 +15,13 @@ import "./LoginPage.css";
  * (a form field only - never read from or written to the URL) together with the Deployment Administrator's username and password. Every token
  * failure has the same message, whatever the cause. Once setup is complete the page says so and links to sign-in.
  */
-export function SetupPage() {
+/** ALV-N030 (brief 16.2b): after setup the server restarts; the page checks the status every 2 s until it is back in normal mode, and gives up after 120 s. */
+export const RESTART_POLL_MS = 2000;
+export const RESTART_GIVE_UP_MS = 120_000;
+
+export function SetupPage({ pollMs = RESTART_POLL_MS, giveUpMs = RESTART_GIVE_UP_MS }: { pollMs?: number; giveUpMs?: number } = {}) {
   const navigate = useNavigate();
-  const [status, setStatus] = useState<"loading" | "available" | "completed" | "error">("loading");
+  const [status, setStatus] = useState<"loading" | "available" | "completed" | "error" | "restarting" | "did-not-return">("loading");
   const [token, setToken] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -42,7 +46,8 @@ export function SetupPage() {
     setSubmitting(true);
     try {
       await completeSetup(token.trim(), username.trim(), password);
-      navigate("/login?setup=complete", { replace: true });
+      setStatus("restarting");
+      await waitForRestart();
     } catch (err) {
       if (err instanceof ApiError && err.code === "setup_failed") setError("The setup token is not valid. It may be wrong, expired or already used; ask for a new one from the installer.");
       else if (err instanceof ApiError && err.code === "password_too_short") setError(`Choose a password of at least ${MINIMUM_PASSWORD_LENGTH} characters.`);
@@ -54,9 +59,38 @@ export function SetupPage() {
     }
   }
 
+  /** The server stops and starts again in normal mode; while it is down every check fails, which is expected. */
+  async function waitForRestart() {
+    const deadline = Date.now() + giveUpMs;
+    while (Date.now() < deadline) {
+      await new Promise((resolve) => setTimeout(resolve, pollMs));
+      try {
+        const s = await getSetupStatus();
+        if (s && s.setupAvailable === false) {
+          navigate("/login?setup=complete", { replace: true });
+          return;
+        }
+      } catch (err) {
+        console.debug("The server is not answering yet while it restarts", err);
+      }
+    }
+    setStatus("did-not-return");
+  }
+
   if (status === "loading") return <LoadingState label="Checking this installation…" />;
 
-  if (status !== "available") {
+  if (status === "restarting" || status === "did-not-return") {
+    return (
+      <div className="alv-login">
+        <PageHeader title="First-run setup" description="Setup is complete." />
+        {status === "restarting"
+          ? <p role="status">Setup is complete. DentalKeep is restarting…</p>
+          : <p role="alert">DentalKeep did not come back. Check that the service is running.</p>}
+      </div>
+    );
+  }
+
+  if (status === "completed" || status === "error") {
     return (
       <div className="alv-login">
         <PageHeader

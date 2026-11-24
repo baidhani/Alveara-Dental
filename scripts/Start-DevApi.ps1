@@ -8,6 +8,8 @@
     StorageRoot / DataProtectionKeysPath / Backup__Root -> <root>\Dev-Data\Storage, Keys, Backup
     AuthAttemptRateLimit__PermitLimit -> 500 (so signing in as several users in a row is not locked out)
   Then runs dotnet run, which uses the launch profile: http://localhost:5072. Run Initialize-DevDatabase.ps1 first.
+  ALV-N030 (brief 16.2b): when the API exits with code 75 (first-run setup completed, restart requested) it is started again at once; any other exit code
+  stops the script, which exits with that code.
 #>
 [CmdletBinding()]
 param()
@@ -15,6 +17,7 @@ param()
 # The repository folder name contains [ ], which PowerShell treats as a wildcard: escape the path, and stop at once if the shared settings cannot load.
 $ErrorActionPreference = 'Stop'
 . ([WildcardPattern]::Escape("$PSScriptRoot\DevEnvironment.ps1"))
+. ([WildcardPattern]::Escape("$PSScriptRoot\RestartLoop.ps1"))
 
 if (Test-PortInUse 5072) { Stop-DevScript 'Port 5072 is already in use: an API is already running. Stop it (Ctrl+C in its terminal) and try again.' }
 
@@ -38,6 +41,12 @@ Push-Location -LiteralPath (Join-Path $RepoRoot 'src\Alveara.Api')
 try {
     # Windows PowerShell treats text a native command writes to its error stream (a build warning) as an error when errors stop the script; the exit code decides instead.
     $ErrorActionPreference = 'Continue'
-    & dotnet run
+    # ALV-N030: restarted only on exit code 75 (after first-run setup); the first start builds, a restart reuses that build
+    $code = Invoke-RestartOnRequest -Start {
+        param($attempt)
+        if ($attempt -eq 0) { & dotnet run | Out-Host } else { & dotnet run --no-build | Out-Host }
+        $LASTEXITCODE
+    }
 }
 finally { Pop-Location }
+exit $code

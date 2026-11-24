@@ -41,7 +41,11 @@ param(
     [ValidatePattern('^[A-Z][A-Z0-9_]*$')][string]$OutputVariable,
     [string]$OutputDir,
     [switch]$SkipBuild,
-    [ValidatePattern('^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$')][string]$InjectedClockUtc
+    [ValidatePattern('^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$')][string]$InjectedClockUtc,
+    # ALV-N030 (brief section 16): the state the database is in when the host starts. SetUp (default): migrated and marked as set up, as every walkthrough
+    # needs (Normal mode). Fresh: migrated, never set up (Setup mode: first-run setup). UpgradeRequired: the newest migration row removed (the API refuses).
+    # NotInstalled: the host is pointed at a database that does not exist. The spec reads it from E2E_DB_STATE.
+    [ValidateSet('SetUp', 'Fresh', 'UpgradeRequired', 'NotInstalled')][string]$DatabaseState = 'SetUp'
 )
 
 # The repository folder name contains [ ], which PowerShell treats as a wildcard: escape the path, and stop at once if the shared settings cannot load.
@@ -95,6 +99,15 @@ try {
     }
     finally { $ErrorActionPreference = 'Stop'; Pop-Location }
 
+    # ALV-N030 (brief section 16): the database state the walkthrough asked for (see -DatabaseState)
+    $hostConnection = $connection
+    switch ($DatabaseState) {
+        'SetUp' { Invoke-DevSql "IF NOT EXISTS (SELECT 1 FROM [BootstrapStates]) INSERT INTO [BootstrapStates] ([Id], [ConsumedAtUtc], [ConsumedForUsername]) VALUES ('00000000-0000-0000-0000-00000000b007', SYSDATETIMEOFFSET(), N'walkthrough-runner');" $Database | Out-Null }
+        'UpgradeRequired' { Invoke-DevSql "DELETE FROM [__EFMigrationsHistory] WHERE [MigrationId] = (SELECT MAX([MigrationId]) FROM [__EFMigrationsHistory]);" $Database | Out-Null }
+        'NotInstalled' { $hostConnection = "Server=$SqlServer;Database=${Database}_missing;Trusted_Connection=True;TrustServerCertificate=True" }
+    }
+    Write-Host "Database state: $DatabaseState"
+
     $dll = Join-Path $RepoRoot 'src\Alveara.Api.ChainHost\bin\Debug\net10.0\Alveara.Api.ChainHost.dll'   # ALV-N030: always the chain host (both clock modes)
     if (-not (Test-Path -LiteralPath $dll)) { throw "The built API was not found at $dll." }
 
@@ -110,7 +123,7 @@ try {
     $psi.EnvironmentVariables.Remove('ASPNETCORE_URLS')
     $psi.EnvironmentVariables['CHAIN_CLOCK_MODE'] = $(if ($injected) { 'injected' } else { 'real' })
     if ($injected) { $psi.EnvironmentVariables['CHAIN_CLOCK_UTC'] = $InjectedClockUtc }
-    $psi.EnvironmentVariables['ConnectionStrings__Alveara'] = $connection
+    $psi.EnvironmentVariables['ConnectionStrings__Alveara'] = $hostConnection
     $psi.EnvironmentVariables['AuthAttemptRateLimit__PermitLimit'] = '500'
     $psi.EnvironmentVariables['FollowUps__ReminderPollSeconds'] = '3'   # STORY-009: the follow-up reminder pass runs every 3 s here (60 s by default) so a walkthrough sees a reminder promptly
     $psi.EnvironmentVariables['FollowUps__WorkPollSeconds'] = '3'   # ALV-009-C01: the recall and unscheduled-treatment passes run every 3 s here (300 s by default)
@@ -119,14 +132,17 @@ try {
     $psi.EnvironmentVariables['Backup__Root'] = $runFolders[2]
     $psi.EnvironmentVariables['Pdf__EngineDirectory'] = $pdfEngineDir                       # ALV-N026 R04
     $psi.EnvironmentVariables['Pdf__FontDirectory'] = Join-Path $pdfEngineDir 'fonts'
-    $api = [System.Diagnostics.Process]::Start($psi)
-
-    $healthy = $false
-    for ($i = 0; $i -lt 40 -and -not $healthy; $i++) {
-        if ($api.HasExited) { throw "The API exited at start-up (exit code $($api.ExitCode))." }
-        try { $healthy = (Invoke-WebRequest "$chainUrl/api/health" -UseBasicParsing -TimeoutSec 3).StatusCode -eq 200 } catch { Start-Sleep -Seconds 2 }
+    # ALV-N030 (brief 16.2a): "answering" is any answer from the status route, which exists in every mode (outside Normal mode /api/health is refused with 503)
+    function Wait-ChainHostAnswering([System.Diagnostics.Process]$process) {
+        for ($i = 0; $i -lt 40; $i++) {
+            if ($process.HasExited) { throw "The API exited at start-up (exit code $($process.ExitCode))." }
+            try { [void](Invoke-WebRequest "$chainUrl/api/setup/status" -UseBasicParsing -TimeoutSec 3); return }
+            catch { if ($_.Exception.Response) { return } else { Start-Sleep -Seconds 2 } }
+        }
+        throw 'The API did not become healthy in time.'
     }
-    if (-not $healthy) { throw 'The API did not become healthy in time.' }
+    $api = [System.Diagnostics.Process]::Start($psi)
+    Wait-ChainHostAnswering $api
     # measured, never assumed (as in Invoke-AccumulatedChain.ps1): the chain host reports the clock it really uses
     $report = $null
     try {
@@ -148,18 +164,43 @@ try {
     $env:ALVERA_SQL_SERVER = $SqlServer
     $env:E2E_CLOCK_MODE = $(if ($injected) { 'injected' } else { 'real' })   # ALV-N021 A2: a spec that needs the injected "today" checks this and stops early otherwise
     $env:E2E_STORAGE_ROOT = $runFolders[0]   # the API's storage folder, so a spec can place and check real files on disk (the bulk-import sweep spec does)
+    $env:E2E_DB_STATE = $DatabaseState       # ALV-N030: the database state this run started from
     if ($OutputVariable) { Set-Item -Path "Env:$OutputVariable" -Value $OutputDir }
     Push-Location -LiteralPath $clientDir
     try {
         $ErrorActionPreference = 'Continue'
-        & npx playwright test "--config=$Config"
-        $exitCode = $LASTEXITCODE
+        # ALV-N030 (brief 16.2b): the walkthrough runs as a watched process. When the chain host exits with 75 (first-run setup completed, restart requested) it is
+        # started again on the same address and database, as a production supervisor would; any other exit of the host during the run fails the run.
+        $pwInfo = New-Object System.Diagnostics.ProcessStartInfo
+        $pwInfo.FileName = 'cmd.exe'
+        $pwInfo.Arguments = "/c npx playwright test --config=$Config"
+        $pwInfo.WorkingDirectory = $clientDir
+        $pwInfo.UseShellExecute = $false
+        $walk = [System.Diagnostics.Process]::Start($pwInfo)
+        $restarts = 0
+        $hostFailed = $false
+        while (-not $walk.WaitForExit(500)) {
+            if (-not $api.HasExited -or $hostFailed) { continue }
+            if ($api.ExitCode -eq 75 -and $restarts -lt 3) {
+                $restarts++
+                Write-Host "The chain host asked to be restarted (exit code 75); starting it again ($restarts)."
+                $api = [System.Diagnostics.Process]::Start($psi)
+                Wait-ChainHostAnswering $api
+            }
+            else {
+                Write-Warning "The chain host exited during the walkthrough with code $($api.ExitCode); the run fails."
+                $hostFailed = $true
+            }
+        }
+        $exitCode = $walk.ExitCode
+        if ($hostFailed -and $exitCode -eq 0) { $exitCode = 1 }
+        if ($restarts -gt 0) { Write-Host "Chain host restarts on exit code 75: $restarts" }
     }
     finally { $ErrorActionPreference = 'Stop'; Pop-Location }
 }
 finally {
     $ErrorActionPreference = 'Continue'
-    Remove-Item Env:E2E_DB_NAME, Env:E2E_STORAGE_ROOT, Env:E2E_CLOCK_MODE -ErrorAction SilentlyContinue
+    Remove-Item Env:E2E_DB_NAME, Env:E2E_STORAGE_ROOT, Env:E2E_CLOCK_MODE, Env:E2E_DB_STATE -ErrorAction SilentlyContinue
     if ($OutputVariable) { Remove-Item "Env:$OutputVariable" -ErrorAction SilentlyContinue }
     if ($api -and -not $api.HasExited) {
         try { Stop-Process -Id $api.Id -Force } catch { Write-Warning "Could not stop the API process $($api.Id): $_" }

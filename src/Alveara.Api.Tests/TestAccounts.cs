@@ -33,8 +33,10 @@ public static class TestAccounts
         {
             Id = Guid.NewGuid(), Username = username, PasswordHash = Pbkdf2PasswordHasher.Hash(password), Role = Role.Admin, IsDisabled = false, CreatedAtUtc = DateTimeOffset.UtcNow,
         };
-        var first = !await db.BootstrapStates.AnyAsync(ct);
-        if (first) db.BootstrapStates.Add(new BootstrapState { ConsumedAtUtc = DateTimeOffset.UtcNow, ConsumedForUsername = username });
+        // ALV-N030 slice 7: every test database already carries the setup-completed mark (TestDatabaseFixture), so "first" means: no sign-in presentation
+        // administrator has been staged yet, as the old bootstrap staged one for the first administrator only.
+        var first = !await db.AccountPermissionGrants.AnyAsync(g => g.Permission == nameof(AccountPermission.ManageLoginPresentation), ct);
+        if (!await db.BootstrapStates.AnyAsync(ct)) db.BootstrapStates.Add(new BootstrapState { ConsumedAtUtc = DateTimeOffset.UtcNow, ConsumedForUsername = username });
         db.UserAccounts.Add(account);
         AuditService.Record(db, AuditEventTypes.AccountRegistered, "UserAccount", account.Id, null, $"Test fixture: administrator '{username}' created.");
         if (first) AccountPermissionService.StageBootstrapHolder(db, account.Id, username);
@@ -63,7 +65,7 @@ public static class TestAccounts
     public static Task<HttpResponseMessage> SeedFirstAdminResponseAsync(WebApplicationFactory<Program> factory, string username, string password) =>
         RespondAsync(factory, db => SeedFirstAdminAsync(db, username, password), async (db, account) =>
         {
-            var presentation = await db.BootstrapStates.AnyAsync(b => b.ConsumedForUsername == account.Username);
+            var presentation = await db.AccountPermissionGrants.AnyAsync(g => g.UserAccountId == account.Id && g.Permission == nameof(AccountPermission.ManageLoginPresentation));
             return presentation
                 ? new { id = account.Id, username = account.Username, role = account.Role.ToString(), presentationAdministrator = true, notice = PresentationAdministratorNotice }
                 : (object)new { id = account.Id, username = account.Username, role = account.Role.ToString(), presentationAdministrator = false };

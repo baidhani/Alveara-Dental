@@ -8,12 +8,16 @@ import { createAccount } from "./support/testAccounts";
 // ALV-N030 S14 (brief section 11; client slice 6): the account bootstrap in a real browser against the real application (ChainHost under Test, started by
 // scripts/Invoke-RealBackendWalkthrough.ps1 on a fresh AlveraWalk_* database). The setup token comes from the product's own installer command
 // (`Alveara.Api setup issue-token`) run against this walkthrough's database - never from a fixture - and is typed into the setup page; it never appears in a URL.
+// ALV-N030 slice 7: the spec is run twice by the runner's -DatabaseState (E2E_DB_STATE). Fresh: a never-set-up database (Setup mode) - setup, the controlled
+// restart (the runner restarts the chain host on exit code 75), the owner added by the Deployment Administrator, the forced change. SetUp (default): an
+// upgraded practice - an administrator designates the Practice Owner through the transition notice.
 
 test.describe.configure({ mode: "serial" });
 
 const PASSWORD = "Walkthrough-Pass-1!";
 const DEPLOY = { username: "deploy-admin", password: "Deployment-Admin-Pass-1" };
 const stamp = Date.now();
+const state = process.env.E2E_DB_STATE ?? "SetUp";
 const upgradeAdmin = `upgrade-admin-${stamp}`;
 const owner = { displayName: `Dr Owner ${stamp}`, username: `dr-owner-${stamp}` };
 
@@ -66,16 +70,32 @@ test.afterAll(async () => {
   await deployContext.close();
 });
 
-test("S14-a an administrator of an upgraded practice sees the Practice Owner transition notice", async () => {
+test("S14-a an administrator of an upgraded practice designates the Practice Owner through the transition notice", async () => {
+  test.skip(state !== "SetUp", "the upgraded-practice case runs on a set-up database");
   // an existing administrator with no Deployment Administrator and no owner: the state an upgraded installation is in
   expect((await createAccount(admin.request, { username: upgradeAdmin, password: PASSWORD, role: "Admin", withStaffProfile: true })).ok()).toBeTruthy();
+  const ownerName = `upgrade-owner-${stamp}`;
+  expect((await createAccount(admin.request, { username: ownerName, password: PASSWORD, role: "Dentist", withStaffProfile: true })).ok()).toBeTruthy();
   await signIn(admin, upgradeAdmin, PASSWORD);
   await expect(admin.getByRole("heading", { name: "Dashboard" })).toBeVisible();
-  await expect(admin.getByRole("button", { name: "Designate the Practice Owner" })).toBeVisible();
+  await admin.getByRole("button", { name: "Designate the Practice Owner" }).click();
   await shot(admin, "01-upgrade-notice.png");
+  const select = admin.getByRole("combobox", { name: "Practice Owner" });
+  await select.selectOption({ label: ownerName });
+  await expect(admin.getByRole("button", { name: "Designate", exact: true })).toBeDisabled();     // the confirmation comes first
+  await admin.getByLabel(/I confirm this person is the Practice Owner/).check();
+  await admin.getByRole("button", { name: "Designate", exact: true }).click();
+  await expect(admin.getByRole("region", { name: "Practice Owner" })).toHaveCount(0);                // an owner exists now: the whole notice is gone
+  const current = await (await admin.request.get("/api/practice-owner")).json();
+  expect(current.owner?.displayName).toBe(ownerName);
+  await admin.goto("/admin/users");
+  await expect(admin.getByRole("row").filter({ hasText: ownerName })).toContainText("Practice Owner");
+  await shot(admin, "01b-owner-designated.png");
 });
 
-test("S14-b first-run setup: the installer's token on the setup page creates the Deployment Administrator, then sign-in", async () => {
+test("S14-b first-run setup: the installer's token on the setup page creates the Deployment Administrator, the server restarts, then sign-in", async () => {
+  test.skip(state !== "Fresh", "first-run setup runs on a never-set-up database");
+  test.setTimeout(150_000);                                                                       // includes the controlled restart
   const token = issueSetupToken();
   await deploy.goto("/setup");
   await expect(deploy.getByRole("heading", { name: "First-run setup" })).toBeVisible();
@@ -85,7 +105,9 @@ test("S14-b first-run setup: the installer's token on the setup page creates the
   await deploy.getByLabel("Confirm the password").fill(DEPLOY.password);
   await shot(deploy, "02-setup-page.png");
   await deploy.getByRole("button", { name: "Create the Deployment Administrator" }).click();
-  await expect(deploy).toHaveURL(/\/login\?setup=complete$/);
+  await expect(deploy.getByText("Setup is complete. DentalKeep is restarting…")).toBeVisible();
+  await shot(deploy, "02b-restarting.png");
+  await expect(deploy).toHaveURL(/\/login\?setup=complete$/, { timeout: 90_000 });            // the runner restarts the host on exit code 75; the page waits for Normal mode
   expect(deploy.url()).not.toContain(token);
   await expect(deploy.getByText("Setup is complete.")).toBeVisible();
 
@@ -96,6 +118,7 @@ test("S14-b first-run setup: the installer's token on the setup page creates the
 });
 
 test("S14-c the setup page refuses once setup is complete", async () => {
+  test.skip(state !== "Fresh", "runs after first-run setup");
   const page = await (await browserRef.newContext()).newPage();
   await page.goto("/setup");
   await expect(page.getByText("This installation has already been set up.")).toBeVisible();
@@ -104,6 +127,7 @@ test("S14-c the setup page refuses once setup is complete", async () => {
 });
 
 test("S14-d the Deployment Administrator adds the Practice Owner as a staff member and gets a temporary password once", async () => {
+  test.skip(state !== "Fresh", "runs after first-run setup");
   await deploy.goto("/admin/configuration");
   await deploy.getByRole("tab", { name: "Staff" }).click();
   await deploy.getByRole("button", { name: "Add staff member" }).click();
@@ -135,6 +159,7 @@ test("S14-d the Deployment Administrator adds the Practice Owner as a staff memb
 });
 
 test("S14-e the new staff member's first sign-in requires choosing a password, then the app opens", async () => {
+  test.skip(state !== "Fresh", "runs after first-run setup");
   const context = await browserRef.newContext();
   const page = await context.newPage();
   try {
@@ -153,10 +178,4 @@ test("S14-e the new staff member's first sign-in requires choosing a password, t
   } finally {
     await context.close();
   }
-});
-
-test("S14-f the transition notice is gone for the upgraded practice's administrator once an owner exists", async () => {
-  await admin.goto("/");
-  await expect(admin.getByRole("heading", { name: "Dashboard" })).toBeVisible();
-  await expect(admin.getByRole("button", { name: "Designate the Practice Owner" })).toHaveCount(0);
 });
