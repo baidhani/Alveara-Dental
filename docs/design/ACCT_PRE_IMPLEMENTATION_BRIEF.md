@@ -1,6 +1,6 @@
 # ACCT: accounts, Deployment Administrator and Practice Owner. Pre-implementation brief
 
-- **Status:** **APPROVED FOR IMPLEMENTATION.** Sections 1 to 15 were approved at R04 (`.alveara/reviews/ACCT/BRIEFING-R04.md`, after R01 to R03). The section 16 addendum was approved at R06 (`.alveara/reviews/ACCT/BRIEFING-R06.md`, after R05). Boundary: database creation, SQL snapshot settings, applying migrations, a production service wrapper and update distribution stay with ALV-N013; the production automatic-restart proof is ALV-N013's dependency proof, not an ALV-N030 acceptance item. Revision history follows.
+- **Status:** **APPROVED FOR IMPLEMENTATION.** Sections 1 to 15 were approved at R04 (`.alveara/reviews/ACCT/BRIEFING-R04.md`, after R01 to R03). The section 16 addendum was approved at R06 (`.alveara/reviews/ACCT/BRIEFING-R06.md`, after R05). The section 17 addendum was approved at R07 (`.alveara/reviews/ACCT/BRIEFING-R07.md`); it supersedes section 8's hosting. **The approved briefing set is R04 + R06 + R07.** Boundary: database creation, SQL snapshot settings, applying migrations, a production service wrapper and update distribution stay with ALV-N013; the production automatic-restart proof is ALV-N013's dependency proof, not an ALV-N030 acceptance item. Revision history follows.
 - **R04 changes (CR-6):**
   - the audit event `DeploymentAdministratorAssigned` is limited to the migration's single-candidate conversion; the superseded "administrator pick" wording is removed;
   - slice 5, the matrix and the evidence all use guards G1 to G8.
@@ -17,7 +17,7 @@
 - **R06 (after `BRIEFING-R05.md`, CHANGES_REQUIRED):**
   - **CR-7:** section 16.2a sets the behaviour of the client files and the status route in every mode;
   - **CR-8:** the restart is an exit-code mechanism with a defined handoff to the supervisor (16.2b), proven by S20 and S22, with the production proof assigned to ALV-N013 (16.5).
-- **R07 addendum (2026-11-24, owner-requested, slice 5 finding):** section 17 replaces section 8's hosting with test support on the existing `Alveara.Api.ChainHost`: no product start-up split and no second test executable, under the owner's seven boundaries. It also retargets guards G1 to G8, the harness migration and the TestHost wording in sections 12 and 16; everything else stands. **Slice 5 waits for review of section 17.**
+- **R07 addendum (2026-11-24, owner-requested, slice 5 finding):** section 17 replaces section 8's hosting with test support on the existing `Alveara.Api.ChainHost`: no product start-up split and no second test executable, under the owner's seven boundaries. It also retargets guards G1 to G8, the harness migration and the TestHost wording in sections 12 and 16; everything else stands. **Approved at R07** (`.alveara/reviews/ACCT/BRIEFING-R07.md`, APPROVED_FOR_IMPLEMENTATION).
 - **Story id:** **ALV-N030** (owner, 2026-11-24; plan item 63a; working name ACCT). **Approved for implementation:** `.alveara/reviews/ACCT/BRIEFING-R04.md`.
 - **Session:** CC-20261123-q4vn, 2026-11-23.
 - **Surveyed tree:** `d459025` (read-only).

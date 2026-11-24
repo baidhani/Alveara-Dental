@@ -3640,3 +3640,10 @@
   - What changed: ACCT brief section 17 replaces section 8's TestHost/startup-split design with Alveara.Api.TestSupport on the existing ChainHost (PD-32 kept), under the owner's seven boundaries; explicit CHAIN_CLOCK_MODE; guards G1-G8 retargeted; harness migration recounted (49/48/33 spec files); slice 5 split into 5a/5b/5c
   - Verification: documents only; awaiting review of section 17 before slice 5 code
   - Notes: slice 5 finding - runners already use ChainHost; the product's only environment-dependent settings are cookie SecurePolicy and OpenAPI (Program.cs:315, :428)
+
+- [x] ALV-N030 brief R07 approval recorded (documents and control only)
+  - Date: 2026-11-24
+  - Session: CC-20261123-q4vn
+  - What changed: review BRIEFING-R07 (APPROVED_FOR_IMPLEMENTATION) stored; brief status names R04 + R06 + R07 as the approved set; EXECUTION_STATUS ALV-N030 briefing -> R07
+  - Verification: documents only; JSON parses
+  - Notes: review requirements - no second TestHost or startup split; owner approval before 5c walkthroughs; handoff separates R07 ChainHost evidence from ALV-N013's installer proof
