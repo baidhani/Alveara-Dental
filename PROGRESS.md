@@ -3535,3 +3535,10 @@
   - What changed: docs/stabilization/UNASSIGNED_FINDINGS.md U-023..U-032 (U-023 is an ALV-N026 gap: unchecked missing file Download opens raw JSON)
   - Verification: documents only; each finding checked against the code
   - Notes: not pushed; fixes wait for the owner to assign them
+
+- [x] Record the owner walkthrough decisions and findings U-033..U-035
+  - Date: 2026-11-23
+  - Session: CC-20261123-q4vn
+  - What changed: UNASSIGNED_FINDINGS.md U-027/U-030 decided, U-032 direction recorded, U-033..U-035 added
+  - Verification: documents only
+  - Notes: not pushed
