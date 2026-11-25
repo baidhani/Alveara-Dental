@@ -677,6 +677,32 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
         return true;
     }
 
+    /// <summary>
+    /// ALV-N030-C01 (brief 18.6, owner Q6): console recovery's reset of the Deployment Administrator, inside the CALLER's transaction. New password (no forced
+    /// change), enabled, lockout cleared, MFA turned off (secret and pending secret cleared, every recovery code removed), security stamp rotated and every open
+    /// session closed. Kept here because only this service writes an account's enabled state. Returns how many recovery codes were removed and whether MFA was on.
+    /// </summary>
+    internal async Task<(int RecoveryCodesRevoked, bool MfaTurnedOff)> ResetForRecoveryInTransactionAsync(Guid accountId, string newPassword, CancellationToken cancellationToken)
+    {
+        if (db.Database.CurrentTransaction is null) throw new InvalidOperationException("The recovery reset must run inside the recovery's transaction.");
+        await AdminAvailabilityGuard.AcquireAsync(db, cancellationToken);
+        var account = await LoadLockedAsync(accountId, cancellationToken);
+        var mfaWasOn = account.MfaEnabled || account.MfaSecretProtected is not null || account.PendingMfaSecretProtected is not null;
+        account.PasswordHash = Pbkdf2PasswordHasher.Hash(newPassword);
+        account.IsDisabled = false;
+        account.FailedLoginAttempts = 0;
+        account.LockedOutUntilUtc = null;
+        account.MustChangePassword = false;
+        account.MfaEnabled = false;
+        account.MfaSecretProtected = null;
+        account.PendingMfaSecretProtected = null;
+        BumpSecurityStamp(account);
+        var revoked = await db.MfaRecoveryCodes.Where(c => c.UserAccountId == accountId).ExecuteDeleteAsync(cancellationToken);
+        await AuditSessionStore.RevokeOpenAsync(db, account.Id, null, DateTimeOffset.UtcNow, cancellationToken);
+        await db.SaveChangesAsync(cancellationToken);
+        return (revoked, mfaWasOn);
+    }
+
     private const int MinSessionTimeoutMinutes = 5;
     private const int MaxSessionTimeoutMinutes = 1440; // 24 hours
 

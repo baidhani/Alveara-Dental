@@ -20,6 +20,16 @@ public class SetupToken
     public DateTimeOffset? VoidedAtUtc { get; set; }
 
     public int FailedAttempts { get; set; }
+
+    /// <summary>ALV-N030-C01 (brief 18.6): what the token is for. Existing rows are first-run setup tokens (0). Setup and recovery tokens never void or count against each other.</summary>
+    public SetupTokenPurpose Purpose { get; set; }
+}
+
+/// <summary>ALV-N030-C01: the two kinds of console-issued one-time token. Stored as its number; values are append-only.</summary>
+public enum SetupTokenPurpose
+{
+    Setup = 0,
+    Recovery = 1,
 }
 
 /// <summary>How a Practice Owner designation was made. Stored as a string; values are append-only.</summary>

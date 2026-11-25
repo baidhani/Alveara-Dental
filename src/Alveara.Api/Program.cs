@@ -243,6 +243,7 @@ builder.Services.AddHostedService<BackgroundJobHostedService>();
 // no sense for a JSON API, so both are overridden to return plain status codes instead.
 builder.Services.AddScoped<AccountService>();
 builder.Services.AddScoped<DeploymentSetupService>();   // ALV-N030: first-run setup (token CLI and setup route)
+builder.Services.AddScoped<DeploymentRecoveryService>();   // ALV-N030-C01 (brief 18.6): Deployment Administrator recovery (token CLI and recovery route)
 builder.Services.AddScoped<StaffMemberService>();      // ALV-N030: Add staff member and legacy login
 builder.Services.AddScoped<PracticeOwnerService>();    // ALV-N030: the Practice Owner designation
 builder.Services.AddScoped<PracticeOwnerTransferService>();    // ALV-N030-C01 (brief 18.5): ownership transfer
@@ -432,6 +433,13 @@ app.Logger.LogInformation("startup_mode {Mode} {PendingMigrations}", startupMode
 if (SetupCommand.Matches(args))
 {
     Environment.ExitCode = await SetupCommand.RunAsync(app.Services, Console.Out, Console.Error, builder.Configuration["SetupPageUrl"] ?? "http://localhost:5173/setup");
+    return;
+}
+
+// ALV-N030-C01 (brief 18.6): the installer's command `recovery issue-token` issues a Deployment Administrator recovery token, prints it to the console only and exits.
+if (RecoveryCommand.Matches(args))
+{
+    Environment.ExitCode = await RecoveryCommand.RunAsync(app.Services, Console.Out, Console.Error, builder.Configuration["RecoveryPageUrl"] ?? "http://localhost:5173/recovery");
     return;
 }
 

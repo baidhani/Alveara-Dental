@@ -54,7 +54,7 @@ public class DeploymentSetupService(AlveraDbContext db, IPracticeClock clock)
         var token = Convert.ToHexString(RandomNumberGenerator.GetBytes(32)).ToLowerInvariant();
         var now = clock.UtcNow;
         await using var tx = await db.Database.BeginTransactionAsync(ct);
-        await db.SetupTokens.Where(t => t.ConsumedAtUtc == null && t.VoidedAtUtc == null)
+        await db.SetupTokens.Where(t => t.Purpose == SetupTokenPurpose.Setup && t.ConsumedAtUtc == null && t.VoidedAtUtc == null)
             .ExecuteUpdateAsync(s => s.SetProperty(t => t.VoidedAtUtc, now), ct);
         var row = new SetupToken { Id = Guid.NewGuid(), TokenHash = Hash(token), IssuedAtUtc = now, ExpiresAtUtc = now + TokenLifetime };
         db.SetupTokens.Add(row);
@@ -70,10 +70,10 @@ public class DeploymentSetupService(AlveraDbContext db, IPracticeClock clock)
         var now = clock.UtcNow;
         var hash = Hash(token ?? string.Empty);
         var row = string.IsNullOrEmpty(token) ? null
-            : await db.SetupTokens.SingleOrDefaultAsync(t => t.TokenHash == hash, ct);
+            : await db.SetupTokens.SingleOrDefaultAsync(t => t.TokenHash == hash && t.Purpose == SetupTokenPurpose.Setup, ct);
         if (row is null || row.ConsumedAtUtc is not null || row.VoidedAtUtc is not null || now >= row.ExpiresAtUtc)
         {
-            await CountFailureAsync(now, ct);
+            await CountFailureAsync(db, SetupTokenPurpose.Setup, now, ct);
             throw new SetupFailedException();
         }
 
@@ -119,7 +119,8 @@ public class DeploymentSetupService(AlveraDbContext db, IPracticeClock clock)
     /// OUTPUT - so concurrent failures are serialized by the row's update lock and none is lost. Only the statement that reaches the limit writes the audit row,
     /// in the same transaction. A voided token no longer matches, so later failures neither count nor add rows. Nothing about the attempt itself is recorded.
     /// </summary>
-    private async Task CountFailureAsync(DateTimeOffset now, CancellationToken ct)
+    /// <remarks>ALV-N030-C01: shared by recovery (brief 18.6); each purpose counts only against its own newest usable token.</remarks>
+    internal static async Task CountFailureAsync(AlveraDbContext db, SetupTokenPurpose purpose, DateTimeOffset now, CancellationToken ct)
     {
         await using var tx = await db.Database.BeginTransactionAsync(ct);
         var connection = db.Database.GetDbConnection();
@@ -133,10 +134,11 @@ public class DeploymentSetupService(AlveraDbContext db, IPracticeClock clock)
                 "t.[VoidedAtUtc] = CASE WHEN t.[FailedAttempts] + 1 >= @max THEN @now ELSE t.[VoidedAtUtc] END " +
                 "OUTPUT inserted.[Id], inserted.[FailedAttempts] " +
                 "FROM [SetupTokens] AS t " +
-                "WHERE t.[Id] = (SELECT TOP (1) [Id] FROM [SetupTokens] WITH (UPDLOCK) WHERE [ConsumedAtUtc] IS NULL AND [VoidedAtUtc] IS NULL ORDER BY [IssuedAtUtc] DESC) " +
+                "WHERE t.[Id] = (SELECT TOP (1) [Id] FROM [SetupTokens] WITH (UPDLOCK) WHERE [Purpose] = @purpose AND [ConsumedAtUtc] IS NULL AND [VoidedAtUtc] IS NULL ORDER BY [IssuedAtUtc] DESC) " +
                 "AND t.[ConsumedAtUtc] IS NULL AND t.[VoidedAtUtc] IS NULL;";
             command.Parameters.Add(new SqlParameter("@max", System.Data.SqlDbType.Int) { Value = MaxFailedAttempts });
             command.Parameters.Add(new SqlParameter("@now", System.Data.SqlDbType.DateTimeOffset) { Value = now });
+            command.Parameters.Add(new SqlParameter("@purpose", System.Data.SqlDbType.Int) { Value = (int)purpose });
             await using var reader = await command.ExecuteReaderAsync(ct);
             if (await reader.ReadAsync(ct))
             {
@@ -146,8 +148,10 @@ public class DeploymentSetupService(AlveraDbContext db, IPracticeClock clock)
         }
         if (tokenId is { } id && attempts == MaxFailedAttempts)
         {
-            AuditService.Record(db, AuditEventTypes.SetupTokenRejected, entityType: "SetupToken", id, null,
-                $"The first-run setup token was voided after {MaxFailedAttempts} failed attempts.");
+            AuditService.Record(db, purpose == SetupTokenPurpose.Setup ? AuditEventTypes.SetupTokenRejected : AuditEventTypes.RecoveryTokenRejected, entityType: "SetupToken", id, null,
+                purpose == SetupTokenPurpose.Setup
+                    ? $"The first-run setup token was voided after {MaxFailedAttempts} failed attempts."
+                    : $"The recovery token was voided after {MaxFailedAttempts} failed attempts.");
             await db.SaveChangesAsync(ct);
         }
         await tx.CommitAsync(ct);

@@ -250,7 +250,9 @@ public sealed class DeploymentGuardMiddleware(RequestDelegate next, DeploymentIn
 {
     // ALV-N030 (brief section 16): first-run setup and the mode report are exempt too. They run in Setup mode, where no background service (the invariant
     // monitor included) is registered, and they read or write nothing whose meaning depends on the deployment settings.
-    private static readonly string[] Allowed = ["/api/health", "/api/systemstatus", "/api/auth", "/api/backup", "/api/setup"];
+    // ALV-N030-C01 (brief 18.6): Deployment Administrator recovery is an operator repair tool, like sign-in and backup; it reads and writes only the
+    // Deployment Administrator's account and its own token, nothing whose meaning depends on the deployment settings.
+    private static readonly string[] Allowed = ["/api/health", "/api/systemstatus", "/api/auth", "/api/backup", "/api/setup", "/api/recovery"];
     private static readonly TimeSpan EarlyVerificationTimeout = TimeSpan.FromSeconds(5);
 
     public async Task InvokeAsync(HttpContext context)

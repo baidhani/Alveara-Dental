@@ -165,6 +165,9 @@ public static class AuditEventTypes
     // ALV-N030: first-run setup, staff-member creation, forced password change and the Practice Owner. Never a token, a password or a username tried.
     public const string SetupTokenIssued = "SetupTokenIssued";
     public const string SetupTokenRejected = "SetupTokenRejected";
+    public const string RecoveryTokenIssued = "RecoveryTokenIssued";                         // ALV-N030-C01 (brief 18.6): expiry only, never the token
+    public const string RecoveryTokenRejected = "RecoveryTokenRejected";                     // the fifth failure voided a recovery token
+    public const string DeploymentAdministratorRecovered = "DeploymentAdministratorRecovered";   // ids only; never the token, the username tried or the password
     public const string DeploymentAdministratorCreated = "DeploymentAdministratorCreated";
     public const string DeploymentAdministratorAssigned = "DeploymentAdministratorAssigned";   // written only by the upgrade migration (exactly one profile-less Administrator)
     public const string StaffMemberCreated = "StaffMemberCreated";

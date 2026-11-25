@@ -4593,6 +4593,9 @@ namespace Alveara.Api.Migrations
                     b.Property<DateTimeOffset>("IssuedAtUtc")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<int>("Purpose")
+                        .HasColumnType("int");
+
                     b.Property<string>("TokenHash")
                         .IsRequired()
                         .HasMaxLength(64)
