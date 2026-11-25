@@ -1,6 +1,6 @@
 # ACCT: accounts, Deployment Administrator and Practice Owner. Pre-implementation brief
 
-- **Status:** **APPROVED FOR IMPLEMENTATION.** Sections 1 to 15 were approved at R04 (`.alveara/reviews/ACCT/BRIEFING-R04.md`, after R01 to R03). The section 16 addendum was approved at R06 (`.alveara/reviews/ACCT/BRIEFING-R06.md`, after R05). The section 17 addendum was approved at R07 (`.alveara/reviews/ACCT/BRIEFING-R07.md`); it supersedes section 8's hosting. **The approved briefing set is R04 + R06 + R07.** **Section 18 (R08 addendum, 2026-11-25): ALV-N030-C01 - the Practice Owner authorization invariant (U-049), ownership transfer and Deployment Administrator recovery; a security correction - AWAITING INDEPENDENT REVIEW; no code before approval. Owner execution order: C01, then ALV-N030-C02 (MFA QR enrolment, then Deployment Administrator MFA enforcement), both before ALV-N027.** Boundary: database creation, SQL snapshot settings, applying migrations, a production service wrapper and update distribution stay with ALV-N013; the production automatic-restart proof is ALV-N013's dependency proof, not an ALV-N030 acceptance item. Revision history follows.
+- **Status:** **APPROVED FOR IMPLEMENTATION.** Sections 1 to 15 were approved at R04 (`.alveara/reviews/ACCT/BRIEFING-R04.md`, after R01 to R03). The section 16 addendum was approved at R06 (`.alveara/reviews/ACCT/BRIEFING-R06.md`, after R05). The section 17 addendum was approved at R07 (`.alveara/reviews/ACCT/BRIEFING-R07.md`); it supersedes section 8's hosting. **The approved briefing set is R04 + R06 + R07.** **Section 18 (R08 addendum, 2026-11-25): ALV-N030-C01 - the Practice Owner authorization invariant (U-049), ownership transfer and Deployment Administrator recovery; a security correction - R08 CHANGES_REQUIRED (`.alveara/reviews/ACCT/BRIEFING-R08.md`); **R09 revision AWAITING INDEPENDENT REVIEW**; no code before approval. Owner execution order: C01, then ALV-N030-C02 (MFA QR enrolment, then Deployment Administrator MFA enforcement), both before ALV-N027.** Boundary: database creation, SQL snapshot settings, applying migrations, a production service wrapper and update distribution stay with ALV-N013; the production automatic-restart proof is ALV-N013's dependency proof, not an ALV-N030 acceptance item. Revision history follows.
 - **R04 changes (CR-6):**
   - the audit event `DeploymentAdministratorAssigned` is limited to the migration's single-candidate conversion; the superseded "administrator pick" wording is removed;
   - slice 5, the matrix and the evidence all use guards G1 to G8.
@@ -484,6 +484,12 @@ The owner ruled that this is a **security/authorization defect**: the Practice O
 
 **Surveyed tree:** `d7b8f9b` (read-only). This text replaces the first R08 draft of section 18 (same commit series, never reviewed).
 
+**R09 changes** (review `.alveara/reviews/ACCT/BRIEFING-R08.md`, CHANGES_REQUIRED; its "Decisions confirmed" stand unchanged):
+- **R08-1:** the initial designation now requires the **acting** account to have role `Admin` (18.3 E1a, S11b).
+- **R08-2:** the checkout rule admits `Admin` **alongside** Dentist and Hygienist, always with the active booked-provider link; other roles stay refused (18.9, S29).
+- **R08-3:** the migration audit row has a deterministic id and an exact `NOT EXISTS` predicate (18.7, S30).
+- **R08-4:** no owner walkthrough is required for C01. Acceptance is focused automated tests. The C02 targeted real-authenticator walkthrough stays required before enforcement (18.6a, 18.11, 18.13).
+
 ### 18.1 Owner decisions (2026-11-25), as stated
 **U-049, option (b):**
 1. The initial Practice Owner must have the **Administrator** account role. This is the permanent authorization model, not a temporary measure pending the setup wizard.
@@ -562,6 +568,7 @@ Everything else stands.
 | # | Path | Current behaviour (`d7b8f9b`) | Rule in C01 |
 |---|---|---|---|
 | E1 | `PracticeOwnerService.DesignateInitialAsync` (existing staff) | checks active, linked, enabled, kind `Staff`; any role | adds role `Admin`; otherwise 409 **`owner_must_be_administrator`**. The target account is read with `UPDLOCK` inside the existing serializable transaction, so a concurrent role change waits. |
+| E1a | **Actor** of `POST /api/practice-owner/initial` (R08-1) | the route requires the `ManageUsers` permission only, which a non-Administrator can hold through the matrix or an override | the acting account must itself have role **`Admin`**, be enabled, and (as today) hold `ManageUsers`. This covers the Deployment Administrator and ordinary Administrators. Anyone else → 403 **`owner_designation_requires_administrator`**, refused **before** the transaction opens, audited through `RecordRefusalAsync`, nothing written. The check reads the actor's stored role, not the session claim, so a role change since sign-in is honoured. 18.4's single call already needs an Administrator actor (creating an Admin login, E2). |
 | E2 | `StaffMemberService.CreateAsync` with `practiceOwner: true` (18.4) | n/a | role must be `Admin`, else 400 **`owner_must_be_administrator`** before anything is written. Creating an Administrator login is already limited to Administrators (403 `target_is_admin`). |
 | E3 | `AccountService.ChangeRoleAsync` | any change; last-admin guard only | changing the **current owner's** account away from `Admin` → 409 **`owner_transfer_required`**, refusal audited, nothing changes |
 | E4 | `StaffInactivationService.InactivateAsync` and `StaffProviderService.SetStaffActiveAsync` | the owner's profile can be inactivated (the first also disables the login) | inactivating the **owner's** profile → 409 **`owner_transfer_required`**, refusal audited, nothing changes. Unlink needs an inactive profile, so it is unreachable for the owner (S27 pins it). |
@@ -669,7 +676,7 @@ Everything else stands.
 - **Dev:** `scripts/New-DevRecoveryToken.ps1` (dev stand-in, like `New-DevAdmin.ps1`).
 
 ### 18.6a MFA enrolment enforcement: moved to ALV-N030-C02 (owner, 2026-11-25)
-C01 adds **no** mandatory MFA enrolment, no `MustEnrollMfa` column and no enrolment gate. Mandatory enrolment for newly created or recovered Deployment Administrators is **ALV-N030-C02 Stage 2**. It is activated only after C02 Stage 1 (local QR provisioning, manual-key fallback, Copy control) is proven: the QR is shown to contain a valid `otpauth://` payload and to enrol an authenticator. C02 has its own brief and review. C01 must leave nothing that C02 has to undo: recovery's MFA reset (18.6) is written so that C02 can add "and require enrolment" in the same transaction.
+C01 adds **no** mandatory MFA enrolment, no `MustEnrollMfa` column and no enrolment gate. Mandatory enrolment for newly created or recovered Deployment Administrators is **ALV-N030-C02 Stage 2**. It is activated only after C02 Stage 1 (local QR provisioning, manual-key fallback, Copy control) is proven: the QR is shown to contain a valid `otpauth://` payload and to enrol an authenticator. C02 has its own brief and review. **Required C02 gate (R08-4):** after Stage 1's implementation and automated tests pass, a short targeted walkthrough with a real authenticator app, scanning the QR and completing enrolment, must pass before Stage 2's enforcement is enabled. C01 must leave nothing that C02 has to undo: recovery's MFA reset (18.6) is written so that C02 can add "and require enrolment" in the same transaction.
 
 ### 18.7 Existing data (decision 6)
 **What exists today** (read-only check, 2026-11-25):
@@ -682,7 +689,15 @@ C01 adds **no** mandatory MFA enrolment, no `MustEnrollMfa` column and no enrolm
 1. **Migration data step,** in C01's migration. It finds an active designation whose holder breaks OI.
    - It **changes nothing**: no automatic promotion, because a migration must not grant authority.
    - It writes one `PracticeOwnerInvariantViolation` audit row (staff profile id, the failing conditions, actor "system (upgrade)").
-   - It is deterministic and idempotent: a second run adds nothing for the same state.
+   - **Idempotency (R08-3).** The row's primary key `AuditLogEntries.Id` is **deterministic**: the first 16 bytes of SHA-256 over the UTF-8 text
+     `alveara.owner-invariant-violation:v1:{designationId:N}:{staffProfileId:N}:{staffIsActive}:{userAccountId:N or "none"}:{accountIsDisabled or "none"}:{accountRole or "none"}:{accountKind or "none"}`,
+     where the booleans are `0` or `1`, the enum values are their names, and the ids use the lower-case `N` format. This is the **state fingerprint**: the designation and every OI input, nothing time-dependent.
+   - **The insert** is a single SQL statement: `INSERT INTO [AuditLogEntries] (...) SELECT ... WHERE NOT EXISTS (SELECT 1 FROM [AuditLogEntries] WITH (UPDLOCK, HOLDLOCK) WHERE [Id] = @derivedId)`. The primary key is the backstop.
+     - The **same state** executed again gives the same id, so no second row.
+     - A **different** violation state (for example the role changed from Dentist to Billing, or the profile was inactivated) gives a new id, so a new row.
+     - Earlier rows are never updated or deleted; audit history stays immutable.
+   - The fingerprint text is not stored. The row's details hold the staff profile id and the failing condition names only (no names, Q7).
+   - **How it runs:** the step is SQL in the migration, so it runs on `dotnet ef database update` and in the installer (ALV-N013). The same statement is exposed as one internal method, `OwnerInvariantAudit.RecordIfNewAsync(db, ct)`, so the test can run it twice on a seeded database without re-applying the migration. The migration calls the SQL; the test calls the method; both share one SQL string constant.
 2. **Runtime report.** `GET /api/auth/me` gains `practiceOwnerStatus`: `none`, `valid` or `degraded`. For an Administrator, `degraded` shows a dashboard notice naming the failing condition and the fixes:
    - change the owner's role to Administrator (E3 refuses only changes **away** from Admin);
    - re-enable the account;
@@ -718,11 +733,14 @@ These need no change:
 - "Completed" admits any holder of UpdateVisitFlow;
 - `PermissionProtection.RoleLimited` is a matrix rule for working roles, and Admin is fixed.
 
-**Change:**
-- the rule is "the actor's account is linked to the visit's **active** provider profile", whatever the login role;
-- unlinked Dentists and Hygienists are still refused, and unlinked Administrators are refused.
+**Change (R08-2, narrow):**
+- "Not clinically required" is allowed when **both**:
+  - the actor's role is **Dentist, Hygienist or Admin** (C01 adds `Admin`);
+  - the actor's account is linked to the visit's booked provider profile, and that profile is **active**.
+- **Front Desk, Assistant, Billing and Office Manager stay refused,** even if a provider profile is (wrongly) linked to their login.
+- Unlinked Dentists, Hygienists and Administrators stay refused.
 
-Professional classification stays on the provider record (`ProviderProfile.Specialty`); U-048 adds licence fields.
+**Why not drop the role part entirely:** `ProviderProfile.Specialty` is free text, and today a provider profile can be attached without proving a Dentist or Hygienist qualification. So the provider record cannot yet stand alone as the professional classification. **ALV-N027** may replace the role part only once it supplies, and proves, a controlled professional classification. Until then, decision 7 is met for the owner (an Administrator linked to their own provider profile) without widening the action to other roles. U-048 adds licence fields.
 
 ### 18.10 Audit events
 | Event | When | Details (ids only) |
@@ -745,15 +763,16 @@ Names are never written back into the stored row. Callers without ViewAuditLog a
 ### 18.11 Tests (rows for the section 11 matrix)
 | Row | Proves | Layer |
 |---|---|---|
-| S11 (extended) | E1: an eligible non-Administrator is refused 409 `owner_must_be_administrator`, nothing written; an Administrator staff member succeeds | API |
+| S11 (extended) | E1: an eligible non-Administrator **target** is refused 409 `owner_must_be_administrator`, nothing written; an Administrator staff member succeeds | API |
+| S11b | E1a (R08-1): an Office Manager given `ManageUsers` (matrix grant) designating an eligible **Administrator** staff member → 403 `owner_designation_requires_administrator`, no designation row, a refusal audit row; the same request by an Administrator and by the Deployment Administrator succeeds (separate databases) | API |
 | S23 | 18.4: `practiceOwner:true` with role Admin creates profile, account, link and designation in one transaction (three audit rows); any other role → 400 and **nothing** written | API |
 | S24 | 18.4 both-or-neither: a fault injected after the account insert rolls back everything; an owner already designated → 409 and no staff or account row | service |
 | S25 | 18.4 idempotency and races: the same key twice → one row set and no second password; two keys at once → exactly one owner, and the loser created nothing | service, concurrency |
 | S26 | E3: the owner's role cannot leave Admin (409 `owner_transfer_required`, refusal audited); a non-owner Admin's role changes as before; a degraded owner's role can change **to** Admin | API |
 | S27 | E4: inactivating the owner's profile is refused through both services; unlink is unreachable | API |
 | S28 | E5: disabling the owner is refused through both disable paths, with the exact error body | API |
-| S29 | 18.9: an Admin-login owner linked to the booked provider may record "Not clinically required"; an unlinked Admin and an unlinked Dentist are refused | API |
-| S30 | 18.7: the migration data step on a seeded non-Admin owner writes exactly one `PracticeOwnerInvariantViolation`, changes no role; a second run adds nothing; `practiceOwnerStatus` is `degraded` until fixed, then `valid` | migration, API |
+| S29 | 18.9 (R08-2): an Admin-login owner linked to the visit's active booked provider may record "Not clinically required"; a Dentist and a Hygienist linked the same way still may. Refused: an unlinked Admin; an unlinked Dentist; an Admin linked to an **inactive** provider profile; and Front Desk, Assistant, Billing and Office Manager logins each linked to the booked provider profile (four cases). | API |
+| S30 | 18.7 (R08-3), on a seeded non-Admin owner: the step writes exactly one `PracticeOwnerInvariantViolation` whose `Id` equals the expected derived id (recomputed in the test from the documented formula); it changes no role. Running it a **second** time on the same state adds no row. After the seed changes **state** (role Dentist → Billing), it adds exactly **one** new row with a different id, and the first row is byte-identical. A valid owner writes nothing. `practiceOwnerStatus` is `degraded` until fixed, then `valid`. | migration, service, API |
 | S31 | 18.5 happy path: the Deployment Administrator transfers. Afterwards one active designation (the new one), the old one ended with the same timestamp, method `Transfer`, one `PracticeOwnerTransferred` row whose details contain the three ids and the reason and **no display name or username**, and the former owner's sessions revoked (their next request is 401) | API |
 | S32 | 18.5 authorization: an ordinary Administrator, the current owner and a non-Admin are all refused 403 `transfer_not_permitted`; a wrong `currentPassword` → 403, audited, and counts toward lockout. **With MFA on (Q5):** a missing `mfaCode` → 403 `mfa_required`; a wrong code → 403, audited `MfaStepUpFailed`, counts toward lockout; a recovery code is refused; the right password and code succeed. **With MFA off,** the password alone succeeds. Missing `confirm` or reason → 400. Nothing changes in any refused case. | API |
 | S33 | 18.5 destination rules: same as source, inactive, unlinked, disabled, non-Admin, the Deployment Administrator itself, no active owner → each refused, nothing changes | API |
@@ -767,21 +786,24 @@ Names are never written back into the stored row. Callers without ViewAuditLog a
 
 **Test cost:** focused groups only, each expected under 5 minutes (owner rule). No broad regression: `fullRegression` stays DEFERRED_TO_ALV-N028.
 
-**Walkthroughs:**
-- The owner reruns the N030 manual walkthrough steps B3 to C3 by hand on a throwaway database, plus a new transfer and recovery script.
-- The S14 browser spec is updated for the locked role and run once (about 1 minute).
+**Browser automation and walkthroughs (R08-4):**
+- **C01 acceptance rests on automated tests only:** the focused API, service and concurrency rows above, plus browser automation.
+  - The **S14** browser spec is updated for the locked Administrator role and run once (about 1 minute).
+  - A **new targeted browser spec** covers transfer (the Deployment Administrator opens the dialog, transfers with reason, password and confirm; the former owner's session ends) and recovery (a console-issued token resets a disabled Deployment Administrator, who then signs in). It is run once and expected under 3 minutes.
+- **No owner walkthrough is required for C01.** Any general manual inspection is at the owner's discretion.
+- **ALV-N030-C02 keeps its required gate:** after the QR implementation and its automated tests pass, a short targeted walkthrough with a real authenticator app (scan the QR, complete enrolment) must pass **before** mandatory Deployment Administrator MFA enforcement is enabled (18.6a).
 
 ### 18.12 Questions
 - **Q5 to Q8:** answered by the owner, 2026-11-25 (18.1).
 - **Q6b:** resolved by the owner's execution order (2026-11-25): enforcement for newly created or recovered Deployment Administrators is ALV-N030-C02 Stage 2 (18.6a).
 
 ### 18.13 Slices (each shown before its tests run)
-1. **Invariant:** E1 to E5, refusal audits; S11, S26, S27, S28.
+1. **Invariant:** E1, E1a, E2 to E5, refusal audits; S11, S11b, S26, S27, S28.
 2. **Single call:** 18.4 and the Staff tab call; S23, S24, S25.
 3. **Transfer:** route, service, two-factor step-up, method `Transfer`, audit, ids-only audit text and read-time name resolution; S31 to S36, S40.
 4. **Recovery:** `Purpose` column, CLI, route, mode rule, MFA reset, dev script; S37.
 5. **Existing data and provider eligibility:** migration data step, `practiceOwnerStatus`, the CheckoutRecorder rule; S29, S30.
-6. **Client:** 18.8; S38; the S14 spec update and one run; the owner's manual walkthrough.
+6. **Client:** 18.8; S38; the S14 spec update and the targeted transfer/recovery browser spec, one run each. No owner walkthrough (R08-4).
 
 ### 18.14 Failure-first answers
 | What fails | Behaviour |

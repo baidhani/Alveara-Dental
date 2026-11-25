@@ -3780,3 +3780,10 @@
   - What changed: ACCT brief section 18 (execution order; mandatory MFA enrolment moved from C01 to ALV-N030-C02 Stage 2; Q6b resolved; S39 moved); UNASSIGNED_FINDINGS U-050 (no QR code; assigned to C02 Stage 1) and U-051 (no MFA turn-off or admin reset; unassigned); BUILD_STATE order line
   - Verification: documentation only; owner manual MFA test passed (MFA works), throwaway database dropped afterwards
   - Notes: R08 review ZIP built next
+
+- [x] ACCT brief section 18 revised to R09 after review R08 (CHANGES_REQUIRED)
+  - Date: 2026-11-25
+  - Session: CC-20261123-q4vn
+  - What changed: R08-1 initial-designation actor must be Admin (E1a, S11b); R08-2 checkout admits Admin alongside Dentist/Hygienist with the active booked-provider link, other roles refused (18.9, S29); R08-3 deterministic audit id + NOT EXISTS predicate for the migration row (18.7, S30); R08-4 no owner walkthrough for C01, targeted transfer/recovery browser spec instead, C02 real-authenticator gate kept; review file BRIEFING-R08 committed
+  - Verification: documentation only
+  - Notes: R09 review ZIP built after this commit
