@@ -1,6 +1,6 @@
 # ACCT: accounts, Deployment Administrator and Practice Owner. Pre-implementation brief
 
-- **Status:** **APPROVED FOR IMPLEMENTATION.** Sections 1 to 15 were approved at R04 (`.alveara/reviews/ACCT/BRIEFING-R04.md`, after R01 to R03). The section 16 addendum was approved at R06 (`.alveara/reviews/ACCT/BRIEFING-R06.md`, after R05). The section 17 addendum was approved at R07 (`.alveara/reviews/ACCT/BRIEFING-R07.md`); it supersedes section 8's hosting. **The approved briefing set is R04 + R06 + R07.** Boundary: database creation, SQL snapshot settings, applying migrations, a production service wrapper and update distribution stay with ALV-N013; the production automatic-restart proof is ALV-N013's dependency proof, not an ALV-N030 acceptance item. Revision history follows.
+- **Status:** **APPROVED FOR IMPLEMENTATION.** Sections 1 to 15 were approved at R04 (`.alveara/reviews/ACCT/BRIEFING-R04.md`, after R01 to R03). The section 16 addendum was approved at R06 (`.alveara/reviews/ACCT/BRIEFING-R06.md`, after R05). The section 17 addendum was approved at R07 (`.alveara/reviews/ACCT/BRIEFING-R07.md`); it supersedes section 8's hosting. **The approved briefing set is R04 + R06 + R07.** **Section 18 (R08 addendum, 2026-11-25): the initial-owner authorization invariant (U-049), a security correction - AWAITING INDEPENDENT REVIEW; no code before approval.** Boundary: database creation, SQL snapshot settings, applying migrations, a production service wrapper and update distribution stay with ALV-N013; the production automatic-restart proof is ALV-N013's dependency proof, not an ALV-N030 acceptance item. Revision history follows.
 - **R04 changes (CR-6):**
   - the audit event `DeploymentAdministratorAssigned` is limited to the migration's single-candidate conversion; the superseded "administrator pick" wording is removed;
   - slice 5, the matrix and the evidence all use guards G1 to G8.
@@ -472,3 +472,164 @@ Slice 5 is split so that each step ends green on a focused group under 5 minutes
 - **ChainHost started with a wildcard address:** it refuses to start (G7).
 - **Cookie policy under `Test` forgotten:** every walkthrough sign-in fails at once, so the fault is loud, not silent. A ChainHost test also asserts that the cookie is issued over HTTP under `Test`.
 - **A test still uses a removed route:** it fails with 404 or 405 in its focused group. Slice 5b's per-group runs catch it before the leftovers are deleted.
+
+## 18. R08 addendum: the initial-owner authorization invariant (U-049, owner-requested security correction, 2026-11-25)
+
+**Why this addendum.** The owner's manual walkthrough of the completed ALV-N030 (2026-11-24; findings U-043 to U-049, commit `50daabe`) designated a Practice Owner with the Dentist role. That owner could not configure the practice. Sections 1 to 17 allow any role: section 5 gives the Practice Owner "no extra permissions in ACCT", and section 2 leaves "a Practice Owner permission set" out of scope. The owner ruled that this is a **security/authorization defect**: the initial-owner authorization invariant is not enforced. It must be corrected under an updated brief and an independent review, and **before ALV-N027 begins**. ALV-N030 stays COMPLETE (review R02) and is not reopened. Proposed working id for the correction: **ALV-N030-C01**, following the `-C01` convention; owner to confirm (Q4).
+
+**Surveyed tree:** `50daabe` (read-only).
+
+### 18.1 Owner decision (2026-11-25, U-049 option b), as stated
+1. The initial Practice Owner must have the **Administrator** account role. This is the permanent authorization model, not a temporary measure pending the setup wizard.
+2. PracticeOwner stays a protected designation: **not a role and not an independent permission source**. No owner-specific permission overlay.
+3. A Practice Owner remains a complete linked user:
+   - a login account with the Administrator role;
+   - a staff profile with the person's real job title and credentials (credential fields arrive with U-048; this correction adds none);
+   - a provider profile where applicable;
+   - the Practice Owner designation.
+4. Selecting "Make this person the Practice Owner" in the initial-owner creation flow presets the account role to Administrator, explains why, and prevents submission with any other role.
+5. **The server** enforces that a designated Practice Owner has an active linked staff profile, an active login account and the Administrator role. Client validation alone is insufficient.
+6. Existing pre-release data with a non-Administrator Practice Owner, including the walkthrough's Maya record, is handled explicitly and disclosed. An invalid owner configuration is never left silently.
+7. Provider eligibility is based on the staff/provider record and appropriate professional classification, **not on the login role**. An owner may have an Administrator account while remaining a Dentist staff member and provider.
+8. The future guided setup wizard is available only to the designated Practice Owner and uses the normal permission checks. No second owner-only permission system.
+9. The Deployment Administrator remains account-only and administratively capable. The Practice Owner is the linked staff user expected to configure and operate the practice.
+10. U-049 records the failure to enforce this invariant; it is resolved before ALV-N027 begins.
+
+Related owner decision, U-046 (2026-11-24): owner creation is a **single server call** that creates the staff member with their login **and** designates them Practice Owner atomically, both or neither.
+
+### 18.2 What changes in sections 1 to 17
+| Section | Was | Becomes |
+|---|---|---|
+| 1 (D-4), 2, 5 | Practice Owner: "no extra permissions in ACCT" | Still no owner permission source (decision 2). **New: the owner's login must hold the Administrator role** (decision 1), so the owner's authority is exactly the Administrator role's, through the normal checks. |
+| 4 (routes) | owner creation = `POST /api/config/staff-members` then `POST /api/practice-owner/initial` (two client calls) | `POST /api/config/staff-members` accepts `practiceOwner: true` and does both in one transaction (18.4). `/api/practice-owner/initial` stays for designating an **existing** staff member, with the new eligibility rule. |
+| 6 (service rules) | owner target: active staff with a linked, enabled `Staff` account | adds **role = Admin** (18.3), checked inside the designating transaction |
+| 9 (client) | owner checkbox on "Add staff member" | the checkbox presets and locks the role (18.6) |
+| 11 (matrix) | S11 | S11 extended, plus S23 to S30 (18.9) |
+
+Everything else stands.
+
+### 18.3 The invariant and where the server enforces it
+**Owner invariant (OI):** the holder of the active designation has:
+- an **active** staff profile;
+- a **linked** account of kind `Staff`;
+- that account **enabled**;
+- that account's role **`Admin`**.
+
+| # | Path that can create or break OI | Current behaviour (`50daabe`) | Rule after the correction |
+|---|---|---|---|
+| E1 | `PracticeOwnerService.DesignateInitialAsync` (existing staff) | checks active, linked, enabled, kind `Staff`; any role | adds role `Admin`; otherwise 409 **`owner_must_be_administrator`**. Checked under the existing serializable transaction, reading the account row with an update lock so a concurrent role change cannot interleave. |
+| E2 | `StaffMemberService.CreateAsync` with `practiceOwner: true` (new, 18.4) | n/a (two client calls) | role must be `Admin`, else 400 **`owner_must_be_administrator`** before anything is written. The actor must be allowed to create an Administrator login, which the existing rule already limits to Administrators (403 `target_is_admin` otherwise). |
+| E3 | `AccountService.ChangeRoleAsync` | any role change; last-admin guard only | changing the **current owner's** account away from `Admin` is refused: 409 **`owner_role_protected`**, a refusal audit row (`RecordRefusalAsync`, rule `owner_role_protected`), no change. Checked inside the existing transaction after `LoadLockedAsync`. |
+| E4 | `StaffInactivationService.InactivateAsync` (and `StaffProviderService.SetStaffActiveAsync`) | the owner's profile can be inactivated (and the login disabled with it) | inactivating the **owner's** staff profile is refused: 409 **`owner_profile_protected`**, refusal audited, nothing changes. **Unlink** (`UnlinkAccountFromInactiveStaffAsync`) needs an inactive profile, so E4 also closes it; a direct test pins this (S27). |
+| E5 | `AccountService.SetAccountEnabledAsync` (disable) | allowed | **Decision Q1 (18.10).** Recommended: **allowed**, because locking out a compromised owner login must never be blocked. While the owner's login is disabled, OI is reported as **`login_disabled`** (18.5), not hidden. |
+| E6 | Database backstop | trigger 51311 protects the designation rows only | No new trigger (Q3). OI spans three tables and the role; the service checks above hold the locks; the tests pin each path. |
+
+**Why refuse in E3 and E4, rather than end the designation:** sections 1 to 17 have no route that ends or transfers a designation (transfer is out of scope, D-4). Allowing E3 or E4 would leave an active owner who breaks OI, with no way back except a role change. Refusing keeps OI true. **Disclosure:** until a transfer story exists, an owner who leaves the practice cannot be removed through the product, except by disabling their login (E5). This gap is unchanged from D-4, and the brief states it in the client's refusal text.
+
+### 18.4 The single owner-creation call (U-046 decision)
+- **Route:** `POST /api/config/staff-members` gains an optional `practiceOwner` (boolean, default false). Permissions are unchanged: ManagePracticeConfiguration **and** ManageUsers, CSRF, Idempotency-Key.
+- **With `practiceOwner: true`, in one transaction:**
+  1. Run the E2 check.
+  2. Insert the profile and the `Staff` account (role `Admin`, `MustChangePassword = 1`) and link them.
+  3. Insert the `PracticeOwnerDesignation`, with the same "never designated" check as `DesignateInitialAsync`, under the same serializable isolation.
+  4. Write the audit rows: `StaffMemberCreated`, `TemporaryPasswordIssued`, `PracticeOwnerDesignated`.
+
+  **Any failure rolls back everything**, so no person is ever left created without the designation. The designation logic is shared by extracting one internal method from `PracticeOwnerService`, not copied.
+- **Idempotency:** a replay with the same key returns the same result (no password; `practiceOwner: true`), including after another request designated an owner.
+- **Errors:**
+  - an owner already designated: 409 **`owner_already_designated`**, nothing created;
+  - a username or name already taken: the existing 409s, nothing created.
+- **Client:** the Staff tab's "Add staff member" sends one call. The `addStaffMember` + `designatePracticeOwner` sequence and its partial-failure messages are removed.
+- **Outside this correction:** the U-046 slide-in panel on the dashboard is a separate client change. **Q2** asks whether to include it here.
+
+### 18.5 Existing data (decision 6)
+**What exists today** (read-only check, 2026-11-25):
+- **AlveraDev:** the ALV-N030 migration is **not applied** (84 migrations, no `PracticeOwnerDesignations` table), so it holds no owner.
+- **The walkthrough database `AlveraManualN030`,** which held the Dentist-role owner "Dr. Maya Owner": **dropped** on 2026-11-25 by the owner's instruction at the end of the walkthrough.
+- **Test databases:** each is created fresh per fixture and none is kept. The single leftover `AlveraTest_b62446e8…` predates ALV-N030.
+- **Deployments:** no release has shipped, so no production data exists.
+
+**The handling:**
+1. **Migration data step** (new migration, after `AddAccountKindSetupTokensAndPracticeOwner`). It finds an active designation whose holder breaks OI. It **changes nothing**: no automatic promotion to Administrator, because a migration must not grant authority. It writes one audit row, `PracticeOwnerInvariantViolation` (staff profile, which conditions fail, actor "system (upgrade)"). It is deterministic and idempotent, so a second run adds no second row for the same state.
+2. **Runtime report.** `GET /api/auth/me` (already carries `isPracticeOwner` and `practiceOwnerExists`) gains `practiceOwnerStatus`: `none`, `valid`, `degraded` (OI broken other than a disabled login) or `login_disabled` (E5). For an Administrator, a dashboard notice states the failing condition and the fix:
+   - for a role failure: "change the owner's role to Administrator in Security Administration" (E3 allows changing **to** Admin);
+   - for a disabled login: "re-enable the login".
+3. **Disclosure:** the handoff states the Maya record (dropped, never migrated) and the empty environments above, with the commands used.
+
+### 18.6 Client
+- **Practice Configuration → Staff → "Add staff member":**
+  - ticking **"Make this person the Practice Owner"** sets **Role** to **Administrator** and disables the selector;
+  - the hint reads: "The Practice Owner signs in with the Administrator role so they can configure and run the practice. Their job title and provider profile still describe their clinical work.";
+  - unticking restores the selector;
+  - the client blocks submission with a mismatched role; the server is the control (E2).
+- **"Designate the Practice Owner"** (existing staff, after an upgrade):
+  - candidates who are not Administrators are listed but disabled, with "Change this person's role to Administrator in Security Administration first.";
+  - the server answers 409 `owner_must_be_administrator` regardless of what the client shows.
+- **Security Administration:**
+  - for the owner's account, the role selector shows "Practice Owner: must stay Administrator", and the server refuses a change (E3);
+  - disabling shows a confirm step that names the consequence (E5).
+- **Staff tab:** inactivating the owner is refused, with the transfer disclosure text.
+- **Dashboard:** the `degraded` and `login_disabled` notices from 18.5.
+
+### 18.7 Provider eligibility (decision 7)
+**Survey result.** One server rule decides a clinical action by **login role** instead of the provider record:
+- `CheckoutRecorder.AuthorizeAsync`, outcome "Not clinically required": `role is Role.Dentist or Role.Hygienist && <actor is linked to the visit's provider>`. An owner with an Administrator login who is the booked dentist would be refused.
+
+The other role checks found need no change:
+- `VisitMovePolicy` "In treatment" / "Checked out" already admits `Admin` when the actor is linked to the booked provider;
+- "Completed" admits anyone holding UpdateVisitFlow, which Admin holds;
+- `PermissionProtection.RoleLimited` (CompleteOwnStartedVisit to Dentist and Hygienist) is a matrix rule for working roles; Admin holds every permission (fixed role).
+
+**The change:**
+- "Not clinically required" is allowed when the actor's account is linked to the visit's **active** provider profile, whatever the login role.
+- A Dentist or Hygienist login with no provider link is still refused, as today.
+- An Administrator who is **not** the visit's provider is still refused (S29).
+
+This is the only clinical-eligibility change. Professional classification stays on the provider record (`ProviderProfile.Specialty`); U-048 will add licence fields.
+
+### 18.8 Audit events
+| Event | When | Notes |
+|---|---|---|
+| `PracticeOwnerInvariantViolation` (new) | the migration data step finds a holder breaking OI | one per detected state, system actor |
+| refusal rows (existing `RecordRefusalAsync`) | E3, E4 refused | rules `owner_role_protected`, `owner_profile_protected` |
+| `PracticeOwnerDesignated` (existing) | E1, and the single call (18.4) | method unchanged (`InitialByDeploymentAdministrator` / `UpgradeTransition`) |
+
+### 18.9 Tests (rows for the section 11 matrix)
+| Row | Proves | Layer |
+|---|---|---|
+| S11 (extended) | E1: an otherwise eligible non-Administrator is refused 409 `owner_must_be_administrator`, nothing written; an Administrator staff member succeeds | API, service |
+| S23 | E2 / 18.4: `practiceOwner:true` with role Admin creates profile, account, link and designation in one transaction (one row each, three audit rows); with any other role 400, **nothing** written | API |
+| S24 | 18.4 both-or-neither: a fault injected after the account insert (existing `TestHook_AfterProfileInsert` pattern) rolls back everything; an owner already designated → 409, no staff or account row | service |
+| S25 | 18.4 idempotency and races: the same key twice gives one row set and no second password; two different keys at once give exactly one owner and the loser created nothing | service (concurrency, as R02 CR-1's test) |
+| S26 | E3: the owner's role cannot leave Admin (409, refusal audited, no change); changing a **non-owner** Admin still works; changing a degraded owner **to** Admin works | API |
+| S27 | E4: inactivating the owner's profile is refused through both services; unlink is unreachable for the owner | API |
+| S28 | E5 + 18.5: disabling the owner is allowed (per Q1) and `practiceOwnerStatus` becomes `login_disabled`; the migration data step on a seeded non-Admin owner writes exactly one `PracticeOwnerInvariantViolation`, changes no role, and a second run adds nothing; status `degraded` until fixed | migration, API |
+| S29 | 18.7: an Admin-login owner linked to the booked provider may record "Not clinically required"; an Admin not linked is refused; a Dentist not linked is refused (unchanged) | API |
+| S30 | 18.6 client: the checkbox presets and locks Administrator with the hint; the designate picker disables non-Administrators; dashboard notices for `degraded` and `login_disabled` | vitest |
+
+**Test cost:** focused groups only, each expected under 5 minutes (owner rule). No broad regression: `fullRegression` stays DEFERRED_TO_ALV-N028. **Walkthrough:** the owner reruns steps B3 to C3 of the manual N030 walkthrough by hand on a throwaway database (`AlveraManualN030`, as on 2026-11-24). The S14 browser spec is updated for the locked role and run once (about 1 minute).
+
+### 18.10 Questions for the owner and reviewer
+- **Q1, disabling the owner's login (E5):**
+  - (a) allowed and reported as `login_disabled` (**recommended**: never block locking a compromised account);
+  - (b) refused like E3 and E4.
+- **Q2, the U-046 dashboard panel:**
+  - (a) out of this correction: the server single call and the Staff tab only, with the panel later alongside the U-044/U-046 UI work (**recommended**, to keep the security correction small);
+  - (b) included here.
+- **Q3, database backstop:** service checks under locks plus tests (**recommended**), or a new trigger on `UserAccounts`/`StaffProfiles` that refuses OI-breaking writes. A trigger would be cross-table and would also fire on legitimate repair paths, so it is not recommended.
+- **Q4:** the story id **ALV-N030-C01**.
+
+### 18.11 Slices (each shown before its tests run)
+1. **Server invariant:** E1, E3, E4, E5 reporting; refusal audits; S11, S26, S27.
+2. **Single call:** 18.4; client Staff tab switched to one call; S23 to S25.
+3. **Existing data:** migration data step, `practiceOwnerStatus`, dashboard notices; S28.
+4. **Provider eligibility:** 18.7; S29.
+5. **Client:** the remaining 18.6 changes; S30; the S14 spec update and one run; the owner's manual rerun.
+
+### 18.12 Failure-first answers
+| What fails | Behaviour |
+|---|---|
+| A role change and a designation race | The designation reads the account under an update lock inside its serializable transaction, and the role change holds its row lock. One waits; the loser sees the committed state and is refused if OI would break. |
+| The single call fails after the account insert | Full rollback. The client shows the error with the form kept; no temporary password was shown. |
+| The migration finds a violation | Nothing changes; one audit row; a dashboard notice for Administrators; the fix path is named. The upgrade never stops. |
+| The client sends a mismatched role | The server refuses (400 or 409). The client lock is UX only. |

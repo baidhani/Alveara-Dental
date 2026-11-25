@@ -3752,3 +3752,10 @@
   - What changed: docs/stabilization/UNASSIGNED_FINDINGS.md gains U-043 (false server-unavailable banner during setup), U-044 (faint links), U-045 (ALV-N001 dashboard placeholder), U-046 (Add Practice Owner button + slide-in panel, single atomic call - owner decision), U-047 (word-based temporary password), U-048 (fuller staff profile; owner decision: no identity number), U-049 (initial owner must be Administrator, server-enforced - owner decision option b; brief addendum + independent review before implementation; blocks ALV-N027 start)
   - Verification: owner ran the walkthrough on a throwaway database (AlveraManualN030, dropped afterwards; AlveraDev untouched); all steps passed apart from the findings above
   - Notes: documentation only; no code changed; findings unassigned until the owner assigns them
+
+- [x] ACCT brief R08 addendum (section 18): initial-owner authorization invariant (U-049)
+  - Date: 2026-11-25
+  - Session: CC-20261123-q4vn
+  - What changed: docs/design/ACCT_PRE_IMPLEMENTATION_BRIEF.md section 18 (owner decision recorded; invariant OI and enforcement points E1-E6; single owner-creation call; existing-data handling; client; provider eligibility fix in CheckoutRecorder; tests S11 ext + S23-S30; Q1-Q4); status line marks it awaiting review
+  - Verification: documentation only; read-only survey of tree 50daabe and AlveraDev (no N030 migration applied)
+  - Notes: no code before independent approval; proposed id ALV-N030-C01; blocks ALV-N027 start
