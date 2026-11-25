@@ -175,5 +175,6 @@ public static class AuditEventTypes
     public const string PasswordChanged = "PasswordChanged";
     public const string PasswordChangeRequiredRefusal = "PasswordChangeRequiredRefusal";
     public const string PracticeOwnerDesignated = "PracticeOwnerDesignated";
-    public const string PracticeOwnerTransferred = "PracticeOwnerTransferred";   // ALV-N030-C01 (brief 18.5); details hold ids only
+    public const string PracticeOwnerTransferred = "PracticeOwnerTransferred";
+    public const string PracticeOwnerInvariantViolation = "PracticeOwnerInvariantViolation";   // ALV-N030-C01 (brief 18.7): written by OwnerInvariantAudit only   // ALV-N030-C01 (brief 18.5); details hold ids only
 }

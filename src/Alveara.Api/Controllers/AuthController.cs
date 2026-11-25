@@ -160,6 +160,8 @@ public class AuthController(AccountService accountService, AlveraDbContext db, I
             accountKind = me.AccountKind.ToString(),
             isPracticeOwner = me.IsPracticeOwner,
             practiceOwnerExists = me.PracticeOwnerExists,
+            // ALV-N030-C01 (brief 18.7): none | valid | degraded - the dashboard tells an Administrator how to fix a degraded owner
+            practiceOwnerStatus = await OwnerInvariantAudit.StatusAsync(db, HttpContext.RequestAborted),
         });
     }
 

@@ -105,8 +105,11 @@ public sealed class CheckoutRecorder(AlveraDbContext db, IPracticeClock clock, I
         if (outcome == CheckoutOutcomes.NotClinicallyRequired)
         {
             var provider = a.VisitProviderProfileId ?? a.ProviderProfileId;
-            allowed = role is Role.Dentist or Role.Hygienist && await db.ProviderProfiles.AsNoTracking()
-                .AnyAsync(p => p.Id == provider && p.StaffProfile != null && p.StaffProfile.UserAccountId == actor, ct);
+            // ALV-N030-C01 (brief 18.9, R08-2): Dentist, Hygienist or - so a Practice Owner who signs in as an Administrator can still act as the booked
+            // dentist - Admin; ALWAYS with the actor's account linked to the visit's ACTIVE booked provider. Other roles stay refused even if wrongly linked: the
+            // provider record has no controlled professional classification yet (ALV-N027 may replace the role part once it supplies one).
+            allowed = role is Role.Dentist or Role.Hygienist or Role.Admin && await db.ProviderProfiles.AsNoTracking()
+                .AnyAsync(p => p.Id == provider && p.IsActive && p.StaffProfile != null && p.StaffProfile.UserAccountId == actor, ct);
         }
         else if (CheckoutOutcomes.NeedLedgerEntry.Contains(outcome))
             allowed = await AnyAsync(role, ct, Permission.UpdateVisitFlow, Permission.CollectPayments, Permission.ManageBilling);

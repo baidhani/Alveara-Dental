@@ -233,6 +233,42 @@ public class CheckoutTests : CompletionTestBase
         Assert.True(Item(await RecordAsync(v.Id, CheckoutItems.FollowUp, CheckoutOutcomes.NotClinicallyRequired, role: Role.Dentist, actor: treating), CheckoutItems.FollowUp).Resolved);
     }
 
+    /// <summary>
+    /// ALV-N030-C01 S29 (brief 18.9, R08-2): an Administrator login linked to the visit's active booked provider (a Practice Owner who is also the dentist) may record
+    /// "not clinically required", as Dentists and Hygienists linked the same way may. Refused: an unlinked Administrator, an Administrator linked to an INACTIVE
+    /// provider profile, and Front desk, Assistant, Billing and Office manager logins even when (wrongly) linked to the booked provider.
+    /// </summary>
+    [Fact]
+    public async Task S29_an_administrator_linked_to_the_active_booked_provider_may_record_no_follow_up_and_other_roles_never()
+    {
+        // the visits are walked to checkout first, by the provider's own login (as the treating-provider test does); only then is the provider re-linked
+        var refusedVisit = await VisitAsync(hour: 9);
+        var asAdmin = await VisitAsync(hour: 10);
+        var asDentist = await VisitAsync(hour: 11);
+        var asHygienist = await VisitAsync(hour: 12);
+        var inactive = await VisitAsync(hour: 13);
+        var treating = Guid.NewGuid();
+        await WithDb(async db =>
+        {
+            db.UserAccounts.Add(new UserAccount { Id = treating, Username = $"owner-dentist-{Guid.NewGuid():N}"[..30], Role = Role.Admin, CreatedAtUtc = DateTimeOffset.UtcNow });
+            await db.SaveChangesAsync();
+            return await db.Database.ExecuteSqlRawAsync("UPDATE s SET [UserAccountId] = {0} FROM [StaffProfiles] s JOIN [ProviderProfiles] p ON p.[StaffProfileId] = s.[Id] WHERE p.[Id] = {1}", treating, S.ProviderA);
+        });
+
+        Assert.Equal(403, (await Refused(() => RecordAsync(refusedVisit.Id, CheckoutItems.FollowUp, CheckoutOutcomes.NotClinicallyRequired, role: Role.Admin))).StatusCode);   // not linked
+        foreach (var other in new[] { Role.FrontDesk, Role.Assistant, Role.Billing, Role.OfficeManager })
+            Assert.Equal(403, (await Refused(() => RecordAsync(refusedVisit.Id, CheckoutItems.FollowUp, CheckoutOutcomes.NotClinicallyRequired, role: other, actor: treating))).StatusCode);
+
+        // the linked login may, as Administrator, Dentist or Hygienist (one visit each, so each is a first recording)
+        Assert.True(Item(await RecordAsync(asAdmin.Id, CheckoutItems.FollowUp, CheckoutOutcomes.NotClinicallyRequired, role: Role.Admin, actor: treating), CheckoutItems.FollowUp).Resolved);
+        Assert.True(Item(await RecordAsync(asDentist.Id, CheckoutItems.FollowUp, CheckoutOutcomes.NotClinicallyRequired, role: Role.Dentist, actor: treating), CheckoutItems.FollowUp).Resolved);
+        Assert.True(Item(await RecordAsync(asHygienist.Id, CheckoutItems.FollowUp, CheckoutOutcomes.NotClinicallyRequired, role: Role.Hygienist, actor: treating), CheckoutItems.FollowUp).Resolved);
+
+        // the booked provider profile inactivated: refused even for the linked Administrator
+        await WithDb(db => db.Database.ExecuteSqlRawAsync("UPDATE [ProviderProfiles] SET [IsActive] = 0 WHERE [Id] = {0}", S.ProviderA));
+        Assert.Equal(403, (await Refused(() => RecordAsync(inactive.Id, CheckoutItems.FollowUp, CheckoutOutcomes.NotClinicallyRequired, role: Role.Admin, actor: treating))).StatusCode);
+    }
+
     // ---------- corrections, history and retries ----------
 
     [Fact]
