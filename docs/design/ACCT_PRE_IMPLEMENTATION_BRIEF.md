@@ -1,6 +1,6 @@
 # ACCT: accounts, Deployment Administrator and Practice Owner. Pre-implementation brief
 
-- **Status:** **APPROVED FOR IMPLEMENTATION.** Sections 1 to 15 were approved at R04 (`.alveara/reviews/ACCT/BRIEFING-R04.md`, after R01 to R03). The section 16 addendum was approved at R06 (`.alveara/reviews/ACCT/BRIEFING-R06.md`, after R05). The section 17 addendum was approved at R07 (`.alveara/reviews/ACCT/BRIEFING-R07.md`); it supersedes section 8's hosting. **The approved briefing set is R04 + R06 + R07.** **Section 18 (ALV-N030-C01): the Practice Owner authorization invariant (U-049), ownership transfer and Deployment Administrator recovery - APPROVED FOR IMPLEMENTATION at R10 (`.alveara/reviews/ACCT/BRIEFING-R10.md`), after R08 and R09 CHANGES_REQUIRED. The approved revision is R10. Owner execution order: C01, then ALV-N030-C02 (MFA QR enrolment, then Deployment Administrator MFA enforcement), both before ALV-N027.** Boundary: database creation, SQL snapshot settings, applying migrations, a production service wrapper and update distribution stay with ALV-N013; the production automatic-restart proof is ALV-N013's dependency proof, not an ALV-N030 acceptance item. Revision history follows.
+- **Status:** **APPROVED FOR IMPLEMENTATION.** **Section 19 (ALV-N030-C02) is PROPOSED at R11 and awaits review; it is not approved for implementation.** Sections 1 to 15 were approved at R04 (`.alveara/reviews/ACCT/BRIEFING-R04.md`, after R01 to R03). The section 16 addendum was approved at R06 (`.alveara/reviews/ACCT/BRIEFING-R06.md`, after R05). The section 17 addendum was approved at R07 (`.alveara/reviews/ACCT/BRIEFING-R07.md`); it supersedes section 8's hosting. **The approved briefing set is R04 + R06 + R07.** **Section 18 (ALV-N030-C01): the Practice Owner authorization invariant (U-049), ownership transfer and Deployment Administrator recovery - APPROVED FOR IMPLEMENTATION at R10 (`.alveara/reviews/ACCT/BRIEFING-R10.md`), after R08 and R09 CHANGES_REQUIRED. The approved revision is R10. Owner execution order: C01, then ALV-N030-C02 (MFA QR enrolment, then Deployment Administrator MFA enforcement), both before ALV-N027.** Boundary: database creation, SQL snapshot settings, applying migrations, a production service wrapper and update distribution stay with ALV-N013; the production automatic-restart proof is ALV-N013's dependency proof, not an ALV-N030 acceptance item. Revision history follows.
 - **R04 changes (CR-6):**
   - the audit event `DeploymentAdministratorAssigned` is limited to the migration's single-candidate conversion; the superseded "administrator pick" wording is removed;
   - slice 5, the matrix and the evidence all use guards G1 to G8.
@@ -838,3 +838,123 @@ Names are never written back into the stored row. Callers without ViewAuditLog a
 | The recovery token leaks | It works only for 15 minutes, once, from a route rate-limited to 5 per 5 minutes. It only resets or creates the Deployment Administrator, all audited. Issuing a new token voids it. |
 | The migration finds a violation | Nothing changes; one audit row; an Administrator notice with the fix paths. The upgrade never stops. |
 | The client sends a mismatched role or hides nothing | The server refuses (400, 403 or 409). Client controls are UX only. |
+
+## 19. R11 addendum: ALV-N030-C02, MFA QR enrolment and Deployment Administrator MFA enforcement (U-050, owner order 2026-11-25)
+
+**Status: PROPOSED (R11), awaiting independent review. No code before approval.**
+
+**Source:** finding U-050, from the owner's manual MFA test. Enrolment shows only the Base32 key, under the wrong line "Scan this into your authenticator app". There is no QR, no issuer and no account name.
+
+The owner's order (18.6a, BRIEFING-R10) is that C02 completes before ALV-N027, in two controlled stages. Section 18 (C01, COMPLETE) is not reopened.
+
+### 19.1 Owner decisions (2026-11-25, this round)
+- **D1, QR generation:** on the **server**, with the .NET package **QRCoder** (MIT licence, no further dependencies).
+  - The server returns the `otpauth://` link and a ready SVG picture.
+  - It is generated locally; never by an online QR service.
+  - No change to the client's packages.
+- **D2, test decoder:** **ZXing.Net** (Apache-2.0) is added to `Alveara.Api.Tests` **only**.
+  - It never ships.
+  - Tests decode the generated QR and enrol with the decoded secret.
+- **Both are deliberate dependency adds** (CLAUDE.md "Dependencies"). The evidence records the pinned versions, the licences, the transitive dependencies and a vulnerability check (`dotnet list package --vulnerable`).
+
+### 19.2 What does not change
+- **The TOTP itself:** `Totp.cs` (Otp.NET, SHA-1, 6 digits, 30-second step) and the verification window.
+- **`BeginMfaEnrollmentAsync`'s rules:**
+  - a pending secret becomes active only when `ConfirmMfaEnrollmentAsync` verifies a code;
+  - replacing an existing factor needs the current password;
+  - lockout counting.
+- **Recovery codes, the MFA challenge at sign-in, and the transfer step-up (C01).**
+
+### 19.3 Stage 1: QR provisioning (U-050)
+1. **Provisioning link.** A new pure helper, `MfaProvisioning.BuildUri(username, base32Secret)`, returns
+   `otpauth://totp/DentalKeep:<username>?secret=<BASE32>&issuer=DentalKeep&algorithm=SHA1&digits=6&period=30`.
+   - The label and the issuer are percent-encoded (RFC 3986), so a username containing spaces, `:`, `@`, `&`, `#`, `+` or non-ASCII letters cannot change the link's meaning.
+   - The secret has no padding.
+   - Digits and period come from the constants `Totp` uses (made `internal`), so they cannot drift.
+2. **QR picture.** `MfaProvisioning.BuildQrSvg(uri)` uses QRCoder with error-correction level M, a quiet zone, black on white, and a fixed size in the SVG `viewBox`. The SVG contains only shapes: no script, no link and no external reference.
+3. **Route.** `POST /api/auth/mfa/enroll` returns, additively, `{ base32Secret, otpauthUri, qrSvg, recoveryCodes }` with `Cache-Control: no-store`.
+   - The existing fields stay.
+   - The error responses are unchanged.
+4. **Secret hygiene.** The secret, the link and the SVG are never logged or audited. They are never put in a URL or browser storage, and never sent anywhere except in the enrolling user's own response. The existing enrolment audit rows stay ids-only.
+5. **Screen (`MfaSettingsPage`):**
+   - **the QR picture**, shown as an `<img>` from a `data:image/svg+xml` URL (no `dangerouslySetInnerHTML`), with the alternative text "QR code for your authenticator app";
+   - **corrected text:** "Scan this QR code with your authenticator app. If you cannot scan it, type the key below.";
+   - **the key** shown grouped in fours, with the account name and issuer beside it for manual entry. The grouping is display only: the copied value has no spaces;
+   - **a Copy key control** (`navigator.clipboard.writeText`). On success it says "Key copied". On failure it says "Could not copy. Select the key and copy it yourself." It never fails silently;
+   - **the code field and the confirmation flow** are unchanged.
+
+### 19.4 Stage 1 proof
+| # | Test | Proves |
+|---|---|---|
+| S41 | `MfaProvisioningTests`: the link for a plain username, and for usernames with space, `:`, `@`, `&`, `#`, `+` and non-ASCII letters; an empty or null value is refused | the format and the encoding; the label cannot be broken |
+| S42 | `MfaProvisioningTests`: the SVG is rasterised in the test and decoded with ZXing.Net; the decoded text equals the link exactly | the QR holds the right `otpauth://` payload |
+| S43 | `MfaEnrollmentQrApiTests`: enrol through the API, decode the returned QR, take the secret from the decoded link, compute a code and confirm; MFA is on and sign-in asks for a code | the QR enrols a working factor end to end |
+| S44 | the SVG has no `<script>`, `href`, `xlink:href`, `url(` or `<foreignObject>`; the response is `no-store` | the picture is inert and not cached |
+| S45 | a captured log and the audit rows from S43 contain neither the secret nor the link | secret hygiene |
+| S46 | replacing a factor still needs the current password, and the old factor works until confirmation, now with the new fields present | no regression in the enrolment rules |
+| S47 | `MfaSettingsPage.test.tsx`: the picture and its alternative text, the corrected text, the key in fours, the Copy success and failure messages, the copied value without spaces | the screen |
+| S48 | a targeted real-backend browser spec: sign in, start enrolment, see the QR, read the key from the page, compute a code with a test helper, confirm, sign out, sign in with a code | the real screen against the real server |
+
+**Required walkthrough (gate, BRIEFING-R10).** After S41 to S48 pass, the owner does a short targeted walkthrough:
+1. scan the QR with a real phone authenticator;
+2. confirm with its code;
+3. sign out, and sign in with a code.
+
+The Stage 1 evidence records the date, the app name and the result.
+
+**Stage 2 does not start until this walkthrough passes and the Stage 1 package is approved.**
+
+### 19.5 Stage 2: mandatory enrolment for newly created or recovered Deployment Administrators
+1. **Column.** `UserAccount.MustEnrollMfa` (bit, default 0), added by the migration `AddMustEnrollMfa`.
+   - Existing accounts get 0, so an existing Deployment Administrator is **not** forced. The owner's scope is "newly created or recovered".
+   - The Down path drops the column.
+2. **Set to 1** inside existing transactions, and only there:
+   - when first-run setup creates the Deployment Administrator (`DeploymentSetupService`);
+   - when recovery creates it, or resets it (`DeploymentRecoveryService` and `ResetForRecoveryInTransactionAsync`; recovery already turns MFA off).
+
+   It is never set for a Staff account.
+3. **Cleared** in `ConfirmMfaEnrollmentAsync`'s transaction when the code is verified, together with activating the factor.
+4. **Gate.** `MfaEnrollmentGateMiddleware` follows the same pattern as `PasswordChangeGateMiddleware`:
+   - the cookie check (Program.cs `OnValidatePrincipal`) reads `MustEnrollMfa` in the query it already makes;
+   - every endpoint that needs a signed-in user is refused with 403 `mfa_enrollment_required`, unless it is marked `AllowedWhileMfaEnrollmentRequired`;
+   - the allowed endpoints are `GET /api/auth/me`, `POST /api/auth/logout`, `POST /api/auth/mfa/enroll`, `POST /api/auth/mfa/confirm`, and the CSRF token route if it needs a user;
+   - anonymous endpoints are unaffected;
+   - one `MfaEnrollmentRequiredRefusal` audit row is written per session. If that write fails, the failure is logged and the request is still refused;
+   - the password-change gate runs first. A Deployment Administrator is created with `MustChangePassword = false`.
+5. **`/api/auth/me`** returns `mustEnrollMfa`. The client sends that user to the MFA page with this notice: "Your Deployment Administrator account must set up multi-factor authentication before you continue." This is presentation only; the gate is the control.
+6. **Enrolment while gated** does not need the current password, since no factor exists yet. This is unchanged.
+
+### 19.6 Stage 2 proof
+| # | Test | Proves |
+|---|---|---|
+| S39 | (moved here from 18.13) setup, recovery-create and recovery-reset set the flag; a Staff account and an existing Deployment Administrator never get it | the scope |
+| S49 | while gated, a protected route gives 403 `mfa_enrollment_required`; the allowed routes and an anonymous route work; one refusal audit row per session; after confirmation the same session reaches protected routes | the gate |
+| S50 | a failed confirmation (wrong code) keeps the flag and the gate; two concurrent confirmations clear it once | clearing is exact |
+| S51 | the migration adds the column, existing rows are 0, and Down works; the `RealMigrationInventoryTests` count is updated | the upgrade |
+| S52 | client: a `mustEnrollMfa` user lands on the MFA page with the notice and cannot navigate away. Browser: the S48 spec extended with recovery, then forced enrolment | the screen |
+
+### 19.7 Failure-first answers
+| What fails | Behaviour |
+|---|---|
+| QRCoder throws (for example on an over-long link) | Enrolment start fails with 500 and a logged `QrGenerationError`. The pending secret is not returned without its QR. Usernames are length-limited, so this is a defect path, not a user path. |
+| The QR cannot be scanned (camera, glare) | The key, account name and issuer are shown for manual entry, with Copy. |
+| Copy fails (clipboard blocked) | An explicit message is shown, and the key stays selectable. |
+| The phone's clock is wrong | Unchanged: the existing verification window applies, the code is refused, and the user can retry. |
+| A gated Deployment Administrator loses the phone before confirming | Nothing was activated; they start enrolment again. After confirming, they use recovery codes, or console recovery (C01), which sets the flag again. |
+| A gated user calls a protected API directly | The server answers 403; client routing is not the control. |
+| The migration runs on a database that has Deployment Administrators | They keep `MustEnrollMfa = 0`; nothing is forced on an existing account. |
+
+### 19.8 Slices (each shown before its tests run)
+1. **Stage 1 server:** the packages (D1, D2), `MfaProvisioning` and the route fields; S41 to S46.
+2. **Stage 1 client:** `MfaSettingsPage`; S47; S48, run once.
+3. **Stage 1 handoff:**
+   - focused proof, with `fullRegression: DEFERRED_TO_ALV-N028`;
+   - the ledger section and the ALV-N028 rows;
+   - then the owner's real-authenticator walkthrough, then review.
+4. **Stage 2 server:** the column, the migration, setting and clearing the flag, and the gate; S39, S49 to S51.
+5. **Stage 2 client:** the notice and the routing; S52.
+6. **Stage 2 handoff:** focused proof and the ledger rows, then review.
+
+### 19.9 Questions for the reviewer
+- **R11-Q1:** is "existing Deployment Administrators are not forced" the right reading of the owner's "newly created or recovered"? Proposed answer: yes. An existing one can enrol voluntarily, and the next recovery forces it.
+- **R11-Q2:** is one story with two packages (Stage 1 review, the walkthrough, then Stage 2 review) acceptable, rather than two stories?
