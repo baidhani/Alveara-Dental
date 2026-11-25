@@ -1,6 +1,6 @@
 # ACCT: accounts, Deployment Administrator and Practice Owner. Pre-implementation brief
 
-- **Status:** **APPROVED FOR IMPLEMENTATION.** Sections 1 to 15 were approved at R04 (`.alveara/reviews/ACCT/BRIEFING-R04.md`, after R01 to R03). The section 16 addendum was approved at R06 (`.alveara/reviews/ACCT/BRIEFING-R06.md`, after R05). The section 17 addendum was approved at R07 (`.alveara/reviews/ACCT/BRIEFING-R07.md`); it supersedes section 8's hosting. **The approved briefing set is R04 + R06 + R07.** **Section 18 (R08 addendum, 2026-11-25): ALV-N030-C01 - the Practice Owner authorization invariant (U-049), ownership transfer and Deployment Administrator recovery; a security correction - R08 CHANGES_REQUIRED (`.alveara/reviews/ACCT/BRIEFING-R08.md`); **R09 revision AWAITING INDEPENDENT REVIEW**; no code before approval. Owner execution order: C01, then ALV-N030-C02 (MFA QR enrolment, then Deployment Administrator MFA enforcement), both before ALV-N027.** Boundary: database creation, SQL snapshot settings, applying migrations, a production service wrapper and update distribution stay with ALV-N013; the production automatic-restart proof is ALV-N013's dependency proof, not an ALV-N030 acceptance item. Revision history follows.
+- **Status:** **APPROVED FOR IMPLEMENTATION.** Sections 1 to 15 were approved at R04 (`.alveara/reviews/ACCT/BRIEFING-R04.md`, after R01 to R03). The section 16 addendum was approved at R06 (`.alveara/reviews/ACCT/BRIEFING-R06.md`, after R05). The section 17 addendum was approved at R07 (`.alveara/reviews/ACCT/BRIEFING-R07.md`); it supersedes section 8's hosting. **The approved briefing set is R04 + R06 + R07.** **Section 18 (R08 addendum, 2026-11-25): ALV-N030-C01 - the Practice Owner authorization invariant (U-049), ownership transfer and Deployment Administrator recovery; a security correction - R08 and R09 CHANGES_REQUIRED (`.alveara/reviews/ACCT/BRIEFING-R08.md`, `BRIEFING-R09.md`); **R10 revision AWAITING INDEPENDENT REVIEW**; no code before approval. Owner execution order: C01, then ALV-N030-C02 (MFA QR enrolment, then Deployment Administrator MFA enforcement), both before ALV-N027.** Boundary: database creation, SQL snapshot settings, applying migrations, a production service wrapper and update distribution stay with ALV-N013; the production automatic-restart proof is ALV-N013's dependency proof, not an ALV-N030 acceptance item. Revision history follows.
 - **R04 changes (CR-6):**
   - the audit event `DeploymentAdministratorAssigned` is limited to the migration's single-candidate conversion; the superseded "administrator pick" wording is removed;
   - slice 5, the matrix and the evidence all use guards G1 to G8.
@@ -484,6 +484,10 @@ The owner ruled that this is a **security/authorization defect**: the Practice O
 
 **Surveyed tree:** `d7b8f9b` (read-only). This text replaces the first R08 draft of section 18 (same commit series, never reviewed).
 
+**R10 changes** (review `.alveara/reviews/ACCT/BRIEFING-R09.md`, CHANGES_REQUIRED; it closed R08-1 to R08-4, and the resolved decisions are not reopened):
+- **R09-1:** the initial-designation actor check is authoritative **inside** the serializable transaction, under a documented lock order (18.3a, E1a, S11b).
+- **R09-2:** a transfer carries `expectedDesignationId`, and a stale request is refused with 409 `owner_changed` (18.5, S35).
+
 **R09 changes** (review `.alveara/reviews/ACCT/BRIEFING-R08.md`, CHANGES_REQUIRED; its "Decisions confirmed" stand unchanged):
 - **R08-1:** the initial designation now requires the **acting** account to have role `Admin` (18.3 E1a, S11b).
 - **R08-2:** the checkout rule admits `Admin` **alongside** Dentist and Hygienist, always with the active booked-provider link; other roles stay refused (18.9, S29).
@@ -568,7 +572,7 @@ Everything else stands.
 | # | Path | Current behaviour (`d7b8f9b`) | Rule in C01 |
 |---|---|---|---|
 | E1 | `PracticeOwnerService.DesignateInitialAsync` (existing staff) | checks active, linked, enabled, kind `Staff`; any role | adds role `Admin`; otherwise 409 **`owner_must_be_administrator`**. The target account is read with `UPDLOCK` inside the existing serializable transaction, so a concurrent role change waits. |
-| E1a | **Actor** of `POST /api/practice-owner/initial` (R08-1) | the route requires the `ManageUsers` permission only, which a non-Administrator can hold through the matrix or an override | the acting account must itself have role **`Admin`**, be enabled, and (as today) hold `ManageUsers`. This covers the Deployment Administrator and ordinary Administrators. Anyone else → 403 **`owner_designation_requires_administrator`**, refused **before** the transaction opens, audited through `RecordRefusalAsync`, nothing written. The check reads the actor's stored role, not the session claim, so a role change since sign-in is honoured. 18.4's single call already needs an Administrator actor (creating an Admin login, E2). |
+| E1a | **Actor** of `POST /api/practice-owner/initial` (R08-1) | the route requires the `ManageUsers` permission only, which a non-Administrator can hold through the matrix or an override | the acting account must itself have role **`Admin`**, be enabled, and (as today) hold `ManageUsers`. This covers the Deployment Administrator and ordinary Administrators. Anyone else → 403 **`owner_designation_requires_administrator`**, audited through `RecordRefusalAsync`, nothing written. **R09-1, the authoritative check is inside the transaction:** a preliminary read before the transaction may refuse early, but it is not the control. Inside the serializable designation transaction, the actor's account row and the target's account row are locked in the order of 18.3a. Then the actor's role (`Admin`), enabled state and account kind (`Staff` or `DeploymentAdministrator`) are re-checked under that lock, from the stored row, not the session claim. A concurrent role downgrade or disable of the actor either commits first (the designation then sees it and is refused) or waits until the designation commits (the actor was eligible when it designated). An ineligible committed actor can never designate. 18.4's single call uses the same shared designation method, so it gets the same in-transaction actor check. |
 | E2 | `StaffMemberService.CreateAsync` with `practiceOwner: true` (18.4) | n/a | role must be `Admin`, else 400 **`owner_must_be_administrator`** before anything is written. Creating an Administrator login is already limited to Administrators (403 `target_is_admin`). |
 | E3 | `AccountService.ChangeRoleAsync` | any change; last-admin guard only | changing the **current owner's** account away from `Admin` → 409 **`owner_transfer_required`**, refusal audited, nothing changes |
 | E4 | `StaffInactivationService.InactivateAsync` and `StaffProviderService.SetStaffActiveAsync` | the owner's profile can be inactivated (the first also disables the login) | inactivating the **owner's** profile → 409 **`owner_transfer_required`**, refusal audited, nothing changes. Unlink needs an inactive profile, so it is unreachable for the owner (S27 pins it). |
@@ -577,6 +581,22 @@ Everything else stands.
 - **Error body for E3 to E5:** `{error:"owner_transfer_required", message:"Transfer the Practice Owner designation before disabling this account."}`. The message is the owner's wording for disabling; for a role change or an inactivation the client says "changing this account's role" or "inactivating this staff member" in place of "disabling this account".
 - **How each check works:** it runs inside the operation's existing transaction, after the row lock it already takes (`LoadLockedAsync` for accounts; the staff row for inactivation). The active designation row is read with `UPDLOCK, HOLDLOCK`, so a concurrent transfer (18.5) and the refused operation serialize: either the transfer commits first and the former owner is no longer protected, or the refusal stands.
 - **Refusal audit rows:** the existing `RecordRefusalAsync` with rule `owner_transfer_required` (account operations), plus a configuration refusal row for E4.
+
+### 18.3a Lock order for every owner-affecting operation (R09-1)
+Every operation that can create, move or break the designation takes its locks in this order, inside its own transaction:
+1. **The administrator guard** (`AdminAvailabilityGuard.AcquireAsync`: `sp_getapplock`, exclusive, owned by the transaction, 10 s timeout answering `AdminGuardBusy`).
+2. **The designation rows:** the active designation, `UPDLOCK, HOLDLOCK` (for an initial designation, the serializable "never designated" range read).
+3. **The account rows involved, in ascending `Id` order:** the actor, the target, the source and the destination, as applicable (`UPDLOCK`, the existing `LoadLockedAsync` pattern).
+4. **The staff profile rows involved,** in ascending `Id` order.
+
+**Operations covered:**
+- the initial designation (E1, E1a);
+- the single owner-creation call (18.4);
+- transfer (18.5);
+- role change (E3), staff inactivation (E4) and disable (E5);
+- recovery's reset of the Deployment Administrator (18.6).
+
+Role change, disable and inactivation already take the guard first. C01 adds it as the first lock of designation, single-call creation, transfer and recovery. Because the guard is one exclusive application lock taken first by all of them, no two of these operations hold row locks at the same time, so no deadlock cycle can form between them. The fixed row order covers any other reader that takes row locks.
 
 ### 18.4 The single owner-creation call (U-046 decision)
 - **Route:** `POST /api/config/staff-members` gains an optional `practiceOwner` (boolean, default false). Permissions are unchanged: ManagePracticeConfiguration **and** ManageUsers, CSRF, Idempotency-Key.
@@ -596,6 +616,7 @@ Everything else stands.
 ### 18.5 Ownership transfer
 **Route:** `POST /api/practice-owner/transfer`, CSRF, Idempotency-Key required.
 - **Body:**
+  - `expectedDesignationId`: the id of the active designation the operator saw when the dialog loaded (R09-2);
   - `newOwnerStaffProfileId`;
   - `reason` (required, trimmed, 10 to 500 characters);
   - `confirm` (must be `true`);
@@ -620,21 +641,22 @@ Everything else stands.
 | Code | When |
 |---|---|
 | 409 `no_active_owner` | there is no active designation; use the initial designation instead |
+| 409 **`owner_changed`** | (R09-2) the locked active designation's id is not `expectedDesignationId`: the owner changed since the dialog was loaded. Nothing is changed. The client reloads the current owner and asks the operator to confirm again. |
 | 400 `transfer_same_owner` | the destination is the current owner |
 | 409 `owner_must_be_administrator` | the destination breaks OI: not an active staff profile, no linked enabled `Staff` account, or not role `Admin` |
 | 400 `validation_failed` | the reason is missing or outside 10 to 500 characters |
 
 **One transaction** (serializable):
-1. Lock the active designation row (`UPDLOCK, HOLDLOCK`). A second transfer, an E1 to E5 operation or an initial designation waits here. The loser re-reads the committed state and is refused on its own rule (the second transfer gets `transfer_same_owner` or proceeds from the new owner if its destination differs; idempotent replays return the first result).
-2. Lock the former owner's account and the destination account (the existing `AdminAvailabilityGuard` plus row locks, in a fixed order by id, so two transfers in opposite directions cannot deadlock).
-3. Re-check every rule above on the locked rows.
+1. Take the locks in the 18.3a order: the administrator guard, then the active designation (`UPDLOCK, HOLDLOCK`), then the actor, former owner and destination accounts by ascending id, then their staff profiles.
+2. **Stale-intent check (R09-2):** the locked active designation's `Id` must equal `expectedDesignationId`, otherwise 409 `owner_changed`. A second transfer confirmed against the same owner therefore never "proceeds from the new owner": it is refused, with no mutation.
+3. Re-check every rule above on the locked rows, including the actor still being the enabled Deployment Administrator.
 4. Set `EndedAtUtc` on the old designation, then insert the new one (`Method = Transfer`, `DesignatedByAccountId` = the Deployment Administrator). Both are in one transaction: the filtered unique index is checked per statement, the trigger permits only `EndedAtUtc`, and other readers (read-committed snapshot) see either the old owner or the new one. **Zero or two active owners are never visible.**
 5. **Former owner's sessions:** rotate the security stamp and revoke open sessions (the existing `BumpSecurityStamp` + `AuditSessionStore.RevokeOpenAsync`, as on a role change), so their next request re-authenticates and sees the new state.
 6. **If `disableFormerOwner`:** disable the former owner's account through the existing disable logic (last-administrator guard: the Deployment Administrator and the new owner are both Administrators, so it always passes; audit `AccountDisabled`). The former owner's **role is not changed** (Q8): they stay an Administrator. A role change remains a separate, audited operation, which E3 no longer blocks once they are not the owner. The emergency option only transfers and disables.
 7. **Audit:** one `PracticeOwnerTransferred` row. The details carry **ids only**: actor account id, former owner staff profile id, new owner staff profile id, the reason, the UTC time, and `formerOwnerDisabled`. No names. The reason is the operator's own text; the dialog asks for it without patient or personal details (18.8).
 8. Commit. On any failure nothing changes, including the disable and the session revocation, because all of it runs inside the same transaction.
 
-**Idempotency:** the key is bound to (actor, key). A replay returns the original result; the same key with a different body → 409 `idempotency_key_reused`.
+**Idempotency:** the key is bound to (actor, key), and the stored **request fingerprint** covers `expectedDesignationId`, `newOwnerStaffProfileId`, `reason` and `disableFormerOwner` (never the password or MFA code). A replay with the same key and fingerprint returns the original result, even though the designation has changed since; that is the replay, not a new transfer. The same key with a different fingerprint → 409 `idempotency_key_reused`.
 
 **What transfer does not do:**
 - **Create the new owner.** They must already exist as an Administrator staff member: Staff tab, "Add staff member" with role Administrator.
@@ -713,7 +735,7 @@ C01 adds **no** mandatory MFA enrolment, no `MustEnrollMfa` column and no enrolm
 - **Security Administration:**
   - **For the owner's account:** the role selector, Disable and (in Staff) Inactivate are disabled, with "This person is the Practice Owner. Transfer the Practice Owner designation first."; the server refuses regardless (E3 to E5).
   - **For the Deployment Administrator only,** a **"Transfer Practice Owner"** action opens a dialog with:
-    - the current owner;
+    - the current owner (the dialog keeps the active designation's id and sends it as `expectedDesignationId`);
     - a picker of eligible destinations (active Administrator staff members, the current owner excluded);
     - a reason box, with the hint "Do not include patient or personal details.";
     - "Also disable the former owner's login";
@@ -764,7 +786,7 @@ Names are never written back into the stored row. Callers without ViewAuditLog a
 | Row | Proves | Layer |
 |---|---|---|
 | S11 (extended) | E1: an eligible non-Administrator **target** is refused 409 `owner_must_be_administrator`, nothing written; an Administrator staff member succeeds | API |
-| S11b | E1a (R08-1): an Office Manager given `ManageUsers` (matrix grant) designating an eligible **Administrator** staff member → 403 `owner_designation_requires_administrator`, no designation row, a refusal audit row; the same request by an Administrator and by the Deployment Administrator succeeds (separate databases) | API |
+| S11b | E1a (R08-1): an Office Manager given `ManageUsers` (matrix grant) designating an eligible **Administrator** staff member → 403 `owner_designation_requires_administrator`, no designation row, a refusal audit row; the same request by an Administrator and by the Deployment Administrator succeeds (separate databases). **Race (R09-1):** an Administrator's designation runs concurrently with (a) a role downgrade and (b) a disable of that same actor, started by a second Administrator. In each case either the designation commits and the competing change committed after it, or the designation is refused (403) with no designation row. A test hook between the preliminary check and the transaction forces the downgrade to commit in that gap, and the designation must then be refused. **An actor that was ineligible at commit time never designates.** | API, service, concurrency |
 | S23 | 18.4: `practiceOwner:true` with role Admin creates profile, account, link and designation in one transaction (three audit rows); any other role → 400 and **nothing** written | API |
 | S24 | 18.4 both-or-neither: a fault injected after the account insert rolls back everything; an owner already designated → 409 and no staff or account row | service |
 | S25 | 18.4 idempotency and races: the same key twice → one row set and no second password; two keys at once → exactly one owner, and the loser created nothing | service, concurrency |
@@ -777,7 +799,7 @@ Names are never written back into the stored row. Callers without ViewAuditLog a
 | S32 | 18.5 authorization: an ordinary Administrator, the current owner and a non-Admin are all refused 403 `transfer_not_permitted`; a wrong `currentPassword` → 403, audited, and counts toward lockout. **With MFA on (Q5):** a missing `mfaCode` → 403 `mfa_required`; a wrong code → 403, audited `MfaStepUpFailed`, counts toward lockout; a recovery code is refused; the right password and code succeed. **With MFA off,** the password alone succeeds. Missing `confirm` or reason → 400. Nothing changes in any refused case. | API |
 | S33 | 18.5 destination rules: same as source, inactive, unlinked, disabled, non-Admin, the Deployment Administrator itself, no active owner → each refused, nothing changes | API |
 | S34 | 18.5 `disableFormerOwner`: the former owner is disabled in the same transaction (one `AccountDisabled`); a fault injected after the designation insert leaves the old owner active, not disabled and with sessions intact | service |
-| S35 | 18.5 concurrency: two transfers at once to different destinations → exactly one active owner throughout. A reader polling the active designation during the race never sees zero or two, and the loser's response is consistent with the committed state. A transfer racing a role change on the destination: either the transfer is refused or the role change is refused, never both committed. | service, concurrency |
+| S35 | 18.5 concurrency (R09-2): two transfers with **different idempotency keys**, both carrying the **same** `expectedDesignationId` (owner A), to different destinations B and C, started together. Exactly **one** commits; the other answers 409 `owner_changed` with no mutation (no second designation, no disable, no session revocation, no transfer audit row). A reader polling the active designation during the race never sees zero or two. A transfer whose `expectedDesignationId` is already stale before it starts → 409 `owner_changed`. A transfer racing a role change on the destination: either the transfer is refused or the role change is refused, never both committed. | service, concurrency |
 | S36 | 18.5 idempotency: the same key replays the same result with no second audit row; the same key with a different body → 409 | API |
 | S37 | 18.6 recovery: the CLI refuses before setup. With no Deployment Administrator, a valid token creates one (one only, under two concurrent requests). With a disabled or locked one, a valid token plus its username resets password and lockout, enables it and revokes its sessions; a wrong username → the same `recovery_failed`. Five failures void the token (atomic, as R02 CR-1). The token never appears in logs or audit. The route answers 503 outside Normal mode. **Q6 reset with MFA on:** the secret and pending secret are cleared; every recovery code is revoked; the stamp rotates and all sessions close; one `DeploymentAdministratorRecovered` row holds no token, username tried or password; the account then signs in with the new password alone (no enrolment gate in C01). | API, CLI |
 | S39 | (moved to ALV-N030-C02 Stage 2: the enrolment gate) | - |
@@ -808,7 +830,8 @@ Names are never written back into the stored row. Callers without ViewAuditLog a
 ### 18.14 Failure-first answers
 | What fails | Behaviour |
 |---|---|
-| Two transfers race | The active designation row's update lock serializes them. The second re-reads the committed state and is refused, or proceeds on the new state; never zero or two owners. |
+| Two transfers race | The guard and the active designation's update lock serialize them. The second sees that the designation id no longer matches its `expectedDesignationId` and is refused 409 `owner_changed`; stale intent never moves ownership again. Never zero or two owners. |
+| The initial designation races a downgrade or disable of its actor | The actor is re-checked under its row lock inside the designation transaction (18.3a). An ineligible actor at commit time is refused. |
 | A transfer races a role change, disable or inactivation of either person | Both take the designation lock, then account or staff locks in a fixed order. One waits; the loser sees the committed state and is refused if OI or E3 to E5 would break. No deadlock cycle: a fixed lock order, and an existing `AdminGuardBusy` timeout answer if the guard is held. |
 | A transfer fails part way | One transaction: no ended designation without a new one, no disable or session revocation without the transfer. |
 | The Deployment Administrator is unavailable | Recovery (18.6) from the server console, then transfer. |

@@ -3787,3 +3787,10 @@
   - What changed: R08-1 initial-designation actor must be Admin (E1a, S11b); R08-2 checkout admits Admin alongside Dentist/Hygienist with the active booked-provider link, other roles refused (18.9, S29); R08-3 deterministic audit id + NOT EXISTS predicate for the migration row (18.7, S30); R08-4 no owner walkthrough for C01, targeted transfer/recovery browser spec instead, C02 real-authenticator gate kept; review file BRIEFING-R08 committed
   - Verification: documentation only
   - Notes: R09 review ZIP built after this commit
+
+- [x] ACCT brief section 18 revised to R10 after review R09 (CHANGES_REQUIRED)
+  - Date: 2026-11-25
+  - Session: CC-20261123-q4vn
+  - What changed: R09-1 authoritative in-transaction actor check for the initial designation and a documented lock order for every owner-affecting operation (18.3a, E1a, S11b race); R09-2 transfer carries expectedDesignationId, stale intent refused 409 owner_changed, idempotency fingerprint covers it (18.5, S35); review file BRIEFING-R09 committed
+  - Verification: documentation only
+  - Notes: R10 review ZIP built after this commit
