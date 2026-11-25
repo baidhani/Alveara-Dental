@@ -3759,3 +3759,10 @@
   - What changed: docs/design/ACCT_PRE_IMPLEMENTATION_BRIEF.md section 18 (owner decision recorded; invariant OI and enforcement points E1-E6; single owner-creation call; existing-data handling; client; provider eligibility fix in CheckoutRecorder; tests S11 ext + S23-S30; Q1-Q4); status line marks it awaiting review
   - Verification: documentation only; read-only survey of tree 50daabe and AlveraDev (no N030 migration applied)
   - Notes: no code before independent approval; proposed id ALV-N030-C01; blocks ALV-N027 start
+
+- [x] ACCT brief R08 addendum revised: ALV-N030-C01 (owner answers Q1-Q4; ownership transfer and Deployment Administrator recovery added)
+  - Date: 2026-11-25
+  - Session: CC-20261123-q4vn
+  - What changed: docs/design/ACCT_PRE_IMPLEMENTATION_BRIEF.md section 18 rewritten: owner decisions (Q1 b refuse + owner_transfer_required, Q2 a, Q3 a, Q4 ALV-N030-C01); E1-E5 enforcement; single owner-creation call; transfer (DA only, step-up, reason, confirm, atomic end+create, session revocation, ids-only audit, transfer-and-disable, concurrency); DA recovery via console token (SetupTokens.Purpose); existing data; provider eligibility; tests S11 ext + S23-S38; new questions Q5-Q8
+  - Verification: documentation only; read-only survey of tree d7b8f9b
+  - Notes: no code before independent approval; review ZIP not built until the owner answers Q5-Q8
