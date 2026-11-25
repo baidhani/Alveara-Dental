@@ -3808,3 +3808,10 @@
   - What changed: PracticeOwnerGuard (new); PracticeOwnerService initial designation requires an Admin target and an enabled-Admin actor checked inside the serializable transaction under the 18.3a lock order; AccountService refuses role change away from Admin and disable of the owner (owner_transfer_required); StaffInactivationService/StaffProviderService refuse inactivating the owner (audited ordinary refusal, no failure alert); AuthController maps the 409; tests PracticeOwnerInvariantTests (S11, S11b gap + live races, S26, S27, S28) and two StaffMemberAndOwnerTests owners made Administrators
   - Verification: PracticeOwnerInvariantTests + StaffMemberAndOwnerTests 24/24 (1 m 44 s); AccountBootstrapMigrationTests + PasswordChangeGateTests 13/13 (1 m 12 s); test databases back to the 1 pre-existing
   - Notes: ManageUsers is Administrator-only in this app, so S11b proves the actor refusal at the route (403) and in the service; AccountService.cs (906 lines, over the 500 ceiling) received only call lines, logic kept in PracticeOwnerGuard - disclosed
+
+- [x] ALV-N030-C01 slice 2: single owner-creation call (U-046)
+  - Date: 2026-11-25
+  - Session: CC-20261123-q4vn
+  - What changed: StaffMemberService.CreateAsync practiceOwner option (Admin role required, 400; serializable transaction under the 18.3a locks; actor re-checked; profile + Admin login + designation both or neither; replay reports practiceOwner); PracticeOwnerService.StageDesignation shared by both designation paths; StaffMembersController request/response; client Staff tab sends one call (two-call sequence and partial-failure messages removed); tests PracticeOwnerCreationTests (S23, S24, S25) and the updated AccountBootstrap.test
+  - Verification: PracticeOwnerCreationTests + StaffMemberAndOwnerTests 21/21 (1 m 34 s); vitest AccountBootstrap.test 24/24; tsc -p tsconfig.app.json clean; test databases back to the 1 pre-existing
+  - Notes: the Staff tab role lock is slice 6

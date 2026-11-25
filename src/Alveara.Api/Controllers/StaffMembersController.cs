@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Alveara.Api.Controllers;
 
-public record AddStaffMemberRequest(string? DisplayName, string? JobTitle, string? Username, string? Role);
+public record AddStaffMemberRequest(string? DisplayName, string? JobTitle, string? Username, string? Role, bool? PracticeOwner = null);
 public record LegacyLoginRequest(string? Username, string? Role);
 
 /// <summary>
@@ -26,7 +26,7 @@ public class StaffMembersController(StaffMemberService staffMembers, IEffectiveP
     [RequirePermission(Permission.ManagePracticeConfiguration)]
     [RequireCsrfToken]
     public Task<IActionResult> Add([FromBody] AddStaffMemberRequest? request, [FromHeader(Name = "Idempotency-Key")] string? idempotencyKey, CancellationToken ct) =>
-        RunAsync(() => staffMembers.CreateAsync(request?.DisplayName, request?.JobTitle, request?.Username, request?.Role, idempotencyKey, Actor, ct), ct);
+        RunAsync(() => staffMembers.CreateAsync(request?.DisplayName, request?.JobTitle, request?.Username, request?.Role, idempotencyKey, Actor, ct, request?.PracticeOwner ?? false), ct);
 
     [HttpPost("staff/{id:guid}/legacy-login")]
     [RequirePermission(Permission.ManagePracticeConfiguration)]
@@ -43,8 +43,8 @@ public class StaffMembersController(StaffMemberService staffMembers, IEffectiveP
         {
             var r = await action();
             return r.Replayed
-                ? Ok(new { status = "already_created", staffProfileId = r.StaffProfileId, userAccountId = r.UserAccountId, username = r.Username, role = r.Role })
-                : StatusCode(StatusCodes.Status201Created, new { staffProfileId = r.StaffProfileId, userAccountId = r.UserAccountId, username = r.Username, role = r.Role, temporaryPassword = r.TemporaryPassword });
+                ? Ok(new { status = "already_created", staffProfileId = r.StaffProfileId, userAccountId = r.UserAccountId, username = r.Username, role = r.Role, practiceOwner = r.PracticeOwner })
+                : StatusCode(StatusCodes.Status201Created, new { staffProfileId = r.StaffProfileId, userAccountId = r.UserAccountId, username = r.Username, role = r.Role, practiceOwner = r.PracticeOwner, temporaryPassword = r.TemporaryPassword });
         }
         catch (ConfigurationException ex)
         {

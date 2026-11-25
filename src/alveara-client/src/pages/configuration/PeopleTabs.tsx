@@ -7,7 +7,7 @@ import { useNotifications } from "../../components/Notification";
 import { ConfigEntityPanel } from "../../components/ConfigEntityPanel";
 import type { ConfigField } from "../../components/ConfigEntityPanel";
 import { ApiError } from "../../services/authApi";
-import { addStaffMember, designatePracticeOwner, WORKING_ROLES } from "../../services/accountsApi";
+import { addStaffMember, WORKING_ROLES } from "../../services/accountsApi";
 import {
   createProvider, listProviders, listStaff, setProviderActive, setStaffActive,
   updateProvider, updateStaff,
@@ -28,6 +28,9 @@ const ADD_ERRORS: Record<string, string> = {
   role_invalid: "Choose a role.",
   target_is_admin: "Only an administrator can create an administrator login.",
   target_exceeds_actor: "You can only create a login whose permissions you hold yourself.",
+  owner_must_be_administrator: "The Practice Owner must sign in with the Administrator role. Choose Administrator as the role.",
+  owner_already_designated: "A Practice Owner has already been designated. Nobody was added; untick \"Make this person the Practice Owner\" to add this person as staff.",
+  owner_designation_requires_administrator: "Only an Administrator can add the Practice Owner.",
 };
 
 /**
@@ -98,7 +101,7 @@ export function StaffTab({ onDirtyChange }: TabProps) {
       create={async (v) => {
         let created;
         try {
-          created = await addStaffMember(v.displayName.trim(), v.jobTitle.trim(), v.username.trim(), v.role);
+          created = await addStaffMember(v.displayName.trim(), v.jobTitle.trim(), v.username.trim(), v.role, v.practiceOwner === "true");
         } catch (err) {
           throw err instanceof ApiError && ADD_ERRORS[err.code] ? new ApiError(err.status, err.code, ADD_ERRORS[err.code], err.body) : err;
         }
@@ -107,15 +110,9 @@ export function StaffTab({ onDirtyChange }: TabProps) {
           return created;
         }
         setIssued({ displayName: v.displayName.trim(), username: created.username, temporaryPassword: created.temporaryPassword });
-        if (v.practiceOwner === "true") {
-          try {
-            await designatePracticeOwner(created.staffProfileId);
-            notify("success", `${v.displayName.trim()} is now the Practice Owner.`);
-          } catch (err) {
-            notify("warning", err instanceof ApiError && err.code === "owner_already_designated"
-              ? "A Practice Owner was already designated, so this person was added without that designation."
-              : "The staff member was added, but the Practice Owner could not be designated. Try again from the dashboard.");
-          }
+        if (created.practiceOwner) {
+          // ALV-N030-C01 (brief 18.4): one server call made the person and the designation together, so there is no partial outcome to report
+          notify("success", `${v.displayName.trim()} is now the Practice Owner.`);
           await refreshIdentity();
         }
         return created;

@@ -12,7 +12,7 @@ namespace Alveara.Api.Architecture.Identity;
 
 /// <summary>The outcome of "Add staff member" or "Create a login for this legacy staff record". <see cref="TemporaryPassword"/> is set only on the first
 /// call; a replay of the same Idempotency-Key reports <see cref="Replayed"/> and never shows the password again.</summary>
-public sealed record StaffMemberResult(Guid StaffProfileId, Guid UserAccountId, string Username, string Role, string? TemporaryPassword, bool Replayed);
+public sealed record StaffMemberResult(Guid StaffProfileId, Guid UserAccountId, string Username, string Role, string? TemporaryPassword, bool Replayed, bool PracticeOwner = false);
 
 /// <summary>
 /// ALV-N030 (brief sections 4 to 6, R01 CR-1): new staff get a staff profile and a login together, in one transaction.
@@ -37,6 +37,9 @@ public class StaffMemberService(AlveraDbContext db, IPracticeClock clock, IEffec
     /// <summary>Test hook: runs after the profile is written and before the account is, inside the transaction (S9 fault injection).</summary>
     internal Func<Task>? TestHook_AfterProfileInsert { get; set; }
 
+    /// <summary>Test hook: runs after the account and the link are written and before the owner designation is, inside the transaction (S24 fault injection).</summary>
+    internal Func<Task>? TestHook_BeforeDesignation { get; set; }
+
     public static string GenerateTemporaryPassword() =>
         new(Enumerable.Range(0, TemporaryPasswordLength).Select(_ => UnambiguousAlphabet[RandomNumberGenerator.GetInt32(UnambiguousAlphabet.Length)]).ToArray());
 
@@ -46,7 +49,13 @@ public class StaffMemberService(AlveraDbContext db, IPracticeClock clock, IEffec
         return new Guid(bytes.AsSpan(0, 16));
     }
 
-    public async Task<StaffMemberResult> CreateAsync(string? displayName, string? jobTitle, string? username, string? role, string? idempotencyKey, Guid actor, CancellationToken ct)
+    /// <summary>
+    /// "Add staff member". With <paramref name="practiceOwner"/> (ALV-N030-C01, brief 18.4, the U-046 single call) the same transaction also designates the new
+    /// person the Practice Owner - both or neither: the role must be Administrator (E2, 400 before anything is written), the actor an enabled Administrator
+    /// (E1a, checked under its lock), and no designation may ever have existed (409 <c>owner_already_designated</c>, nothing created). Locks follow 18.3a.
+    /// </summary>
+    public async Task<StaffMemberResult> CreateAsync(string? displayName, string? jobTitle, string? username, string? role, string? idempotencyKey, Guid actor, CancellationToken ct,
+        bool practiceOwner = false)
     {
         var key = RequireKey(idempotencyKey);
         var staffId = DerivedId("profile", actor, key);
@@ -56,6 +65,10 @@ public class StaffMemberService(AlveraDbContext db, IPracticeClock clock, IEffec
         var title = ConfigurationWrite.OptionalText(jobTitle, "Job title", 80);
         var login = RequireUsername(username);
         var targetRole = await RequireAllowedRoleAsync(role, actor, ct);
+        if (practiceOwner && targetRole != Role.Admin)
+            throw new ConfigurationException(PracticeOwnerGuard.TargetMustBeAdministrator,
+                "The Practice Owner must sign in with the Administrator role. Choose Administrator as the role.");
+        if (practiceOwner && await db.PracticeOwnerDesignations.AnyAsync(ct)) throw PracticeOwnerService.AlreadyDesignated();   // early; re-checked under the locks
         if (await db.StaffProfiles.AnyAsync(s => s.DisplayName == name, ct))
             throw new ConfigurationException("staff_name_taken", "A staff profile with that display name already exists.", 409);
         if (await db.UserAccounts.AnyAsync(u => u.Username == login, ct))
@@ -65,9 +78,25 @@ public class StaffMemberService(AlveraDbContext db, IPracticeClock clock, IEffec
         var account = NewAccount(DerivedId("account", actor, key), login, targetRole, password);
         var staff = new StaffProfile { Id = staffId, DisplayName = name, JobTitle = title, IsActive = true, CreatedAtUtc = clock.UtcNow };
 
-        await using var tx = await db.Database.BeginTransactionAsync(ct);
+        await using var tx = practiceOwner
+            ? await db.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable, ct)
+            : await db.Database.BeginTransactionAsync(ct);
         try
         {
+            LockedAccount? designator = null;
+            if (practiceOwner)
+            {
+                // 18.3a: the guard, then the designation range ("never designated"), then the actor's account row
+                await AdminAvailabilityGuard.AcquireAsync(db, ct);
+                if (await db.PracticeOwnerDesignations.AnyAsync(ct)) throw PracticeOwnerService.AlreadyDesignated();
+                (await PracticeOwnerGuard.LockAccountsAsync(db, [actor], ct)).TryGetValue(actor, out designator);
+                if (!PracticeOwnerGuard.IsEligibleDesignator(designator))
+                {
+                    await tx.RollbackAsync(ct);
+                    db.ChangeTracker.Clear();
+                    await PracticeOwnerService.RefuseActorAsync(db, actor, designator, ct);
+                }
+            }
             db.StaffProfiles.Add(staff);
             ConfigurationWrite.Audit(db, ConfigurationAuditEvents.Created, nameof(StaffProfile), staff.Id, actor, "Staff profile created with a login account.");
             await db.SaveChangesAsync(ct);
@@ -77,7 +106,19 @@ public class StaffMemberService(AlveraDbContext db, IPracticeClock clock, IEffec
             staff.UserAccountId = account.Id;
             AuditCreated(account, staff.Id, actor, "A staff member was added with a login account.");
             await db.SaveChangesAsync(ct);
+            if (practiceOwner)
+            {
+                if (TestHook_BeforeDesignation is { } beforeDesignation) await beforeDesignation();
+                PracticeOwnerService.StageDesignation(db, staff.Id, staff.DisplayName, designator!, clock.UtcNow);
+                await db.SaveChangesAsync(ct);
+            }
             await tx.CommitAsync(ct);
+        }
+        catch (AdminGuardBusyException)
+        {
+            await tx.RollbackAsync(CancellationToken.None);
+            db.ChangeTracker.Clear();
+            throw new ConfigurationException("admin_guard_busy", "Another administrator change is in progress. Try again in a moment.", 409);
         }
         catch (DbUpdateException ex) when (IsDuplicate(ex))
         {
@@ -86,7 +127,7 @@ public class StaffMemberService(AlveraDbContext db, IPracticeClock clock, IEffec
             if (await ReplayAsync(staffId, ct) is { } concurrent) return concurrent;   // the same key won a race
             throw new ConfigurationException("staff_member_conflict", "That display name or username was just taken. Check the staff list and try again.", 409);
         }
-        return new StaffMemberResult(staff.Id, account.Id, account.Username, account.Role.ToString(), password, Replayed: false);
+        return new StaffMemberResult(staff.Id, account.Id, account.Username, account.Role.ToString(), password, Replayed: false, PracticeOwner: practiceOwner);
     }
 
     public async Task<StaffMemberResult> CreateLegacyLoginAsync(Guid staffId, string? username, string? role, string? idempotencyKey, Guid actor, CancellationToken ct)
@@ -135,7 +176,9 @@ public class StaffMemberService(AlveraDbContext db, IPracticeClock clock, IEffec
     {
         var row = await db.StaffProfiles.AsNoTracking().Where(s => s.Id == staffId && s.UserAccountId != null)
             .Select(s => new { s.Id, AccountId = s.UserAccountId!.Value, s.UserAccount!.Username, s.UserAccount.Role }).SingleOrDefaultAsync(ct);
-        return row is null ? null : new StaffMemberResult(row.Id, row.AccountId, row.Username, row.Role.ToString(), null, Replayed: true);
+        if (row is null) return null;
+        var owner = await db.PracticeOwnerDesignations.AsNoTracking().AnyAsync(d => d.StaffProfileId == row.Id && d.EndedAtUtc == null, ct);
+        return new StaffMemberResult(row.Id, row.AccountId, row.Username, row.Role.ToString(), null, Replayed: true, PracticeOwner: owner);
     }
 
     private UserAccount NewAccount(Guid id, string username, Role role, string temporaryPassword) => new()

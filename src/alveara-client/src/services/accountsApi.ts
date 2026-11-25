@@ -37,6 +37,8 @@ export interface StaffMemberCreated {
   userAccountId: string;
   username: string;
   role: string;
+  /** ALV-N030-C01 (brief 18.4): true when this call also designated the person the Practice Owner (or, on a replay, when they are the owner). */
+  practiceOwner?: boolean;
   temporaryPassword?: string;
 }
 
@@ -49,9 +51,12 @@ async function postWithKey<T>(url: string, body: unknown, idempotencyKey: string
   });
 }
 
-/** POST /api/config/staff-members: profile and login together. The key is derived from the username, so a retry of the same addition is a replay, not a second person. */
-export const addStaffMember = (displayName: string, jobTitle: string, username: string, role: string) =>
-  postWithKey<StaffMemberCreated>("/api/config/staff-members", { displayName, jobTitle, username, role }, `staff-member:${username.trim().toLowerCase()}`);
+/**
+ * POST /api/config/staff-members: profile and login together. The key is derived from the username, so a retry of the same addition is a replay, not a second person.
+ * ALV-N030-C01 (brief 18.4): with practiceOwner the same server transaction also designates the person the Practice Owner - both or neither.
+ */
+export const addStaffMember = (displayName: string, jobTitle: string, username: string, role: string, practiceOwner = false) =>
+  postWithKey<StaffMemberCreated>("/api/config/staff-members", { displayName, jobTitle, username, role, practiceOwner }, `staff-member:${username.trim().toLowerCase()}`);
 
 /** POST /api/config/staff/{id}/legacy-login: a new login for an active staff record created before logins were required. */
 export const createLegacyLogin = (staffProfileId: string, username: string, role: string) =>

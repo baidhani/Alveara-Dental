@@ -181,27 +181,45 @@ describe("Add staff member on the Staff tab", () => {
     return calls;
   }
 
-  it("adds profile and login together with an Idempotency-Key, shows the temporary password, and designates the owner when ticked", async () => {
+  it("adds profile, login and the owner designation in ONE call with an Idempotency-Key, and shows the temporary password", async () => {
     const calls = renderStaffTab({ practiceOwnerExists: false, accountKind: "DeploymentAdministrator" }, [], (url) => {
       if (url.includes("/api/config/staff-members"))
-        return json({ staffProfileId: "s1", userAccountId: "u1", username: "dr.owner", role: "Dentist", temporaryPassword: "Owner2345Pass6789" }, 201);
-      if (url.includes("/api/practice-owner/initial")) return json({ staffProfileId: "s1", displayName: "Dr Owner", designatedAtUtc: "2026-11-24T00:00:00Z", method: "InitialByDeploymentAdministrator" }, 201);
+        return json({ staffProfileId: "s1", userAccountId: "u1", username: "dr.owner", role: "Admin", practiceOwner: true, temporaryPassword: "Owner2345Pass6789" }, 201);
     });
     fireEvent.click(await screen.findByRole("button", { name: "Add staff member" }));
     expect(screen.queryByLabelText(/Login account/)).toBeNull();                       // no link picker
     fireEvent.change(screen.getByLabelText("Display name"), { target: { value: "Dr Owner" } });
     fireEvent.change(screen.getByLabelText(/^Username/), { target: { value: "dr.owner" } });
-    fireEvent.change(screen.getByLabelText("Role"), { target: { value: "Dentist" } });
+    fireEvent.change(screen.getByLabelText("Role"), { target: { value: "Admin" } });
     fireEvent.click(screen.getByLabelText("Make this person the Practice Owner"));
     const form = screen.getByRole("form", { name: "Add staff member" });
     fireEvent.click(within(form).getByRole("button", { name: "Add staff member" }));
 
     expect(await screen.findByTestId("temporary-password")).toHaveTextContent("Owner2345Pass6789");
+    expect(await screen.findByText("Dr Owner is now the Practice Owner.")).toBeInTheDocument();
     const add = calls.find((c) => c.url.includes("/api/config/staff-members"))!;
     expect((add.init?.headers as Record<string, string>)["Idempotency-Key"]).toBe("staff-member:dr.owner");
-    expect(JSON.parse(String(add.init?.body))).toEqual({ displayName: "Dr Owner", jobTitle: "", username: "dr.owner", role: "Dentist" });
-    await waitFor(() => expect(calls.some((c) => c.url.includes("/api/practice-owner/initial"))).toBe(true));
+    expect(JSON.parse(String(add.init?.body))).toEqual({ displayName: "Dr Owner", jobTitle: "", username: "dr.owner", role: "Admin", practiceOwner: true });
+    // ALV-N030-C01 (brief 18.4): the server designates in the same transaction - the client never makes a second, separate designation call
+    expect(calls.some((c) => c.url.includes("/api/practice-owner/initial"))).toBe(false);
     expect(calls.some((c) => c.url.endsWith("/api/config/staff") && c.init?.method === "POST")).toBe(false);   // never the removed profile-only create
+  });
+
+  it("shows the server's refusal when an owner was designated meanwhile, and makes no second call", async () => {
+    const calls = renderStaffTab({ practiceOwnerExists: false, accountKind: "DeploymentAdministrator" }, [], (url) => {
+      if (url.includes("/api/config/staff-members"))
+        return json({ error: "owner_already_designated", message: "A Practice Owner has already been designated." }, 409);
+    });
+    fireEvent.click(await screen.findByRole("button", { name: "Add staff member" }));
+    fireEvent.change(screen.getByLabelText("Display name"), { target: { value: "Dr Late" } });
+    fireEvent.change(screen.getByLabelText(/^Username/), { target: { value: "dr.late" } });
+    fireEvent.change(screen.getByLabelText("Role"), { target: { value: "Admin" } });
+    fireEvent.click(screen.getByLabelText("Make this person the Practice Owner"));
+    fireEvent.click(within(screen.getByRole("form", { name: "Add staff member" })).getByRole("button", { name: "Add staff member" }));
+    expect(await screen.findByText(/A Practice Owner has already been designated\. Nobody was added/)).toBeInTheDocument();
+    expect(screen.queryByTestId("temporary-password")).toBeNull();
+    expect(calls.filter((c) => c.url.includes("/api/config/staff-members"))).toHaveLength(1);
+    expect(calls.some((c) => c.url.includes("/api/practice-owner/initial"))).toBe(false);
   });
 
   it("offers no owner box once an owner exists, and says why adding needs Manage users", async () => {

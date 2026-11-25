@@ -36,7 +36,7 @@ public class PracticeOwnerService(AlveraDbContext db, IPracticeClock clock)
         // Early refusal only - not the control (the in-transaction check below is).
         var early = await db.UserAccounts.AsNoTracking().Where(u => u.Id == actor)
             .Select(u => new LockedAccount(u.Id, (int)u.Role, u.IsDisabled, (byte)u.AccountKind)).SingleOrDefaultAsync(ct);
-        if (!PracticeOwnerGuard.IsEligibleDesignator(early)) await RefuseActorAsync(actor, early, ct);
+        if (!PracticeOwnerGuard.IsEligibleDesignator(early)) await RefuseActorAsync(db, actor, early, ct);
         if (await db.PracticeOwnerDesignations.AnyAsync(ct)) throw AlreadyDesignated();
         if (TestHook_AfterPreliminaryActorCheck is { } hook) await hook();
 
@@ -56,7 +56,7 @@ public class PracticeOwnerService(AlveraDbContext db, IPracticeClock clock)
             {
                 await tx.RollbackAsync(ct);
                 db.ChangeTracker.Clear();
-                await RefuseActorAsync(actor, lockedActor, ct);
+                await RefuseActorAsync(db, actor, lockedActor, ct);
             }
 
             var target = await db.StaffProfiles.FromSqlInterpolated($"SELECT * FROM [StaffProfiles] WITH (UPDLOCK, ROWLOCK) WHERE [Id] = {staffProfileId}")
@@ -68,16 +68,8 @@ public class PracticeOwnerService(AlveraDbContext db, IPracticeClock clock)
                 throw new ConfigurationException(PracticeOwnerGuard.TargetMustBeAdministrator,
                     "The Practice Owner must sign in with the Administrator role. Change this person's role to Administrator in Security Administration first.", 409);
 
-            row = new PracticeOwnerDesignation
-            {
-                Id = Guid.NewGuid(), StaffProfileId = target.Id, DesignatedAtUtc = clock.UtcNow, DesignatedByAccountId = actor,
-                Method = lockedActor!.AccountKind == (byte)AccountKind.DeploymentAdministrator
-                    ? PracticeOwnerDesignationMethod.InitialByDeploymentAdministrator : PracticeOwnerDesignationMethod.UpgradeTransition,
-            };
+            row = StageDesignation(db, target.Id, target.DisplayName, lockedActor!, clock.UtcNow);
             displayName = target.DisplayName;
-            db.PracticeOwnerDesignations.Add(row);
-            AuditService.Record(db, AuditEventTypes.PracticeOwnerDesignated, nameof(StaffProfile), target.Id, actor,
-                $"{target.DisplayName} was designated the Practice Owner ({row.Method}).");
             await db.SaveChangesAsync(ct);
             await tx.CommitAsync(ct);
         }
@@ -94,13 +86,32 @@ public class PracticeOwnerService(AlveraDbContext db, IPracticeClock clock)
         return new PracticeOwnerView(row.StaffProfileId, displayName, row.DesignatedAtUtc, row.Method.ToString());
     }
 
+    /// <summary>
+    /// The one place a first designation row and its audit entry are staged (shared by <see cref="DesignateInitialAsync"/> and the single owner-creation call,
+    /// <see cref="StaffMemberService.CreateAsync"/>; brief 18.4). The caller holds the 18.3a locks inside a serializable transaction, has re-checked "never
+    /// designated" and the actor (<see cref="PracticeOwnerGuard.IsEligibleDesignator"/>), and saves.
+    /// </summary>
+    internal static PracticeOwnerDesignation StageDesignation(AlveraDbContext db, Guid staffProfileId, string displayName, LockedAccount actor, DateTimeOffset now)
+    {
+        var row = new PracticeOwnerDesignation
+        {
+            Id = Guid.NewGuid(), StaffProfileId = staffProfileId, DesignatedAtUtc = now, DesignatedByAccountId = actor.Id,
+            Method = actor.AccountKind == (byte)AccountKind.DeploymentAdministrator
+                ? PracticeOwnerDesignationMethod.InitialByDeploymentAdministrator : PracticeOwnerDesignationMethod.UpgradeTransition,
+        };
+        db.PracticeOwnerDesignations.Add(row);
+        AuditService.Record(db, AuditEventTypes.PracticeOwnerDesignated, nameof(StaffProfile), staffProfileId, actor.Id,
+            $"{displayName} was designated the Practice Owner ({row.Method}).");
+        return row;
+    }
+
     /// <summary>E1a refusal: audited on its own (ids and the rule only) and thrown as 403. Always throws.</summary>
-    private async Task RefuseActorAsync(Guid actor, LockedAccount? actorRow, CancellationToken ct)
+    internal static async Task RefuseActorAsync(AlveraDbContext db, Guid actor, LockedAccount? actorRow, CancellationToken ct)
     {
         await AccountTargetRules.RecordRefusalAsync(db, actor, actorRow is null ? Role.Unassigned : (Role)actorRow.Role, actor, PracticeOwnerGuard.ActorMustBeAdministrator, ct);
         throw new ConfigurationException(PracticeOwnerGuard.ActorMustBeAdministrator, "Only an Administrator can designate the Practice Owner.", 403);
     }
 
-    private static ConfigurationException AlreadyDesignated() =>
+    internal static ConfigurationException AlreadyDesignated() =>
         new("owner_already_designated", "A Practice Owner has already been designated.", 409);
 }
