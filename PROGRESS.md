@@ -3773,3 +3773,10 @@
   - What changed: Q5 password + MFA code for transfer; Q6 recovery turns MFA off, revokes recovery codes and sessions, rotates stamp, new MustEnrollMfa gate (18.6a); Q7 ids-only owner/transfer/recovery audit text with read-time name resolution in AuditLogReader; Q8 former owner keeps Administrator; tests S39, S40 added; Q6b open
   - Verification: documentation only
   - Notes: review ZIP waits for Q6b
+
+- [x] Owner execution order C01 -> C02 -> ALV-N027 recorded; section 18 updated; U-050/U-051 recorded
+  - Date: 2026-11-25
+  - Session: CC-20261123-q4vn
+  - What changed: ACCT brief section 18 (execution order; mandatory MFA enrolment moved from C01 to ALV-N030-C02 Stage 2; Q6b resolved; S39 moved); UNASSIGNED_FINDINGS U-050 (no QR code; assigned to C02 Stage 1) and U-051 (no MFA turn-off or admin reset; unassigned); BUILD_STATE order line
+  - Verification: documentation only; owner manual MFA test passed (MFA works), throwaway database dropped afterwards
+  - Notes: R08 review ZIP built next

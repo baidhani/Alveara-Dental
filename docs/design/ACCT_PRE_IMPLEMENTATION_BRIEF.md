@@ -1,6 +1,6 @@
 # ACCT: accounts, Deployment Administrator and Practice Owner. Pre-implementation brief
 
-- **Status:** **APPROVED FOR IMPLEMENTATION.** Sections 1 to 15 were approved at R04 (`.alveara/reviews/ACCT/BRIEFING-R04.md`, after R01 to R03). The section 16 addendum was approved at R06 (`.alveara/reviews/ACCT/BRIEFING-R06.md`, after R05). The section 17 addendum was approved at R07 (`.alveara/reviews/ACCT/BRIEFING-R07.md`); it supersedes section 8's hosting. **The approved briefing set is R04 + R06 + R07.** **Section 18 (R08 addendum, 2026-11-25): ALV-N030-C01 - the Practice Owner authorization invariant (U-049), ownership transfer and Deployment Administrator recovery; a security correction - AWAITING INDEPENDENT REVIEW; no code before approval.** Boundary: database creation, SQL snapshot settings, applying migrations, a production service wrapper and update distribution stay with ALV-N013; the production automatic-restart proof is ALV-N013's dependency proof, not an ALV-N030 acceptance item. Revision history follows.
+- **Status:** **APPROVED FOR IMPLEMENTATION.** Sections 1 to 15 were approved at R04 (`.alveara/reviews/ACCT/BRIEFING-R04.md`, after R01 to R03). The section 16 addendum was approved at R06 (`.alveara/reviews/ACCT/BRIEFING-R06.md`, after R05). The section 17 addendum was approved at R07 (`.alveara/reviews/ACCT/BRIEFING-R07.md`); it supersedes section 8's hosting. **The approved briefing set is R04 + R06 + R07.** **Section 18 (R08 addendum, 2026-11-25): ALV-N030-C01 - the Practice Owner authorization invariant (U-049), ownership transfer and Deployment Administrator recovery; a security correction - AWAITING INDEPENDENT REVIEW; no code before approval. Owner execution order: C01, then ALV-N030-C02 (MFA QR enrolment, then Deployment Administrator MFA enforcement), both before ALV-N027.** Boundary: database creation, SQL snapshot settings, applying migrations, a production service wrapper and update distribution stay with ALV-N013; the production automatic-restart proof is ALV-N013's dependency proof, not an ALV-N030 acceptance item. Revision history follows.
 - **R04 changes (CR-6):**
   - the audit event `DeploymentAdministratorAssigned` is limited to the migration's single-candidate conversion; the superseded "administrator pick" wording is removed;
   - slice 5, the matrix and the evidence all use guards G1 to G8.
@@ -525,19 +525,29 @@ The owner ruled that this is a **security/authorization defect**: the Practice O
 - **Q7:** (a) IDs only. Remove the person's name from stored audit text. Resolve display names only when authorized users read the audit log.
 - **Q8:** (a) Keep the Administrator role. Transfer changes only the designation. Role changes remain a separate audited operation. The atomic emergency option may transfer ownership and disable the former owner, but it should not change their role.
 
+**Execution order and MFA enforcement (owner, 2026-11-25, after the owner's manual MFA test; finding U-050), as stated:**
+1. Complete ALV-N030-C01 without mandatory MFA enrollment.
+2. Immediately create ALV-N030-C02: MFA QR enrollment and Deployment Administrator enforcement.
+3. Complete C02 before starting ALV-N027 or other planned feature development.
+
+C02 has two controlled stages:
+- **Stage 1:** implement the local QR provisioning flow, manual-key fallback, Copy control, security protections, and automated/browser tests.
+- **Stage 2:** after Stage 1 is proven, activate mandatory MFA enrollment for newly created or recovered Deployment Administrators. The enforcement must not be enabled merely because the QR code has been coded. The QR must first be shown to contain a valid otpauth:// payload and successfully enroll an authenticator; this can be a short targeted check, not another full manual E2E run.
+
+**Consequence for C01:** the Q6 requirement "require MFA re-enrollment at next sign-in", and Q6b (enforcement for a Deployment Administrator created by recovery), move to **C02 Stage 2**. C01 recovery still turns MFA off, revokes all sessions and recovery codes, rotates the security stamp, and audits without the token; it does **not** add the enrolment gate (18.6a).
+
 **U-046 (2026-11-24):** owner creation is a **single server call** that creates the staff member with their login **and** designates them, atomically, both or neither.
 
 ### 18.2 What changes in sections 1 to 17
 | Section | Was | Becomes |
 |---|---|---|
 | 1 (D-4), 2, 5 | Practice Owner: no extra permissions; transfer out of scope; "no route ends or changes a designation" | Still no owner permission source. **The owner's login must hold the Administrator role** (18.3). **Transfer is in scope** (18.5); it is the only route that ends a designation. |
-| 3 (schema) | `PracticeOwnerDesignationMethod`: `InitialByDeploymentAdministrator`, `UpgradeTransition`; `SetupTokens` serves first-run setup only | Adds method **`Transfer`**. `UserAccounts` gains **`MustEnrollMfa`** (bit, not null, default 0) for Q6 (18.6a). `SetupTokens` gains **`Purpose`** (`Setup` = 0, the default, so existing rows keep their meaning; `Recovery` = 1) (18.6). No other table changes. Trigger 51311 is unchanged, because transfer only sets `EndedAtUtc` on the old row, which it already permits. |
+| 3 (schema) | `PracticeOwnerDesignationMethod`: `InitialByDeploymentAdministrator`, `UpgradeTransition`; `SetupTokens` serves first-run setup only | Adds method **`Transfer`**. `SetupTokens` gains **`Purpose`** (`Setup` = 0, the default, so existing rows keep their meaning; `Recovery` = 1) (18.6). No other table changes. Trigger 51311 is unchanged, because transfer only sets `EndedAtUtc` on the old row, which it already permits. |
 | 4 (routes) | owner creation = two client calls | `POST /api/config/staff-members` accepts `practiceOwner: true` (18.4); **new** `POST /api/practice-owner/transfer` (18.5); **new** recovery route and CLI command (18.6) |
 | 6 (service rules) | owner target: active staff with a linked, enabled `Staff` account | adds **role = Admin**, checked in the designating transaction (18.3) |
 | 9 (client) | owner checkbox on "Add staff member" | the checkbox presets and locks the role; plus the transfer dialog and the recovery page (18.8) |
 | 11 (matrix) | S11 | S11 extended, plus S23 to S38 (18.10) |
 | 16 (startup modes) | the setup routes only in Setup mode | the recovery routes are answered in **Normal** mode only (18.6) |
-| 5 (forced-change gate) | one gate: `MustChangePassword` | a second gate, `MustEnrollMfa`, on the same request check (18.6a) |
 | 7 (audit) | `PracticeOwnerDesignated` text names the person | ids only; names resolved when the audit log is read (18.10, Q7) |
 
 Everything else stands.
@@ -647,10 +657,10 @@ Everything else stands.
     - enable the account;
     - clear the lockout;
     - rotate the security stamp and revoke its open sessions;
-    - **(Q6)** if MFA is on: turn it off (clear the secret and any pending secret), **revoke every MFA recovery code**, and set `MustEnrollMfa = 1`.
+    - **(Q6)** if MFA is on: turn it off (clear the secret and any pending secret) and **revoke every MFA recovery code**. The re-enrolment requirement is **C02 Stage 2**, not C01 (18.6a).
 
     Audit `DeploymentAdministratorRecovered` with method `Reset`, ids only, plus whether MFA was turned off. **The token, the username tried and the password are never recorded.**
-  - A **created** Deployment Administrator (R1) also gets `MustEnrollMfa = 1`, pending Q6b (18.6a).
+  - A **created** Deployment Administrator (R1) is not forced to enrol in C01; C02 Stage 2 covers newly created and recovered Deployment Administrators (18.6a).
 - **What recovery never does:**
   - touch the Practice Owner, any staff account or any permission;
   - create a second Deployment Administrator;
@@ -658,16 +668,8 @@ Everything else stands.
 - **Client:** a plain recovery page at `/recovery`, with the same fields and messages as the setup page. It is linked from nowhere in the app; the CLI prints its address, as `setup issue-token` does.
 - **Dev:** `scripts/New-DevRecoveryToken.ps1` (dev stand-in, like `New-DevAdmin.ps1`).
 
-### 18.6a MFA re-enrolment gate (Q6)
-- `UserAccounts.MustEnrollMfa` is set only by recovery (18.6). It is cleared only by a confirmed MFA enrolment (`ConfirmMfaEnrollmentAsync`), in the same save.
-- **While it is set,** the account can sign in with its password, and every authenticated request answers **403 `{error:"mfa_enrollment_required"}`** except:
-  - the routes exempt from the forced-password-change gate (section 5): whoami, csrf-token, password change, logout;
-  - the MFA enrolment routes: begin, confirm.
-
-  The check is in the same `OnValidatePrincipal` query as the forced-password-change gate, at no extra round trip.
-- **Client:** a "Set up two-factor authentication" page, the same redirect pattern as "Choose a new password". The server gate is the control.
-- **Order:** if both flags are set, the password change comes first, then enrolment.
-- **Q6b (open):** should a Deployment Administrator **created** by recovery (R1) also be forced to enrol? **Recommended: yes.** Recovery is for a high-trust account, and a single factor after a console reset is the weakest moment.
+### 18.6a MFA enrolment enforcement: moved to ALV-N030-C02 (owner, 2026-11-25)
+C01 adds **no** mandatory MFA enrolment, no `MustEnrollMfa` column and no enrolment gate. Mandatory enrolment for newly created or recovered Deployment Administrators is **ALV-N030-C02 Stage 2**. It is activated only after C02 Stage 1 (local QR provisioning, manual-key fallback, Copy control) is proven: the QR is shown to contain a valid `otpauth://` payload and to enrol an authenticator. C02 has its own brief and review. C01 must leave nothing that C02 has to undo: recovery's MFA reset (18.6) is written so that C02 can add "and require enrolment" in the same transaction.
 
 ### 18.7 Existing data (decision 6)
 **What exists today** (read-only check, 2026-11-25):
@@ -729,7 +731,6 @@ Professional classification stays on the provider record (`ProviderProfile.Speci
 | `RecoveryTokenIssued` (new) | 18.6 CLI | expiry |
 | `RecoveryTokenRejected` (new) | the fifth failure voids a recovery token | token row id |
 | `DeploymentAdministratorRecovered` (new) | 18.6 route | account id, method `Created` or `Reset`, MFA turned off, recovery codes revoked (count); never the token, username tried or password |
-| `MfaEnrollmentRequiredCleared` (new) | 18.6a, an enrolment clears the flag | account id |
 | `PracticeOwnerInvariantViolation` (new) | 18.7 migration | staff profile, failing conditions |
 | refusal rows (existing mechanism) | E3 to E5 | rule `owner_transfer_required` |
 | `PracticeOwnerDesignated` (existing) | E1, 18.4 | **Q7: ids only from C01 on** (staff profile id as the entity, actor, method). Stored rows are append-only and are not rewritten; no pre-release environment holds one (18.7). |
@@ -759,10 +760,10 @@ Names are never written back into the stored row. Callers without ViewAuditLog a
 | S34 | 18.5 `disableFormerOwner`: the former owner is disabled in the same transaction (one `AccountDisabled`); a fault injected after the designation insert leaves the old owner active, not disabled and with sessions intact | service |
 | S35 | 18.5 concurrency: two transfers at once to different destinations → exactly one active owner throughout. A reader polling the active designation during the race never sees zero or two, and the loser's response is consistent with the committed state. A transfer racing a role change on the destination: either the transfer is refused or the role change is refused, never both committed. | service, concurrency |
 | S36 | 18.5 idempotency: the same key replays the same result with no second audit row; the same key with a different body → 409 | API |
-| S37 | 18.6 recovery: the CLI refuses before setup. With no Deployment Administrator, a valid token creates one (one only, under two concurrent requests). With a disabled or locked one, a valid token plus its username resets password and lockout, enables it and revokes its sessions; a wrong username → the same `recovery_failed`. Five failures void the token (atomic, as R02 CR-1). The token never appears in logs or audit. The route answers 503 outside Normal mode. **Q6 reset with MFA on:** the secret and pending secret are cleared; every recovery code is revoked; the stamp rotates and all sessions close; `MustEnrollMfa` is set; one `DeploymentAdministratorRecovered` row holds no token, username tried or password. | API, CLI |
-| S39 | 18.6a gate: with `MustEnrollMfa` set, the account signs in; every route except the six exempt ones answers 403 `mfa_enrollment_required`; a confirmed enrolment clears the flag in the same save (one `MfaEnrollmentRequiredCleared` row), and the routes open again; with both flags set, the password change comes first | API |
+| S37 | 18.6 recovery: the CLI refuses before setup. With no Deployment Administrator, a valid token creates one (one only, under two concurrent requests). With a disabled or locked one, a valid token plus its username resets password and lockout, enables it and revokes its sessions; a wrong username → the same `recovery_failed`. Five failures void the token (atomic, as R02 CR-1). The token never appears in logs or audit. The route answers 503 outside Normal mode. **Q6 reset with MFA on:** the secret and pending secret are cleared; every recovery code is revoked; the stamp rotates and all sessions close; one `DeploymentAdministratorRecovered` row holds no token, username tried or password; the account then signs in with the new password alone (no enrolment gate in C01). | API, CLI |
+| S39 | (moved to ALV-N030-C02 Stage 2: the enrolment gate) | - |
 | S40 | Q7: new `PracticeOwnerDesignated`, `PracticeOwnerTransferred` and `DeploymentAdministratorRecovered` rows contain no display name or username in `Details`; `GET /api/audit-log` for a ViewAuditLog holder returns `FormerOwnerName` and `NewOwnerName` resolved; without ViewAuditLog → 403 | API |
-| S38 | 18.8 client (vitest): the owner checkbox locks Administrator with the hint; the owner's Disable, Inactivate and role controls are disabled with the transfer message; the Transfer action is shown only to the Deployment Administrator; the dialog requires reason, password and confirm, and asks for an MFA code when the Deployment Administrator has MFA on; it keeps input on error; the recovery page's messages; the "Set up two-factor authentication" redirect while `mfa_enrollment_required` | vitest |
+| S38 | 18.8 client (vitest): the owner checkbox locks Administrator with the hint; the owner's Disable, Inactivate and role controls are disabled with the transfer message; the Transfer action is shown only to the Deployment Administrator; the dialog requires reason, password and confirm, and asks for an MFA code when the Deployment Administrator has MFA on; it keeps input on error; the recovery page's messages | vitest |
 
 **Test cost:** focused groups only, each expected under 5 minutes (owner rule). No broad regression: `fullRegression` stays DEFERRED_TO_ALV-N028.
 
@@ -772,13 +773,13 @@ Names are never written back into the stored row. Callers without ViewAuditLog a
 
 ### 18.12 Questions
 - **Q5 to Q8:** answered by the owner, 2026-11-25 (18.1).
-- **Q6b (open, owner):** force MFA enrolment for a Deployment Administrator **created** by recovery (R1)? Recommended: yes (18.6a).
+- **Q6b:** resolved by the owner's execution order (2026-11-25): enforcement for newly created or recovered Deployment Administrators is ALV-N030-C02 Stage 2 (18.6a).
 
 ### 18.13 Slices (each shown before its tests run)
 1. **Invariant:** E1 to E5, refusal audits; S11, S26, S27, S28.
 2. **Single call:** 18.4 and the Staff tab call; S23, S24, S25.
 3. **Transfer:** route, service, two-factor step-up, method `Transfer`, audit, ids-only audit text and read-time name resolution; S31 to S36, S40.
-4. **Recovery:** `Purpose` and `MustEnrollMfa` columns, CLI, route, mode rule, MFA enrolment gate and its client page, dev script; S37, S39.
+4. **Recovery:** `Purpose` column, CLI, route, mode rule, MFA reset, dev script; S37.
 5. **Existing data and provider eligibility:** migration data step, `practiceOwnerStatus`, the CheckoutRecorder rule; S29, S30.
 6. **Client:** 18.8; S38; the S14 spec update and one run; the owner's manual walkthrough.
 
