@@ -3794,3 +3794,10 @@
   - What changed: R09-1 authoritative in-transaction actor check for the initial designation and a documented lock order for every owner-affecting operation (18.3a, E1a, S11b race); R09-2 transfer carries expectedDesignationId, stale intent refused 409 owner_changed, idempotency fingerprint covers it (18.5, S35); review file BRIEFING-R09 committed
   - Verification: documentation only
   - Notes: R10 review ZIP built after this commit
+
+- [x] ACCT brief section 18 APPROVED at R10; status line updated
+  - Date: 2026-11-25
+  - Session: CC-20261123-q4vn
+  - What changed: brief status names R10 as the approved revision of section 18; review file BRIEFING-R10 committed
+  - Verification: review .alveara/reviews/ACCT/BRIEFING-R10.md APPROVED_FOR_IMPLEMENTATION
+  - Notes: C01 slice 1 starts on the owner's Go
