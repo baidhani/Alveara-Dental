@@ -3850,3 +3850,10 @@
   - What changed: .alveara/handoffs/ALV-N030-C01/R01.md and R01-evidence (TEST_RESULTS, ACCEPTANCE_EVIDENCE 17/17, DEMO_EVIDENCE, CHANGED_FILES, NEXT_STORY_IMPACT); EXECUTION_STATUS new ALV-N030-C01 record AWAITING_REVIEW R01 (implementation 1d952d9); BUILD_STATE line
   - Verification: documents only; EXECUTION_STATUS parses (74 records)
   - Notes: no test run for the handoff
+
+- [x] ALV-N030-C01 R02 records correction (review R01 CR-1)
+  - Date: 2026-11-25
+  - Session: CC-20261123-q4vn
+  - What changed: PROGRAM_REGRESSION_LEDGER.md gains the ALV-N030-C01 section and ALV-N028 obligation rows C01-1..C01-6 (authority paragraph names C01); handoff R02.md with the CR-1 mapping; EXECUTION_STATUS attempt R02; BUILD_STATE line
+  - Verification: documents only; EXECUTION_STATUS parses; implementation unchanged 1d952d9
+  - Notes: no test run (review R02 route item 4)
