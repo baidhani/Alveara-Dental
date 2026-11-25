@@ -3857,3 +3857,10 @@
   - What changed: PROGRAM_REGRESSION_LEDGER.md gains the ALV-N030-C01 section and ALV-N028 obligation rows C01-1..C01-6 (authority paragraph names C01); handoff R02.md with the CR-1 mapping; EXECUTION_STATUS attempt R02; BUILD_STATE line
   - Verification: documents only; EXECUTION_STATUS parses; implementation unchanged 1d952d9
   - Notes: no test run (review R02 route item 4)
+
+- [x] ALV-N030-C01 closure (review R02 APPROVED)
+  - Date: 2026-11-25
+  - Session: CC-20261123-q4vn
+  - What changed: EXECUTION_STATUS ALV-N030-C01 COMPLETE (approved R02, implementation 1d952d9, evidence 2276314, 17/17); ledger approval line and row C01-7 (parent ALV-N030 ledger section as ALV-N028 Step-0); U-049 RESOLVED; BUILD_STATE line
+  - Verification: review .alveara/reviews/ALV-N030-C01/R02.md APPROVED; EXECUTION_STATUS parses
+  - Notes: closure-only; no test run
