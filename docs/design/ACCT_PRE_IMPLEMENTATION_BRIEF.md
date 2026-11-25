@@ -519,18 +519,26 @@ The owner ruled that this is a **security/authorization defect**: the Practice O
 - **Q3 (a).** Server checks and tests, enforced inside transactions with appropriate locks and concurrency tests. **No new cross-table trigger.**
 - **Q4.** The story id is **ALV-N030-C01**.
 
+**Q5 to Q8 (owner, 2026-11-25), as stated:**
+- **Q5:** Require password and MFA when MFA is enabled. Ownership transfer is a highly privileged online action. If MFA is configured, bypassing it would weaken its purpose. If the MFA device is lost, use the separate console recovery procedure from Q6.
+- **Q6:** (a) Turn MFA off through recovery. The recovery must revoke all sessions and recovery codes, rotate the security stamp, require MFA re-enrollment at next sign-in, use a short-lived one-time console token, and create an audit event without recording the token.
+- **Q7:** (a) IDs only. Remove the person's name from stored audit text. Resolve display names only when authorized users read the audit log.
+- **Q8:** (a) Keep the Administrator role. Transfer changes only the designation. Role changes remain a separate audited operation. The atomic emergency option may transfer ownership and disable the former owner, but it should not change their role.
+
 **U-046 (2026-11-24):** owner creation is a **single server call** that creates the staff member with their login **and** designates them, atomically, both or neither.
 
 ### 18.2 What changes in sections 1 to 17
 | Section | Was | Becomes |
 |---|---|---|
 | 1 (D-4), 2, 5 | Practice Owner: no extra permissions; transfer out of scope; "no route ends or changes a designation" | Still no owner permission source. **The owner's login must hold the Administrator role** (18.3). **Transfer is in scope** (18.5); it is the only route that ends a designation. |
-| 3 (schema) | `PracticeOwnerDesignationMethod`: `InitialByDeploymentAdministrator`, `UpgradeTransition`; `SetupTokens` serves first-run setup only | Adds method **`Transfer`**. `SetupTokens` gains **`Purpose`** (`Setup` = 0, the default, so existing rows keep their meaning; `Recovery` = 1) (18.6). No other table changes. Trigger 51311 is unchanged, because transfer only sets `EndedAtUtc` on the old row, which it already permits. |
+| 3 (schema) | `PracticeOwnerDesignationMethod`: `InitialByDeploymentAdministrator`, `UpgradeTransition`; `SetupTokens` serves first-run setup only | Adds method **`Transfer`**. `UserAccounts` gains **`MustEnrollMfa`** (bit, not null, default 0) for Q6 (18.6a). `SetupTokens` gains **`Purpose`** (`Setup` = 0, the default, so existing rows keep their meaning; `Recovery` = 1) (18.6). No other table changes. Trigger 51311 is unchanged, because transfer only sets `EndedAtUtc` on the old row, which it already permits. |
 | 4 (routes) | owner creation = two client calls | `POST /api/config/staff-members` accepts `practiceOwner: true` (18.4); **new** `POST /api/practice-owner/transfer` (18.5); **new** recovery route and CLI command (18.6) |
 | 6 (service rules) | owner target: active staff with a linked, enabled `Staff` account | adds **role = Admin**, checked in the designating transaction (18.3) |
 | 9 (client) | owner checkbox on "Add staff member" | the checkbox presets and locks the role; plus the transfer dialog and the recovery page (18.8) |
 | 11 (matrix) | S11 | S11 extended, plus S23 to S38 (18.10) |
 | 16 (startup modes) | the setup routes only in Setup mode | the recovery routes are answered in **Normal** mode only (18.6) |
+| 5 (forced-change gate) | one gate: `MustChangePassword` | a second gate, `MustEnrollMfa`, on the same request check (18.6a) |
+| 7 (audit) | `PracticeOwnerDesignated` text names the person | ids only; names resolved when the audit log is read (18.10, Q7) |
 
 Everything else stands.
 
@@ -575,12 +583,19 @@ Everything else stands.
   - `reason` (required, trimmed, 10 to 500 characters);
   - `confirm` (must be `true`);
   - `currentPassword` (step-up);
+  - `mfaCode` (required when the actor has MFA on, Q5);
   - `disableFormerOwner` (boolean, default false).
 - **Response:** 200, the new designation plus `formerOwnerDisabled`.
 
 **Authorization:**
 1. The caller is authenticated and its account is the **Deployment Administrator** (`AccountKind = DeploymentAdministrator`, enabled). Any other caller → **403 `transfer_not_permitted`**, whatever its role. This is a check on the kind of account, written in the route: not a permission in the matrix, not an override, and not delegable.
-2. **Recent authentication:** the existing step-up `AccountService.ReauthenticateAsync` (ALV-N004, used by backup recovery) checks `currentPassword` through the login lockout boundary. A wrong password → 403 `reauthentication_failed`, audited by the existing `SensitiveActionStepUpFailed`. **Q5:** whether an account with MFA must also give a current code.
+2. **Recent authentication (Q5):** both factors when MFA is on.
+   - **Password:** the existing step-up `AccountService.ReauthenticateAsync` (ALV-N004, used by backup recovery) checks `currentPassword` through the login lockout boundary. A wrong password → 403 `reauthentication_failed`, audited by the existing `SensitiveActionStepUpFailed`.
+   - **MFA code:** when the Deployment Administrator's account has `MfaEnabled`, the body must also carry `mfaCode`. It is checked with the same TOTP verification as the sign-in MFA challenge (`Totp.Verify` against the account's protected secret), and failures count through the same lockout boundary.
+     - A missing code → 403 `mfa_required`.
+     - A wrong code → 403 `reauthentication_failed`, audited as `MfaStepUpFailed`.
+     - **A recovery code is not accepted here.** A lost authenticator goes through console recovery (18.6).
+   - The step-up is checked **before** the transaction opens, so a failed step-up locks nothing.
 3. `confirm` must be `true` → otherwise 400 `confirmation_required`.
 
 **Rules,** checked in the transaction after the locks:
@@ -598,7 +613,7 @@ Everything else stands.
 3. Re-check every rule above on the locked rows.
 4. Set `EndedAtUtc` on the old designation, then insert the new one (`Method = Transfer`, `DesignatedByAccountId` = the Deployment Administrator). Both are in one transaction: the filtered unique index is checked per statement, the trigger permits only `EndedAtUtc`, and other readers (read-committed snapshot) see either the old owner or the new one. **Zero or two active owners are never visible.**
 5. **Former owner's sessions:** rotate the security stamp and revoke open sessions (the existing `BumpSecurityStamp` + `AuditSessionStore.RevokeOpenAsync`, as on a role change), so their next request re-authenticates and sees the new state.
-6. **If `disableFormerOwner`:** disable the former owner's account through the existing disable logic (last-administrator guard: the Deployment Administrator and the new owner are both Administrators, so it always passes; audit `AccountDisabled`). The former owner's **role is not changed**; they stay an Administrator unless an Administrator changes it later, which E3 no longer blocks.
+6. **If `disableFormerOwner`:** disable the former owner's account through the existing disable logic (last-administrator guard: the Deployment Administrator and the new owner are both Administrators, so it always passes; audit `AccountDisabled`). The former owner's **role is not changed** (Q8): they stay an Administrator. A role change remains a separate, audited operation, which E3 no longer blocks once they are not the owner. The emergency option only transfers and disables.
 7. **Audit:** one `PracticeOwnerTransferred` row. The details carry **ids only**: actor account id, former owner staff profile id, new owner staff profile id, the reason, the UTC time, and `formerOwnerDisabled`. No names. The reason is the operator's own text; the dialog asks for it without patient or personal details (18.8).
 8. Commit. On any failure nothing changes, including the disable and the session revocation, because all of it runs inside the same transaction.
 
@@ -632,15 +647,27 @@ Everything else stands.
     - enable the account;
     - clear the lockout;
     - rotate the security stamp and revoke its open sessions;
-    - per **Q6**, turn off its MFA so it can sign in and enrol again.
+    - **(Q6)** if MFA is on: turn it off (clear the secret and any pending secret), **revoke every MFA recovery code**, and set `MustEnrollMfa = 1`.
 
-    Audit `DeploymentAdministratorRecovered` with method `Reset` and ids only.
+    Audit `DeploymentAdministratorRecovered` with method `Reset`, ids only, plus whether MFA was turned off. **The token, the username tried and the password are never recorded.**
+  - A **created** Deployment Administrator (R1) also gets `MustEnrollMfa = 1`, pending Q6b (18.6a).
 - **What recovery never does:**
   - touch the Practice Owner, any staff account or any permission;
   - create a second Deployment Administrator;
   - work without the console token.
 - **Client:** a plain recovery page at `/recovery`, with the same fields and messages as the setup page. It is linked from nowhere in the app; the CLI prints its address, as `setup issue-token` does.
 - **Dev:** `scripts/New-DevRecoveryToken.ps1` (dev stand-in, like `New-DevAdmin.ps1`).
+
+### 18.6a MFA re-enrolment gate (Q6)
+- `UserAccounts.MustEnrollMfa` is set only by recovery (18.6). It is cleared only by a confirmed MFA enrolment (`ConfirmMfaEnrollmentAsync`), in the same save.
+- **While it is set,** the account can sign in with its password, and every authenticated request answers **403 `{error:"mfa_enrollment_required"}`** except:
+  - the routes exempt from the forced-password-change gate (section 5): whoami, csrf-token, password change, logout;
+  - the MFA enrolment routes: begin, confirm.
+
+  The check is in the same `OnValidatePrincipal` query as the forced-password-change gate, at no extra round trip.
+- **Client:** a "Set up two-factor authentication" page, the same redirect pattern as "Choose a new password". The server gate is the control.
+- **Order:** if both flags are set, the password change comes first, then enrolment.
+- **Q6b (open):** should a Deployment Administrator **created** by recovery (R1) also be forced to enrol? **Recommended: yes.** Recovery is for a high-trust account, and a single factor after a console reset is the weakest moment.
 
 ### 18.7 Existing data (decision 6)
 **What exists today** (read-only check, 2026-11-25):
@@ -701,11 +728,18 @@ Professional classification stays on the provider record (`ProviderProfile.Speci
 | `PracticeOwnerTransferred` (new) | 18.5 | actor account, former owner staff profile, new owner staff profile, reason, UTC time, former-owner-disabled flag |
 | `RecoveryTokenIssued` (new) | 18.6 CLI | expiry |
 | `RecoveryTokenRejected` (new) | the fifth failure voids a recovery token | token row id |
-| `DeploymentAdministratorRecovered` (new) | 18.6 route | account id, method `Created` or `Reset`, MFA turned off (Q6) |
+| `DeploymentAdministratorRecovered` (new) | 18.6 route | account id, method `Created` or `Reset`, MFA turned off, recovery codes revoked (count); never the token, username tried or password |
+| `MfaEnrollmentRequiredCleared` (new) | 18.6a, an enrolment clears the flag | account id |
 | `PracticeOwnerInvariantViolation` (new) | 18.7 migration | staff profile, failing conditions |
 | refusal rows (existing mechanism) | E3 to E5 | rule `owner_transfer_required` |
-| `PracticeOwnerDesignated` (existing) | E1, 18.4 | **Q7:** its current text names the person; align it to ids only like the transfer |
+| `PracticeOwnerDesignated` (existing) | E1, 18.4 | **Q7: ids only from C01 on** (staff profile id as the entity, actor, method). Stored rows are append-only and are not rewritten; no pre-release environment holds one (18.7). |
 | `AccountDisabled`, session revocation (existing) | transfer with `disableFormerOwner` | unchanged |
+
+**Name resolution at read time (Q7).** Stored owner, transfer and recovery rows hold ids only. `AuditLogReader` (ALV-N025) already resolves the actor's and an account target's names for callers with ViewAuditLog. C01 extends it for these event types:
+- it resolves the `StaffProfile` entity id;
+- it resolves the former and new owner staff profile ids, which are stored in fixed keys of the details (`formerOwnerStaffProfileId=…; newOwnerStaffProfileId=…`) and returned as `FormerOwnerName` and `NewOwnerName`.
+
+Names are never written back into the stored row. Callers without ViewAuditLog already get 403.
 
 ### 18.11 Tests (rows for the section 11 matrix)
 | Row | Proves | Layer |
@@ -720,13 +754,15 @@ Professional classification stays on the provider record (`ProviderProfile.Speci
 | S29 | 18.9: an Admin-login owner linked to the booked provider may record "Not clinically required"; an unlinked Admin and an unlinked Dentist are refused | API |
 | S30 | 18.7: the migration data step on a seeded non-Admin owner writes exactly one `PracticeOwnerInvariantViolation`, changes no role; a second run adds nothing; `practiceOwnerStatus` is `degraded` until fixed, then `valid` | migration, API |
 | S31 | 18.5 happy path: the Deployment Administrator transfers. Afterwards one active designation (the new one), the old one ended with the same timestamp, method `Transfer`, one `PracticeOwnerTransferred` row whose details contain the three ids and the reason and **no display name or username**, and the former owner's sessions revoked (their next request is 401) | API |
-| S32 | 18.5 authorization: an ordinary Administrator, the current owner and a non-Admin are all refused 403 `transfer_not_permitted`; a wrong `currentPassword` → 403, audited, and counts toward lockout; missing `confirm` or reason → 400; nothing changes in any case | API |
+| S32 | 18.5 authorization: an ordinary Administrator, the current owner and a non-Admin are all refused 403 `transfer_not_permitted`; a wrong `currentPassword` → 403, audited, and counts toward lockout. **With MFA on (Q5):** a missing `mfaCode` → 403 `mfa_required`; a wrong code → 403, audited `MfaStepUpFailed`, counts toward lockout; a recovery code is refused; the right password and code succeed. **With MFA off,** the password alone succeeds. Missing `confirm` or reason → 400. Nothing changes in any refused case. | API |
 | S33 | 18.5 destination rules: same as source, inactive, unlinked, disabled, non-Admin, the Deployment Administrator itself, no active owner → each refused, nothing changes | API |
 | S34 | 18.5 `disableFormerOwner`: the former owner is disabled in the same transaction (one `AccountDisabled`); a fault injected after the designation insert leaves the old owner active, not disabled and with sessions intact | service |
 | S35 | 18.5 concurrency: two transfers at once to different destinations → exactly one active owner throughout. A reader polling the active designation during the race never sees zero or two, and the loser's response is consistent with the committed state. A transfer racing a role change on the destination: either the transfer is refused or the role change is refused, never both committed. | service, concurrency |
 | S36 | 18.5 idempotency: the same key replays the same result with no second audit row; the same key with a different body → 409 | API |
-| S37 | 18.6 recovery: the CLI refuses before setup. With no Deployment Administrator, a valid token creates one (one only, under two concurrent requests). With a disabled or locked one, a valid token plus its username resets password and lockout, enables it and revokes its sessions; a wrong username → the same `recovery_failed`. Five failures void the token (atomic, as R02 CR-1). The token never appears in logs or audit. The route answers 503 outside Normal mode. | API, CLI |
-| S38 | 18.8 client (vitest): the owner checkbox locks Administrator with the hint; the owner's Disable, Inactivate and role controls are disabled with the transfer message; the Transfer action is shown only to the Deployment Administrator; the dialog requires reason, password and confirm and keeps input on error; the recovery page's messages | vitest |
+| S37 | 18.6 recovery: the CLI refuses before setup. With no Deployment Administrator, a valid token creates one (one only, under two concurrent requests). With a disabled or locked one, a valid token plus its username resets password and lockout, enables it and revokes its sessions; a wrong username → the same `recovery_failed`. Five failures void the token (atomic, as R02 CR-1). The token never appears in logs or audit. The route answers 503 outside Normal mode. **Q6 reset with MFA on:** the secret and pending secret are cleared; every recovery code is revoked; the stamp rotates and all sessions close; `MustEnrollMfa` is set; one `DeploymentAdministratorRecovered` row holds no token, username tried or password. | API, CLI |
+| S39 | 18.6a gate: with `MustEnrollMfa` set, the account signs in; every route except the six exempt ones answers 403 `mfa_enrollment_required`; a confirmed enrolment clears the flag in the same save (one `MfaEnrollmentRequiredCleared` row), and the routes open again; with both flags set, the password change comes first | API |
+| S40 | Q7: new `PracticeOwnerDesignated`, `PracticeOwnerTransferred` and `DeploymentAdministratorRecovered` rows contain no display name or username in `Details`; `GET /api/audit-log` for a ViewAuditLog holder returns `FormerOwnerName` and `NewOwnerName` resolved; without ViewAuditLog → 403 | API |
+| S38 | 18.8 client (vitest): the owner checkbox locks Administrator with the hint; the owner's Disable, Inactivate and role controls are disabled with the transfer message; the Transfer action is shown only to the Deployment Administrator; the dialog requires reason, password and confirm, and asks for an MFA code when the Deployment Administrator has MFA on; it keeps input on error; the recovery page's messages; the "Set up two-factor authentication" redirect while `mfa_enrollment_required` | vitest |
 
 **Test cost:** focused groups only, each expected under 5 minutes (owner rule). No broad regression: `fullRegression` stays DEFERRED_TO_ALV-N028.
 
@@ -734,17 +770,15 @@ Professional classification stays on the provider record (`ProviderProfile.Speci
 - The owner reruns the N030 manual walkthrough steps B3 to C3 by hand on a throwaway database, plus a new transfer and recovery script.
 - The S14 browser spec is updated for the locked role and run once (about 1 minute).
 
-### 18.12 Questions for the owner and reviewer
-- **Q5, step-up for transfer:** (a) current password only, the existing ALV-N004 step-up (**recommended**: consistent with backup recovery); or (b) also a current MFA code when the Deployment Administrator has MFA on.
-- **Q6, MFA on recovery reset:** (a) recovery turns MFA off, so the Deployment Administrator re-enrols at next sign-in (**recommended**: a lost authenticator is a main reason for recovery, and the console token already proves control of the server); or (b) MFA is kept, and a lost authenticator needs a separate procedure.
-- **Q7, `PracticeOwnerDesignated` audit text:** (a) change it to ids only, matching the transfer rule (**recommended**); or (b) leave it as approved in ALV-N030.
-- **Q8, the former owner's role after transfer:** (a) unchanged, still Administrator, removable later by any Administrator (**recommended**: transfer moves only the designation); or (b) an option in the dialog to also change their role.
+### 18.12 Questions
+- **Q5 to Q8:** answered by the owner, 2026-11-25 (18.1).
+- **Q6b (open, owner):** force MFA enrolment for a Deployment Administrator **created** by recovery (R1)? Recommended: yes (18.6a).
 
 ### 18.13 Slices (each shown before its tests run)
 1. **Invariant:** E1 to E5, refusal audits; S11, S26, S27, S28.
 2. **Single call:** 18.4 and the Staff tab call; S23, S24, S25.
-3. **Transfer:** route, service, method `Transfer`, audit; S31 to S36.
-4. **Recovery:** `Purpose` column, CLI, route, mode rule, dev script; S37.
+3. **Transfer:** route, service, two-factor step-up, method `Transfer`, audit, ids-only audit text and read-time name resolution; S31 to S36, S40.
+4. **Recovery:** `Purpose` and `MustEnrollMfa` columns, CLI, route, mode rule, MFA enrolment gate and its client page, dev script; S37, S39.
 5. **Existing data and provider eligibility:** migration data step, `practiceOwnerStatus`, the CheckoutRecorder rule; S29, S30.
 6. **Client:** 18.8; S38; the S14 spec update and one run; the owner's manual walkthrough.
 

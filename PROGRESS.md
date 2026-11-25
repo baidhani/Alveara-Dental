@@ -3766,3 +3766,10 @@
   - What changed: docs/design/ACCT_PRE_IMPLEMENTATION_BRIEF.md section 18 rewritten: owner decisions (Q1 b refuse + owner_transfer_required, Q2 a, Q3 a, Q4 ALV-N030-C01); E1-E5 enforcement; single owner-creation call; transfer (DA only, step-up, reason, confirm, atomic end+create, session revocation, ids-only audit, transfer-and-disable, concurrency); DA recovery via console token (SetupTokens.Purpose); existing data; provider eligibility; tests S11 ext + S23-S38; new questions Q5-Q8
   - Verification: documentation only; read-only survey of tree d7b8f9b
   - Notes: no code before independent approval; review ZIP not built until the owner answers Q5-Q8
+
+- [x] ACCT brief R08: owner answers Q5-Q8 recorded in section 18
+  - Date: 2026-11-25
+  - Session: CC-20261123-q4vn
+  - What changed: Q5 password + MFA code for transfer; Q6 recovery turns MFA off, revokes recovery codes and sessions, rotates stamp, new MustEnrollMfa gate (18.6a); Q7 ids-only owner/transfer/recovery audit text with read-time name resolution in AuditLogReader; Q8 former owner keeps Administrator; tests S39, S40 added; Q6b open
+  - Verification: documentation only
+  - Notes: review ZIP waits for Q6b
