@@ -3843,3 +3843,10 @@
   - What changed: Staff tab owner box locks Role to Administrator with the explanation (ConfigField.lockedBy) and disables the owner's Inactivate (activeToggleDisabledReason); Security Administration list/detail lock the owner's role and Disable; TransferPracticeOwnerDialog (Deployment Administrator only; reason, password, MFA code when on, confirm, expectedDesignationId, keeps input on owner_changed); dashboard degraded-owner notice naming the failing conditions (server adds practiceOwnerProblems); upgrade designate picker lists non-Administrators disabled; RecoveryPage /recovery; tests OwnerAdministration.test (S38), AccountBootstrap.test updated, S14 spec updated, new owner-transfer-recovery-real-backend spec + playwright.owner-transfer.config.ts, OwnerInvariantAuditTests checks practiceOwnerProblems
   - Verification: vitest 5 files 59/59 (8 s); OwnerInvariantAuditTests 2/2 (31 s); S14 Fresh 4 passed + 1 skipped by design (45 s); S14 SetUp first run failed on a test assertion (Playwright toBeDisabled does not report a disabled <option>; the page rendered it disabled), assertion changed to the disabled attribute, rerun 1 passed + 4 skipped (30 s); owner transfer/recovery spec 3/3 (35 s); no walkthrough or test databases left beyond the 1 pre-existing
   - Notes: account-bootstrap and server-states real-backend specs are not in playwright.config.ts REAL_BACKEND_SPECS (pre-existing; only the new spec was added) - disclosed
+
+- [x] ALV-N030-C01 Stage 1 handoff R01 recorded (documents and control only)
+  - Date: 2026-11-25
+  - Session: CC-20261123-q4vn
+  - What changed: .alveara/handoffs/ALV-N030-C01/R01.md and R01-evidence (TEST_RESULTS, ACCEPTANCE_EVIDENCE 17/17, DEMO_EVIDENCE, CHANGED_FILES, NEXT_STORY_IMPACT); EXECUTION_STATUS new ALV-N030-C01 record AWAITING_REVIEW R01 (implementation 1d952d9); BUILD_STATE line
+  - Verification: documents only; EXECUTION_STATUS parses (74 records)
+  - Notes: no test run for the handoff
