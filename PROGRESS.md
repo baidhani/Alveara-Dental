@@ -3878,3 +3878,10 @@
   - What changed: gate uses GET /api/auth/permissions with a frozen five-action allowlist (CR-1); pinned QRCoder 1.9.0 / ZXing.Net 0.16.11, no renderer package, test-only QrSvgTestReader, S42a/S42b/S43 split, S53 dependency evidence (CR-2); frozen Stage 1 sequence 19.4a with privacy-safe walkthrough record (CR-3)
   - Verification: documents only; awaiting review R12
   - Notes: no code
+
+- [x] ALV-N030-C02 brief section 19 Stage 1 approved (BRIEFING-R12)
+  - Date: 2026-11-25
+  - Session: CC-20261123-q4vn
+  - What changed: brief status lines record R12 APPROVED_FOR_STAGE_1_IMPLEMENTATION; Stage 2 not authorized
+  - Verification: review .alveara/reviews/ACCT/BRIEFING-R12.md
+  - Notes: documents only
