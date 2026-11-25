@@ -258,19 +258,28 @@ describe("the Practice Owner notices on the dashboard", () => {
   });
 
   it("lets an administrator of an upgraded practice designate an eligible staff member after confirming", async () => {
+    // ALV-N030-C01 (brief 18.8, E1): only a staff member whose login is an enabled Administrator is eligible; others are listed but disabled
+    const users = [
+      { id: "ua", username: "able", role: "Admin", isDisabled: false, mfaEnabled: false, sessionTimeoutMinutes: 30, createdAtUtc: "x" },
+      { id: "uc", username: "cara", role: "Dentist", isDisabled: false, mfaEnabled: false, sessionTimeoutMinutes: 30, createdAtUtc: "x" },
+    ];
     const rows = [
       { id: "a", displayName: "Dr Able", jobTitle: "Dentist", userAccountId: "ua", isActive: true, rowVersion: "AA==" },
+      { id: "c", displayName: "Dr Cara", jobTitle: "Dentist", userAccountId: "uc", isActive: true, rowVersion: "AA==" },
       { id: "b", displayName: "No Login", jobTitle: null, userAccountId: null, isActive: true, rowVersion: "AA==" },
     ];
     const calls = stubFetch((url) => {
       if (url.includes("/api/auth/permissions")) return session({ accountKind: "Staff", practiceOwnerExists: false });
       if (url.includes("/api/practice-owner/initial")) return json({ staffProfileId: "a", displayName: "Dr Able", designatedAtUtc: "x", method: "UpgradeTransition" }, 201);
       if (url.includes("/api/config/staff")) return json(rows);
+      if (url.includes("/api/auth/users")) return json(users);
     });
     render(<AuthProvider><MemoryRouter><PracticeOwnerNotice /></MemoryRouter></AuthProvider>);
     fireEvent.click(await screen.findByRole("button", { name: "Designate the Practice Owner" }));
     const select = await screen.findByRole("combobox", { name: "Practice Owner" });
     expect(within(select).queryByRole("option", { name: "No Login" })).toBeNull();   // only staff with a login are eligible
+    await waitFor(() => expect(within(select).getByRole("option", { name: /Dr Cara/ })).toBeDisabled());   // a Dentist login: change the role first
+    expect(within(select).getByRole("option", { name: /Dr Able/ })).not.toBeDisabled();
     fireEvent.change(select, { target: { value: "a" } });
     expect(screen.getByRole("button", { name: "Designate" })).toBeDisabled();       // the confirmation step comes first
     fireEvent.click(screen.getByLabelText(/I confirm this person is the Practice Owner/));

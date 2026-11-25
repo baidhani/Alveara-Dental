@@ -72,11 +72,13 @@ public class OwnerInvariantAuditTests : IAsyncLifetime
     private Task<List<AuditLogEntry>> ViolationsAsync() => WithDbAsync(db =>
         db.AuditLogEntries.AsNoTracking().Where(a => a.EventType == AuditEventTypes.PracticeOwnerInvariantViolation).OrderBy(a => a.TimestampUtc).ToListAsync());
 
-    private async Task<string?> StatusAsync()
+    private async Task<string?> StatusAsync() => (await StatusBodyAsync()).GetProperty("practiceOwnerStatus").GetString();
+
+    private async Task<JsonElement> StatusBodyAsync()
     {
         var client = _factory.CreateClient();
         Assert.Equal(HttpStatusCode.OK, (await client.PostAsJsonAsync("/api/auth/login", new { username = "status.reader", password = Password })).StatusCode);
-        return (await (await client.GetAsync("/api/auth/permissions")).Content.ReadFromJsonAsync<JsonElement>()).GetProperty("practiceOwnerStatus").GetString();
+        return await (await client.GetAsync("/api/auth/permissions")).Content.ReadFromJsonAsync<JsonElement>();
     }
 
     [Fact]
@@ -90,7 +92,9 @@ public class OwnerInvariantAuditTests : IAsyncLifetime
         Assert.Equal("none", await StatusAsync());
 
         var (designation, staff, account) = await SeedOwnerAsync(Role.Dentist);
-        Assert.Equal("degraded", await StatusAsync());
+        var degraded = await StatusBodyAsync();
+        Assert.Equal("degraded", degraded.GetProperty("practiceOwnerStatus").GetString());
+        Assert.Equal(["notAdministrator"], degraded.GetProperty("practiceOwnerProblems").EnumerateArray().Select(p => p.GetString()).ToArray());
 
         Assert.Equal(1, await RunAsync());
         var first = Assert.Single(await ViolationsAsync());

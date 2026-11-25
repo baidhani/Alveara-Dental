@@ -48,6 +48,9 @@ export interface MyPermissions {
   isPracticeOwner?: boolean;
   /** ALV-N030: a Practice Owner has been designated for the practice. */
   practiceOwnerExists?: boolean;
+  /** ALV-N030-C01 (brief 18.7): whether the owner meets the owner rule, and for "degraded" which conditions fail. */
+  practiceOwnerStatus?: "none" | "valid" | "degraded";
+  practiceOwnerProblems?: string[];
 }
 
 export interface PermissionMatrixEntry {

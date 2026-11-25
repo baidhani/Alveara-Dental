@@ -5,6 +5,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { ApiError } from "../../services/authApi";
 import { designatePracticeOwner } from "../../services/accountsApi";
 import { listStaff } from "../../services/configApi";
+import { listUsers } from "../../services/authApi";
 import type { StaffRecord } from "../../services/configApi";
 import "./PracticeOwnerNotice.css";
 
@@ -23,8 +24,30 @@ export const DEPLOYMENT_ADMINISTRATOR_NOTICE =
  * </list>
  * Nothing shows once an owner exists, or for anyone without Manage users.
  */
+/** ALV-N030-C01 (brief 18.7): what each failing owner condition means, in the notice's words. */
+const OWNER_PROBLEMS: Record<string, string> = {
+  staffInactive: "their staff profile is inactive",
+  noLogin: "their staff profile has no login",
+  loginDisabled: "their login is disabled",
+  notAdministrator: "their login is not an Administrator",
+  notStaffAccount: "their login is not a staff account",
+};
+
 export function PracticeOwnerNotice() {
   const { state, hasPermission, refresh } = useAuth();
+  if (state.kind === "signed-in" && state.practiceOwnerStatus === "degraded" && hasPermission("ManageUsers")) {
+    const problems = (state.practiceOwnerProblems ?? []).map((p) => OWNER_PROBLEMS[p] ?? p);
+    return (
+      <section className="alv-dashboard-notice" role="region" aria-label="Practice Owner">
+        <p>
+          The Practice Owner does not meet the owner requirements{problems.length > 0 ? `: ${problems.join("; ")}` : ""}. The Practice Owner must be an active
+          staff member whose login is an enabled Administrator. To fix it, change their role to Administrator or re-enable their login in Security Administration,
+          or have the Deployment Administrator transfer the Practice Owner designation to someone who meets the requirements.
+        </p>
+        <Link to="/admin/users">Open Security Administration</Link>
+      </section>
+    );
+  }
   if (state.kind !== "signed-in" || state.practiceOwnerExists !== false || !hasPermission("ManageUsers")) return null;
   if (state.accountKind === "DeploymentAdministrator") {
     return (
@@ -40,6 +63,8 @@ export function PracticeOwnerNotice() {
 function DesignateOwner({ onDone }: { onDone: () => Promise<void> }) {
   const [open, setOpen] = useState(false);
   const [staff, setStaff] = useState<StaffRecord[] | null>(null);
+  // ALV-N030-C01 (brief 18.8, E1): only a staff member whose login is an enabled Administrator can be designated; others are listed but disabled
+  const [admins, setAdmins] = useState<Set<string>>(new Set());
   const [loadError, setLoadError] = useState(false);
   const [chosen, setChosen] = useState("");
   const [confirmed, setConfirmed] = useState(false);
@@ -49,8 +74,12 @@ function DesignateOwner({ onDone }: { onDone: () => Promise<void> }) {
   useEffect(() => {
     if (!open || staff !== null) return;
     let cancelled = false;
-    listStaff(false)
-      .then((rows) => { if (!cancelled) setStaff(rows.filter((r) => r.isActive && r.userAccountId)); })
+    Promise.all([listStaff(false), listUsers()])
+      .then(([rows, users]) => {
+        if (cancelled) return;
+        setAdmins(new Set(users.filter((u) => u.role === "Admin" && !u.isDisabled).map((u) => u.id)));
+        setStaff(rows.filter((r) => r.isActive && r.userAccountId));
+      })
       .catch((err) => { console.warn("Loading the staff list failed", err); if (!cancelled) setLoadError(true); });
     return () => { cancelled = true; };
   }, [open, staff]);
@@ -66,6 +95,7 @@ function DesignateOwner({ onDone }: { onDone: () => Promise<void> }) {
       const code = err instanceof ApiError ? err.code : "";
       setError(code === "owner_already_designated" ? "A Practice Owner has already been designated." :
         code === "owner_target_invalid" ? "The Practice Owner must be an active staff member with an enabled login." :
+        code === "owner_must_be_administrator" ? "Change this person's role to Administrator in Security Administration first." :
         "The Practice Owner could not be designated. Please try again.");
     } finally {
       setBusy(false);
@@ -86,9 +116,17 @@ function DesignateOwner({ onDone }: { onDone: () => Promise<void> }) {
                 Practice Owner
                 <select value={chosen} onChange={(e) => setChosen(e.target.value)} disabled={busy}>
                   <option value="">Select…</option>
-                  {staff.map((s) => <option key={s.id} value={s.id}>{s.displayName}{s.jobTitle ? ` (${s.jobTitle})` : ""}</option>)}
+                  {staff.map((s) => {
+                    const eligible = s.userAccountId !== null && admins.has(s.userAccountId);
+                    return (
+                      <option key={s.id} value={s.id} disabled={!eligible}>
+                        {s.displayName}{s.jobTitle ? ` (${s.jobTitle})` : ""}{eligible ? "" : " - change this person's role to Administrator first"}
+                      </option>
+                    );
+                  })}
                 </select>
               </label>
+              <p className="alv-form-field__hint">The Practice Owner signs in with the Administrator role. Change a person's role to Administrator in Security Administration first.</p>
               <label>
                 <input type="checkbox" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} disabled={busy} /> I confirm this person is the Practice Owner. This cannot be changed here later.
               </label>

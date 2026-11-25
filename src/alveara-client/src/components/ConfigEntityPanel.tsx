@@ -10,6 +10,11 @@ import { confirmDiscard, useUnsavedChangesWarning } from "../hooks/useUnsavedCha
 import { validateFields } from "./validateFields";
 import type { ConfigField, FormValues } from "./validateFields";
 export type { ConfigField, FormValues } from "./validateFields";
+
+/** ALV-N030-C01: a field locked by a ticked checkbox (see ConfigField.lockedBy). */
+function isLocked(field: ConfigField, values: FormValues): boolean {
+  return field.lockedBy !== undefined && values[field.lockedBy.field] === "true";
+}
 import { ApiError, isConcurrencyConflict } from "../services/authApi";
 import type { ConcurrencyConflictProblem } from "../services/authApi";
 import "./ConfigEntityPanel.css";
@@ -49,6 +54,8 @@ interface ConfigEntityPanelProps<T extends ConfigRecord> {
   beforeSetActive?: (row: T, active: boolean) => Promise<boolean>;
   /** ALV-N020: extra actions shown in a row after Edit and Inactivate/Reactivate (e.g. unlink a login from an inactive staff profile). */
   rowActions?: (row: T, reload: () => Promise<void>) => ReactNode;
+  /** ALV-N030-C01 (brief 18.8): when this returns a reason, the row's Inactivate/Reactivate button is disabled and the reason is shown beside it. */
+  activeToggleDisabledReason?: (row: T) => string | undefined;
 }
 
 type LoadState<T> = { kind: "loading" } | { kind: "denied" } | { kind: "error" } | { kind: "loaded"; rows: T[] };
@@ -61,7 +68,7 @@ type LoadState<T> = { kind: "loading" } | { kind: "denied" } | { kind: "error" }
  * server error messages, and inactivate/reactivate instead of delete.
  */
 export function ConfigEntityPanel<T extends ConfigRecord>(props: ConfigEntityPanelProps<T>) {
-  const { noun, nounPlural, fields, columns, load, create, update, setActive, toValues, searchText, permission, onDirtyChange, createDisabledReason, refreshKey, beforeSetActive, rowActions } = props;
+  const { noun, nounPlural, fields, columns, load, create, update, setActive, toValues, searchText, permission, onDirtyChange, createDisabledReason, refreshKey, beforeSetActive, rowActions, activeToggleDisabledReason } = props;
   const { notify } = useNotifications();
 
   const [state, setState] = useState<LoadState<T>>({ kind: "loading" });
@@ -312,9 +319,11 @@ export function ConfigEntityPanel<T extends ConfigRecord>(props: ConfigEntityPan
                       <Button onClick={() => openForm(row)} disabled={saving} aria-label={`Edit ${searchText(row)}`}>
                         Edit
                       </Button>
-                      <Button onClick={() => toggleActive(row)} aria-label={`${row.isActive ? "Inactivate" : "Reactivate"} ${searchText(row)}`}>
+                      <Button onClick={() => toggleActive(row)} aria-label={`${row.isActive ? "Inactivate" : "Reactivate"} ${searchText(row)}`}
+                        disabled={activeToggleDisabledReason?.(row) !== undefined}>
                         {row.isActive ? "Inactivate" : "Reactivate"}
                       </Button>
+                      {activeToggleDisabledReason?.(row) && <span className="alv-form-field__hint">{activeToggleDisabledReason(row)}</span>}
                       {rowActions?.(row, async () => { await refresh(); })}
                     </td>
                   </tr>
@@ -346,7 +355,11 @@ export function ConfigEntityPanel<T extends ConfigRecord>(props: ConfigEntityPan
                       type="checkbox"
                       checked={values[field.name] === "true"}
                       aria-describedby={field.hint ? `cfg-${field.name}-hint` : undefined}
-                      onChange={(e) => setValues({ ...values, [field.name]: e.target.checked ? "true" : "" })}
+                      onChange={(e) => {
+                        const next = { ...values, [field.name]: e.target.checked ? "true" : "" };
+                        if (e.target.checked) for (const f of fields) if (f.lockedBy?.field === field.name) next[f.name] = f.lockedBy.value;
+                        setValues(next);
+                      }}
                     />{" "}
                     {field.label}
                   </label>
@@ -361,8 +374,9 @@ export function ConfigEntityPanel<T extends ConfigRecord>(props: ConfigEntityPan
                     id={`cfg-${field.name}`}
                     className="alv-form-field__input"
                     value={values[field.name] ?? ""}
+                    disabled={isLocked(field, values)}
                     aria-invalid={errors[field.name] ? true : undefined}
-                    aria-describedby={errors[field.name] ? `cfg-${field.name}-error` : undefined}
+                    aria-describedby={errors[field.name] ? `cfg-${field.name}-error` : isLocked(field, values) ? `cfg-${field.name}-locked` : undefined}
                     onChange={(e) => setValues({ ...values, [field.name]: e.target.value })}
                   >
                     <option value="">{field.required ? "Select…" : "None"}</option>
@@ -372,6 +386,7 @@ export function ConfigEntityPanel<T extends ConfigRecord>(props: ConfigEntityPan
                       </option>
                     ))}
                   </select>
+                  {isLocked(field, values) && <p id={`cfg-${field.name}-locked`} className="alv-form-field__hint">{field.lockedBy!.hint}</p>}
                   {errors[field.name] && (
                     <p id={`cfg-${field.name}-error`} className="alv-form-field__error" role="alert">
                       {errors[field.name]}

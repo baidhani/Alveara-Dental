@@ -138,6 +138,7 @@ public class AuthController(AccountService accountService, AlveraDbContext db, I
         }
         var authenticateResult = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         var myId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var ownerStatus = await OwnerInvariantAudit.StatusAsync(db, HttpContext.RequestAborted);
         var me = await db.UserAccounts.AsNoTracking().Where(u => u.Id == myId).Select(u => new
         {
             u.MustChangePassword,
@@ -161,7 +162,8 @@ public class AuthController(AccountService accountService, AlveraDbContext db, I
             isPracticeOwner = me.IsPracticeOwner,
             practiceOwnerExists = me.PracticeOwnerExists,
             // ALV-N030-C01 (brief 18.7): none | valid | degraded - the dashboard tells an Administrator how to fix a degraded owner
-            practiceOwnerStatus = await OwnerInvariantAudit.StatusAsync(db, HttpContext.RequestAborted),
+            practiceOwnerStatus = ownerStatus.Status,
+            practiceOwnerProblems = ownerStatus.Problems,
         });
     }
 

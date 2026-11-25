@@ -14,7 +14,10 @@ export type AuthState =
       accountKind?: string;
       /** ALV-N030: this account's staff member is the Practice Owner; and whether the practice has one at all. */
       isPracticeOwner?: boolean;
-      practiceOwnerExists?: boolean };
+      practiceOwnerExists?: boolean;
+      /** ALV-N030-C01 (brief 18.7): the owner rule's state, and for "degraded" the failing conditions. */
+      practiceOwnerStatus?: "none" | "valid" | "degraded";
+      practiceOwnerProblems?: string[] };
 
 export interface AuthContextValue {
   state: AuthState;

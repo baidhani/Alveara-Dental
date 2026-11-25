@@ -75,12 +75,18 @@ test("S14-a an administrator of an upgraded practice designates the Practice Own
   // an existing administrator with no Deployment Administrator and no owner: the state an upgraded installation is in
   expect((await createAccount(admin.request, { username: upgradeAdmin, password: PASSWORD, role: "Admin", withStaffProfile: true })).ok()).toBeTruthy();
   const ownerName = `upgrade-owner-${stamp}`;
-  expect((await createAccount(admin.request, { username: ownerName, password: PASSWORD, role: "Dentist", withStaffProfile: true })).ok()).toBeTruthy();
+  // ALV-N030-C01 (brief 18.3 E1): the Practice Owner signs in as an Administrator; a Dentist login is listed but cannot be chosen
+  expect((await createAccount(admin.request, { username: ownerName, password: PASSWORD, role: "Admin", withStaffProfile: true })).ok()).toBeTruthy();
+  const dentistName = `upgrade-dentist-${stamp}`;
+  expect((await createAccount(admin.request, { username: dentistName, password: PASSWORD, role: "Dentist", withStaffProfile: true })).ok()).toBeTruthy();
   await signIn(admin, upgradeAdmin, PASSWORD);
   await expect(admin.getByRole("heading", { name: "Dashboard" })).toBeVisible();
   await admin.getByRole("button", { name: "Designate the Practice Owner" }).click();
   await shot(admin, "01-upgrade-notice.png");
   const select = admin.getByRole("combobox", { name: "Practice Owner" });
+  // the option carries the native disabled attribute (Playwright's toBeDisabled does not report a disabled <option>, so the attribute is checked directly)
+  await expect(select.locator("option", { hasText: dentistName })).toHaveAttribute("disabled", "");
+  await expect(select.locator("option", { hasText: dentistName })).toContainText("change this person's role to Administrator first");
   await select.selectOption({ label: ownerName });
   await expect(admin.getByRole("button", { name: "Designate", exact: true })).toBeDisabled();     // the confirmation comes first
   await admin.getByLabel(/I confirm this person is the Practice Owner/).check();
@@ -137,6 +143,10 @@ test("S14-d the Deployment Administrator adds the Practice Owner as a staff memb
   await deploy.getByLabel("Username").fill(owner.username);
   await deploy.getByLabel("Role").selectOption("Dentist");
   await deploy.getByLabel("Make this person the Practice Owner").check();
+  // ALV-N030-C01 (brief 18.8): the owner box presets and locks the role to Administrator, and says why
+  await expect(deploy.getByLabel("Role")).toHaveValue("Admin");
+  await expect(deploy.getByLabel("Role")).toBeDisabled();
+  await expect(deploy.getByText(/The Practice Owner signs in with the Administrator role/)).toBeVisible();
   await deploy.getByRole("button", { name: "Add staff member" }).last().click();
   const shown = deploy.getByTestId("temporary-password");
   await expect(shown).toHaveText(/^.{16}$/);

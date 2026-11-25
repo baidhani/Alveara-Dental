@@ -58,7 +58,7 @@ public static class OwnerInvariantAudit
     /// For the signed-in client (brief 18.7): <c>none</c> (no active designation), <c>valid</c> (the owner invariant holds) or <c>degraded</c> (it does not; the
     /// dashboard tells an Administrator which condition fails and how to fix it).
     /// </summary>
-    public static async Task<string> StatusAsync(AlveraDbContext db, CancellationToken ct)
+    public static async Task<OwnerStatus> StatusAsync(AlveraDbContext db, CancellationToken ct)
     {
         var row = await db.PracticeOwnerDesignations.AsNoTracking().Where(d => d.EndedAtUtc == null)
             .Select(d => new
@@ -68,7 +68,18 @@ public static class OwnerInvariantAudit
                 Role = d.StaffProfile.UserAccount == null ? (Role?)null : d.StaffProfile.UserAccount.Role,
                 Kind = d.StaffProfile.UserAccount == null ? (AccountKind?)null : d.StaffProfile.UserAccount.AccountKind,
             }).SingleOrDefaultAsync(ct);
-        if (row is null) return "none";
-        return row.IsActive && row.Disabled == false && row.Role == Role.Admin && row.Kind == AccountKind.Staff ? "valid" : "degraded";
+        if (row is null) return new OwnerStatus("none", []);
+        var problems = new List<string>();   // the same condition names the audit row uses
+        if (!row.IsActive) problems.Add("staffInactive");
+        if (row.Disabled is null) problems.Add("noLogin");
+        if (row.Disabled == true) problems.Add("loginDisabled");
+        if (row.Role is not null && row.Role != Role.Admin) problems.Add("notAdministrator");
+        if (row.Kind is not null && row.Kind != AccountKind.Staff) problems.Add("notStaffAccount");
+        return new OwnerStatus(problems.Count == 0 ? "valid" : "degraded", problems);
     }
+}
+
+/// <summary>The owner invariant as the signed-in client sees it: <c>none</c>, <c>valid</c> or <c>degraded</c>, and for degraded which conditions fail.</summary>
+public sealed record OwnerStatus(string Status, IReadOnlyList<string> Problems)
+{
 }

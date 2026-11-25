@@ -15,6 +15,11 @@ export interface ConfigField {
   optionsFor?: (editingId: string | null) => { value: string; label: string }[];
   /** Shown only while creating (e.g. which staff member a provider profile belongs to). */
   createOnly?: boolean;
+  /**
+   * ALV-N030-C01 (brief 18.8): while the named checkbox is ticked this field is set to `value` and cannot be changed, and `hint` says why
+   * (e.g. the Practice Owner's role is Administrator). The server is still the control.
+   */
+  lockedBy?: { field: string; value: string; hint: string };
 }
 
 export type FormValues = Record<string, string>;

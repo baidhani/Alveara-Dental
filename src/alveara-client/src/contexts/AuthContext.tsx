@@ -103,6 +103,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         accountKind: result.accountKind,
         isPracticeOwner: result.isPracticeOwner,
         practiceOwnerExists: result.practiceOwnerExists,
+        practiceOwnerStatus: result.practiceOwnerStatus,
+        practiceOwnerProblems: result.practiceOwnerProblems,
       });
     } catch {
       if (seq !== requestSeqRef.current) return;

@@ -19,6 +19,8 @@ import {
 } from "../services/authApi";
 import type { AdminUserSummary } from "../services/authApi";
 import { PresentationAdministratorControl } from "./PresentationAdministratorControl";
+import { getPracticeOwner } from "../services/accountsApi";
+import { OWNER_PROTECTED } from "./configuration/PeopleTabs";
 import "./AdminUsersPage.css";
 import { showInstant } from "../time/practiceTime";
 
@@ -53,6 +55,18 @@ export function AdminUserDetailPage() {
   const [timeoutInput, setTimeoutInput] = useState("");
   const { notify } = useNotifications();
   const { hasPermission } = useAuth();
+  // ALV-N030-C01 (brief 18.8, E3/E5): the owner's role and enabled state are locked here too; the server refuses regardless
+  const [ownerName, setOwnerName] = useState<string | null>(null);
+  const canReadOwner = hasPermission("ManageUsers");
+  useEffect(() => {
+    if (!canReadOwner) return;
+    let cancelled = false;
+    getPracticeOwner()
+      .then((r) => { if (!cancelled) setOwnerName(r.owner?.displayName ?? null); })
+      .catch((err) => console.warn("Reading the Practice Owner failed; the server still protects the owner's account", err));
+    return () => { cancelled = true; };
+  }, [canReadOwner]);
+  const isOwner = state.kind === "loaded" && ownerName !== null && state.user.linkedStaffDisplayName === ownerName;
 
   const load = useCallback(async () => {
     setState({ kind: "loading" });
@@ -154,7 +168,8 @@ export function AdminUserDetailPage() {
             <dt>Role</dt>
             <dd>
               {canManageRoles ? (
-                <select aria-label="Role" value={state.user.role} onChange={(e) => handleRoleChange(e.target.value)}>
+                <select aria-label="Role" value={state.user.role} onChange={(e) => handleRoleChange(e.target.value)} disabled={isOwner && state.user.role === "Admin"}
+                  title={isOwner && state.user.role === "Admin" ? "Practice Owner: must stay Administrator. Transfer the Practice Owner designation first." : undefined}>
                   {!ROLES.includes(state.user.role) && <option value={state.user.role}>{state.user.role}</option>}
                   {ROLES.map((role) => (
                     <option key={role} value={role}>
@@ -180,10 +195,11 @@ export function AdminUserDetailPage() {
 
           <div className="alv-admin-users__actions">
             {canManageStatus && (
-              <Button variant="secondary" onClick={() => handleToggleEnabled(state.user.isDisabled)}>
+              <Button variant="secondary" onClick={() => handleToggleEnabled(state.user.isDisabled)} disabled={isOwner && !state.user.isDisabled}>
                 {state.user.isDisabled ? "Enable" : "Disable"}
               </Button>
             )}
+            {isOwner && <p className="alv-form-field__hint">{OWNER_PROTECTED}</p>}
             {canIssueResets && (
               <Button variant="secondary" onClick={handleIssueReset}>
                 Issue password reset

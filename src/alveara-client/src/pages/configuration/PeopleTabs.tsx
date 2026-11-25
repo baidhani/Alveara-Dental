@@ -7,7 +7,7 @@ import { useNotifications } from "../../components/Notification";
 import { ConfigEntityPanel } from "../../components/ConfigEntityPanel";
 import type { ConfigField } from "../../components/ConfigEntityPanel";
 import { ApiError } from "../../services/authApi";
-import { addStaffMember, WORKING_ROLES } from "../../services/accountsApi";
+import { addStaffMember, getPracticeOwner, WORKING_ROLES } from "../../services/accountsApi";
 import {
   createProvider, listProviders, listStaff, setProviderActive, setStaffActive,
   updateProvider, updateStaff,
@@ -21,6 +21,9 @@ interface TabProps {
 const PERMISSION = "ManagePracticeConfiguration";
 
 /** Stable codes from "Add staff member", in the screen's own words. */
+/** ALV-N030-C01 (brief 18.8): shown beside the owner's disabled Inactivate button. */
+export const OWNER_PROTECTED = "This person is the Practice Owner. Transfer the Practice Owner designation first.";
+
 const ADD_ERRORS: Record<string, string> = {
   staff_name_taken: "A staff member with that display name already exists.",
   username_taken: "That username is already in use.",
@@ -41,11 +44,21 @@ const ADD_ERRORS: Record<string, string> = {
  */
 export function StaffTab({ onDirtyChange }: TabProps) {
   const { hasPermission, state, refresh: refreshIdentity } = useAuth();
+  // ALV-N030-C01 (brief 18.8, E4): the owner's profile cannot be inactivated until the designation is transferred; the server refuses regardless
+  const [ownerStaffId, setOwnerStaffId] = useState<string | null>(null);
   const { notify } = useNotifications();
   const canManageUsers = hasPermission("ManageUsers");
   const ownerExists = state.kind === "signed-in" && state.practiceOwnerExists === true;
   const [issued, setIssued] = useState<IssuedLogin | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  useEffect(() => {
+    if (!canManageUsers || !ownerExists) return;
+    let cancelled = false;
+    getPracticeOwner()
+      .then((r) => { if (!cancelled) setOwnerStaffId(r.owner?.staffProfileId ?? null); })
+      .catch((err) => console.warn("Reading the Practice Owner failed; the server still refuses inactivating the owner", err));
+    return () => { cancelled = true; };
+  }, [canManageUsers, ownerExists, refreshKey]);
 
   const loginLabel = useCallback((row: StaffRecord) => (row.userAccountId ? "Has a login" : "Legacy record without a login"), []);
 
@@ -73,7 +86,10 @@ export function StaffTab({ onDirtyChange }: TabProps) {
       { name: "displayName", label: "Display name", type: "text", required: true, maxLength: 120 },
       { name: "jobTitle", label: "Job title", type: "text", maxLength: 80 },
       { name: "username", label: "Username", type: "text", required: true, maxLength: 256, createOnly: true, hint: "The name this person signs in with." },
-      { name: "role", label: "Role", type: "select", required: true, createOnly: true, options: WORKING_ROLES.map((r) => ({ value: r.value, label: r.label })) },
+      { name: "role", label: "Role", type: "select", required: true, createOnly: true, options: WORKING_ROLES.map((r) => ({ value: r.value, label: r.label })),
+        // ALV-N030-C01 (brief 18.8, owner decision 4): the owner box presets and locks the role; the server refuses any other role (E2)
+        lockedBy: ownerExists ? undefined : { field: "practiceOwner", value: "Admin",
+          hint: "The Practice Owner signs in with the Administrator role so they can configure and run the practice. Their job title and provider profile still describe their clinical work." } },
     ];
     if (!ownerExists) list.push({ name: "practiceOwner", label: "Make this person the Practice Owner", type: "checkbox", createOnly: true,
       hint: "No Practice Owner has been designated yet. Only one person can be the Practice Owner." });
@@ -118,6 +134,7 @@ export function StaffTab({ onDirtyChange }: TabProps) {
         return created;
       }}
       update={(row, v) => updateStaff(row.id, v.displayName.trim(), v.jobTitle.trim(), row.rowVersion)}
+      activeToggleDisabledReason={(row) => (canManageUsers && ownerExists && row.isActive && row.id === ownerStaffId ? OWNER_PROTECTED : undefined)}
       setActive={(row, active) => setStaffActive(row.id, active, row.rowVersion)}
       toValues={(r) => ({ displayName: r.displayName, jobTitle: r.jobTitle ?? "" })}
       searchText={(r) => r.displayName}

@@ -67,7 +67,32 @@ export interface PracticeOwner {
   displayName: string;
   designatedAtUtc: string;
   method: string;
+  /** ALV-N030-C01 (R09-2): sent back by a transfer as its expected designation. */
+  designationId: string;
 }
+
+/** ALV-N030-C01 (brief 18.5): POST /api/practice-owner/transfer - the Deployment Administrator only; password (and authenticator code when MFA is on), reason and confirmation required. */
+export interface TransferPracticeOwnerBody {
+  expectedDesignationId: string;
+  newOwnerStaffProfileId: string;
+  reason: string;
+  confirm: boolean;
+  currentPassword: string;
+  mfaCode: string | null;
+  disableFormerOwner: boolean;
+}
+
+export const transferPracticeOwner = (body: TransferPracticeOwnerBody, idempotencyKey: string) =>
+  postWithKey<{ designationId: string; staffProfileId: string; designatedAtUtc: string; formerOwnerDisabled: boolean; replayed: boolean }>(
+    "/api/practice-owner/transfer", body, idempotencyKey);
+
+/** ALV-N030-C01 (brief 18.6): POST /api/recovery/deployment-administrator - the console token goes in the JSON body only. Every token failure is 400 "recovery_failed". */
+export const recoverDeploymentAdministrator = (token: string, username: string, newPassword: string) =>
+  request<{ username: string; method: "Created" | "Reset" }>("/api/recovery/deployment-administrator", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token, username, newPassword }),
+  });
 
 export const getPracticeOwner = () => request<{ owner: PracticeOwner | null }>("/api/practice-owner");
 

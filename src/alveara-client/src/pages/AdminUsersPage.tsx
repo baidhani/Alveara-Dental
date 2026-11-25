@@ -16,6 +16,8 @@ import {
 } from "../services/authApi";
 import type { AdminUserSummary } from "../services/authApi";
 import { getPracticeOwner } from "../services/accountsApi";
+import { TransferPracticeOwnerDialog } from "./TransferPracticeOwnerDialog";
+import { OWNER_PROTECTED } from "./configuration/PeopleTabs";
 import { accountLabels } from "./accountLabels";
 import "./AdminUsersPage.css";
 
@@ -37,7 +39,11 @@ type PageState =
 export function AdminUsersPage() {
   const [state, setState] = useState<PageState>({ kind: "loading" });
   const { notify } = useNotifications();
-  const { hasPermission } = useAuth();
+  const { hasPermission, state: auth, refresh: refreshIdentity } = useAuth();
+  // ALV-N030-C01 (brief 18.8): only the Deployment Administrator transfers the Practice Owner designation; the server checks the account kind regardless
+  const isDeploymentAdministrator = auth.kind === "signed-in" && auth.accountKind === "DeploymentAdministrator";
+  const [transferOpen, setTransferOpen] = useState(false);
+  const [ownerKey, setOwnerKey] = useState(0);
   // ALV-N030: the Practice Owner's staff name, for the label (only a Manage users holder may read it; others see no owner label)
   const [ownerName, setOwnerName] = useState<string | null>(null);
   const canReadOwner = hasPermission("ManageUsers");
@@ -48,7 +54,9 @@ export function AdminUsersPage() {
       .then((r) => { if (!cancelled) setOwnerName(r.owner?.displayName ?? null); })
       .catch((err) => console.warn("Reading the Practice Owner failed; the label is not shown", err));
     return () => { cancelled = true; };
-  }, [canReadOwner]);
+  }, [canReadOwner, ownerKey]);
+  /** ALV-N030-C01 (E3, E5): the owner's role and enabled state are locked until the designation is transferred (the server refuses regardless). */
+  const isOwner = (user: AdminUserSummary) => ownerName !== null && user.linkedStaffDisplayName === ownerName;
 
   const load = useCallback(async () => {
     setState({ kind: "loading" });
@@ -117,6 +125,23 @@ export function AdminUsersPage() {
     <>
       <PageHeader title="Security administration" description={hasPermission("ManageUsers") ? "Manage user accounts, roles, and sessions." : "The accounts your role may act on: you can see only accounts whose role holds no permission that yours lacks, never an administrator."} />
 
+      {isDeploymentAdministrator && ownerName && state.kind === "loaded" && !transferOpen && (
+        <Button onClick={() => setTransferOpen(true)}>Transfer Practice Owner</Button>
+      )}
+      {transferOpen && state.kind === "loaded" && (
+        <TransferPracticeOwnerDialog
+          users={state.users}
+          mfaEnabled={state.users.find((u) => u.username === (auth.kind === "signed-in" ? auth.username : ""))?.mfaEnabled === true}
+          onCancel={() => setTransferOpen(false)}
+          onDone={async (name) => {
+            setTransferOpen(false);
+            notify("success", `${name} is now the Practice Owner.`);
+            setOwnerKey((k) => k + 1);
+            await refreshIdentity();
+            await load();
+          }}
+        />
+      )}
       {state.kind === "loading" && <LoadingState label="Loading users…" />}
       {state.kind === "permission-denied" && <PermissionDenied requiredPermission="ManageUsers" />}
       {state.kind === "error" && (
@@ -153,6 +178,8 @@ export function AdminUsersPage() {
                     <select
                       aria-label={`Role for ${user.username}`}
                       value={user.role}
+                      disabled={isOwner(user) && user.role === "Admin"}
+                      title={isOwner(user) && user.role === "Admin" ? "Practice Owner: must stay Administrator. Transfer the Practice Owner designation first." : undefined}
                       onChange={(e) => handleRoleChange(user.id, e.target.value)}
                     >
                       {!ROLES.includes(user.role) && <option value={user.role}>{user.role}</option>}
@@ -180,10 +207,12 @@ export function AdminUsersPage() {
                 </td>
                 <td className="alv-admin-users__actions">
                   {canManageStatus && (
-                    <Button variant="secondary" onClick={() => handleToggleEnabled(user)}>
+                    <Button variant="secondary" onClick={() => handleToggleEnabled(user)} disabled={isOwner(user) && !user.isDisabled}
+                      title={isOwner(user) && !user.isDisabled ? OWNER_PROTECTED : undefined}>
                       {user.isDisabled ? "Enable" : "Disable"}
                     </Button>
                   )}
+                  {isOwner(user) && <span className="alv-form-field__hint">{OWNER_PROTECTED}</span>}
                   {canIssueResets && (
                     <Button variant="secondary" onClick={() => handleIssueReset(user.id)}>
                       Issue password reset
