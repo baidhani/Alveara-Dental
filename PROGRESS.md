@@ -3745,3 +3745,10 @@
   - What changed: EXECUTION_STATUS ALV-N030 COMPLETE with the R02 approval, implementation 4428049, evidence efbaa4e, 5/5 focused acceptance; BUILD_STATE line; review R02 file committed
   - Verification: review .alveara/reviews/ALV-N030/R02.md APPROVED; JSON parses
   - Notes: closure only; not release-certified (ALV-N028 regression, ALV-N013 supervisor restart)
+
+- [x] ALV-N030 manual walkthrough (owner) and findings U-043 to U-049 recorded
+  - Date: 2026-11-25
+  - Session: CC-20261123-q4vn
+  - What changed: docs/stabilization/UNASSIGNED_FINDINGS.md gains U-043 (false server-unavailable banner during setup), U-044 (faint links), U-045 (ALV-N001 dashboard placeholder), U-046 (Add Practice Owner button + slide-in panel, single atomic call - owner decision), U-047 (word-based temporary password), U-048 (fuller staff profile; owner decision: no identity number), U-049 (initial owner must be Administrator, server-enforced - owner decision option b; brief addendum + independent review before implementation; blocks ALV-N027 start)
+  - Verification: owner ran the walkthrough on a throwaway database (AlveraManualN030, dropped afterwards; AlveraDev untouched); all steps passed apart from the findings above
+  - Notes: documentation only; no code changed; findings unassigned until the owner assigns them
