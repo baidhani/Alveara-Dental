@@ -7,7 +7,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Alveara.Api.Architecture.Identity;
 
-public sealed record PracticeOwnerView(Guid StaffProfileId, string DisplayName, DateTimeOffset DesignatedAtUtc, string Method);
+/// <summary>The active designation. <see cref="DesignationId"/> (ALV-N030-C01, R09-2) is what a transfer sends back as its expected designation.</summary>
+public sealed record PracticeOwnerView(Guid StaffProfileId, string DisplayName, DateTimeOffset DesignatedAtUtc, string Method, Guid DesignationId);
 
 /// <summary>
 /// ALV-N030 (brief sections 4 and 5, D-3, D-7) and ALV-N030-C01 (brief 18.3, 18.3a): the Practice Owner is a human staff member - an active staff profile with a linked,
@@ -26,7 +27,7 @@ public class PracticeOwnerService(AlveraDbContext db, IPracticeClock clock)
 
     public async Task<PracticeOwnerView?> CurrentAsync(CancellationToken ct) =>
         await db.PracticeOwnerDesignations.AsNoTracking().Where(d => d.EndedAtUtc == null)
-            .Select(d => new PracticeOwnerView(d.StaffProfileId, d.StaffProfile!.DisplayName, d.DesignatedAtUtc, d.Method.ToString()))
+            .Select(d => new PracticeOwnerView(d.StaffProfileId, d.StaffProfile!.DisplayName, d.DesignatedAtUtc, d.Method.ToString(), d.Id))
             .SingleOrDefaultAsync(ct);
 
     public async Task<PracticeOwnerView> DesignateInitialAsync(Guid staffProfileId, bool confirm, Guid actor, CancellationToken ct)
@@ -68,7 +69,7 @@ public class PracticeOwnerService(AlveraDbContext db, IPracticeClock clock)
                 throw new ConfigurationException(PracticeOwnerGuard.TargetMustBeAdministrator,
                     "The Practice Owner must sign in with the Administrator role. Change this person's role to Administrator in Security Administration first.", 409);
 
-            row = StageDesignation(db, target.Id, target.DisplayName, lockedActor!, clock.UtcNow);
+            row = StageDesignation(db, target.Id, lockedActor!, clock.UtcNow);
             displayName = target.DisplayName;
             await db.SaveChangesAsync(ct);
             await tx.CommitAsync(ct);
@@ -83,7 +84,7 @@ public class PracticeOwnerService(AlveraDbContext db, IPracticeClock clock)
             await tx.RollbackAsync(CancellationToken.None);
             throw AlreadyDesignated();
         }
-        return new PracticeOwnerView(row.StaffProfileId, displayName, row.DesignatedAtUtc, row.Method.ToString());
+        return new PracticeOwnerView(row.StaffProfileId, displayName, row.DesignatedAtUtc, row.Method.ToString(), row.Id);
     }
 
     /// <summary>
@@ -91,7 +92,7 @@ public class PracticeOwnerService(AlveraDbContext db, IPracticeClock clock)
     /// <see cref="StaffMemberService.CreateAsync"/>; brief 18.4). The caller holds the 18.3a locks inside a serializable transaction, has re-checked "never
     /// designated" and the actor (<see cref="PracticeOwnerGuard.IsEligibleDesignator"/>), and saves.
     /// </summary>
-    internal static PracticeOwnerDesignation StageDesignation(AlveraDbContext db, Guid staffProfileId, string displayName, LockedAccount actor, DateTimeOffset now)
+    internal static PracticeOwnerDesignation StageDesignation(AlveraDbContext db, Guid staffProfileId, LockedAccount actor, DateTimeOffset now)
     {
         var row = new PracticeOwnerDesignation
         {
@@ -100,8 +101,9 @@ public class PracticeOwnerService(AlveraDbContext db, IPracticeClock clock)
                 ? PracticeOwnerDesignationMethod.InitialByDeploymentAdministrator : PracticeOwnerDesignationMethod.UpgradeTransition,
         };
         db.PracticeOwnerDesignations.Add(row);
+        // ALV-N030-C01 (Q7): ids only in the stored text; the audit page resolves the name when an authorized user reads it
         AuditService.Record(db, AuditEventTypes.PracticeOwnerDesignated, nameof(StaffProfile), staffProfileId, actor.Id,
-            $"{displayName} was designated the Practice Owner ({row.Method}).");
+            $"staffProfileId={staffProfileId}; designationId={row.Id}; method={row.Method}");
         return row;
     }
 

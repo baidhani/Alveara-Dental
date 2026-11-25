@@ -30,6 +30,9 @@ public enum PracticeOwnerDesignationMethod
 
     /// <summary>An active Administrator designated the initial owner on an installation upgraded with no owner (D-7).</summary>
     UpgradeTransition,
+
+    /// <summary>ALV-N030-C01 (brief 18.5): the Deployment Administrator transferred the designation from the previous owner.</summary>
+    Transfer,
 }
 
 /// <summary>

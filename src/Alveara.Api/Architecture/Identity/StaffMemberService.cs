@@ -109,7 +109,7 @@ public class StaffMemberService(AlveraDbContext db, IPracticeClock clock, IEffec
             if (practiceOwner)
             {
                 if (TestHook_BeforeDesignation is { } beforeDesignation) await beforeDesignation();
-                PracticeOwnerService.StageDesignation(db, staff.Id, staff.DisplayName, designator!, clock.UtcNow);
+                PracticeOwnerService.StageDesignation(db, staff.Id, designator!, clock.UtcNow);
                 await db.SaveChangesAsync(ct);
             }
             await tx.CommitAsync(ct);

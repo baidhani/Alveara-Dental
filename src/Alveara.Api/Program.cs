@@ -245,6 +245,7 @@ builder.Services.AddScoped<AccountService>();
 builder.Services.AddScoped<DeploymentSetupService>();   // ALV-N030: first-run setup (token CLI and setup route)
 builder.Services.AddScoped<StaffMemberService>();      // ALV-N030: Add staff member and legacy login
 builder.Services.AddScoped<PracticeOwnerService>();    // ALV-N030: the Practice Owner designation
+builder.Services.AddScoped<PracticeOwnerTransferService>();    // ALV-N030-C01 (brief 18.5): ownership transfer
 builder.Services.AddScoped<AccountPermissionService>();                                              // ALV-N020-C01: account-scoped permissions
 
 // Data Protection backs both the MFA-secret-at-rest protector and the short-lived MFA challenge

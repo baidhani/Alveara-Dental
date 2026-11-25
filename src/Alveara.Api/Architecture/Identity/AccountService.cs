@@ -390,6 +390,28 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
     }
 
     /// <summary>
+    /// ALV-N030-C01 (brief 18.5, owner Q5): the second step-up factor. Does nothing when the account has no MFA. Otherwise a current authenticator code is required
+    /// (<see cref="MfaStepUpRequiredException"/> when missing); recovery codes are not accepted here. A wrong code is audited as <c>MfaStepUpFailed</c> and counts
+    /// through the same lockout boundary as sign-in.
+    /// </summary>
+    public async Task ReauthenticateMfaAsync(Guid userAccountId, string? code, CancellationToken cancellationToken = default)
+    {
+        var account = await db.UserAccounts.AsNoTracking().SingleOrDefaultAsync(u => u.Id == userAccountId, cancellationToken)
+            ?? throw new AccountNotFoundException(userAccountId);
+        if (!account.MfaEnabled || account.MfaSecretProtected is null) return;
+        if (string.IsNullOrWhiteSpace(code)) throw new MfaStepUpRequiredException();
+        if (await RearmAndCheckLockoutAsync(account.Id, cancellationToken) is { } lockedUntil) throw new AccountLockedOutException(lockedUntil);
+        var secret = Convert.FromBase64String(MfaSecretProtector.Unprotect(account.MfaSecretProtected));
+        if (Totp.Verify(secret, code.Trim())) return;
+        await using var failTransaction = await db.Database.BeginTransactionAsync(cancellationToken);
+        var justLockedOutUntil = await RecordFailedAuthenticationAttemptAsync(account.Id, account.Username, AuditEventTypes.MfaStepUpFailed, "MFA step-up reauthentication", cancellationToken);
+        await db.SaveChangesAsync(cancellationToken);
+        await failTransaction.CommitAsync(cancellationToken);
+        if (justLockedOutUntil is { } newLockoutUntil) throw new AccountLockedOutException(newLockoutUntil);
+        throw new InvalidMfaCodeException();
+    }
+
+    /// <summary>
     /// R02 (review finding ALV-001-C01-R01-01): generates a new TOTP secret and recovery codes as
     /// a PENDING set only - the account's active factor (<see cref="UserAccount.MfaSecretProtected"/>,
     /// <see cref="UserAccount.MfaEnabled"/>) and existing (non-pending) recovery codes are left
@@ -633,9 +655,13 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
     /// <see cref="LastAdminException"/>, <see cref="AdminGuardBusyException"/> or <see cref="AccountTargetNotAllowedException"/> exactly as
     /// <see cref="SetAccountEnabledAsync"/> does.
     /// </summary>
-    internal async Task<bool> DisableForStaffInactivationAsync(Guid accountId, Guid performedByUserAccountId, string staffDisplayName, CancellationToken cancellationToken)
+    internal Task<bool> DisableForStaffInactivationAsync(Guid accountId, Guid performedByUserAccountId, string staffDisplayName, CancellationToken cancellationToken) =>
+        DisableInTransactionAsync(accountId, performedByUserAccountId, $"because its staff profile '{staffDisplayName}' was inactivated", cancellationToken);
+
+    /// <summary>The same protected disable inside the CALLER's transaction, with the caller's reason in the audit text (ALV-N030-C01: transfer and disable, brief 18.5).</summary>
+    internal async Task<bool> DisableInTransactionAsync(Guid accountId, Guid performedByUserAccountId, string because, CancellationToken cancellationToken)
     {
-        if (db.Database.CurrentTransaction is null) throw new InvalidOperationException("The linked login must be disabled inside the staff inactivation's transaction.");
+        if (db.Database.CurrentTransaction is null) throw new InvalidOperationException("The login must be disabled inside the caller's transaction.");
         await AdminAvailabilityGuard.AcquireAsync(db, cancellationToken);
         var account = await LoadLockedAsync(accountId, cancellationToken);
         var actorNote = await ApplyTargetRulesAsync(performedByUserAccountId, account, AccountAction.Disable, cancellationToken);
@@ -646,7 +672,7 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
         BumpSecurityStamp(account);
         await AuditSessionStore.RevokeOpenAsync(db, account.Id, performedByUserAccountId, DateTimeOffset.UtcNow, cancellationToken);   // ALV-N025 (BR-01): the stamp rotated: open sessions close as Revoked, in this save
         AddAudit(AuditEventTypes.AccountDisabled, account.Id, performedByUserAccountId,
-            $"Account '{account.Username}' disabled because its staff profile '{staffDisplayName}' was inactivated.{actorNote}");
+            $"Account '{account.Username}' disabled {because}.{actorNote}");
         await db.SaveChangesAsync(cancellationToken);
         return true;
     }

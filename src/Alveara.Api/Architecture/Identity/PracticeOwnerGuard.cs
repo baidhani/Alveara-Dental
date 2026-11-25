@@ -10,6 +10,9 @@ namespace Alveara.Api.Architecture.Identity;
 /// </summary>
 public sealed class OwnerTransferRequiredException(string message) : Exception(message);
 
+/// <summary>ALV-N030-C01 (brief 18.5, Q5): the account has MFA on, so a sensitive action needs a current authenticator code as well as the password. 403 <c>mfa_required</c>.</summary>
+public sealed class MfaStepUpRequiredException() : Exception("A current authenticator code is required.");
+
 /// <summary>One account row read under an update lock (brief 18.3a).</summary>
 public sealed record LockedAccount(Guid Id, int Role, bool IsDisabled, byte AccountKind)
 {
