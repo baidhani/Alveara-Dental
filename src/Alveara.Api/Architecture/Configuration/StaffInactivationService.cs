@@ -49,6 +49,11 @@ public class StaffInactivationService(AlveraDbContext db, StaffProviderService s
             var loginDisabled = false;
             if (profile.UserAccountId is { } accountId)
             {
+                // ALV-N030-C01 E4 (brief 18.3, 18.3a): the Practice Owner's profile is never inactivated; the designation must be transferred first. Checked after the
+                // administrator guard and before the login step, so it is an ordinary refusal (audited), never an inactivation failure with an alert.
+                await AdminAvailabilityGuard.AcquireAsync(db, ct);
+                if (await PracticeOwnerGuard.IsOwnerStaffAsync(db, staffProfileId, ct))
+                    throw new ConfigurationException(PracticeOwnerGuard.TransferRequired, PracticeOwnerGuard.InactivateMessage, 409);
                 accountStep = true;
                 loginDisabled = await accounts.DisableForStaffInactivationAsync(accountId, actor, profile.DisplayName, ct);
                 accountStep = false;
@@ -67,6 +72,8 @@ public class StaffInactivationService(AlveraDbContext db, StaffProviderService s
         {
             await transaction.RollbackAsync(CancellationToken.None);
             db.ChangeTracker.Clear();
+            if (ex is ConfigurationException { Code: PracticeOwnerGuard.TransferRequired } && profile.UserAccountId is { } ownerAccount)
+                await RecordOwnerRefusalAsync(actor, ownerAccount, ct);
             throw;                                                                                      // an ordinary refusal of the profile change
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
@@ -82,6 +89,13 @@ public class StaffInactivationService(AlveraDbContext db, StaffProviderService s
         }
     }
 
+    /// <summary>ALV-N030-C01 E4: the refusal is on record (ids and the rule only), written after the rollback in its own save.</summary>
+    private async Task RecordOwnerRefusalAsync(Guid actor, Guid ownerAccount, CancellationToken ct)
+    {
+        var actorRole = await db.UserAccounts.AsNoTracking().Where(u => u.Id == actor).Select(u => (Role?)u.Role).SingleOrDefaultAsync(ct) ?? Role.Unassigned;
+        await AccountTargetRules.RecordRefusalAsync(db, actor, actorRole, ownerAccount, PracticeOwnerGuard.TransferRequired, ct);
+    }
+
     private static Exception Translate(Exception ex, string? unrecordedReference)
     {
         var notRecorded = unrecordedReference is null ? "" : $" The failure could not be recorded; give this reference to your administrator: {unrecordedReference}.";
@@ -91,6 +105,7 @@ public class StaffInactivationService(AlveraDbContext db, StaffProviderService s
                 "This staff member's login is the last enabled administrator. Enable another administrator first. Nothing was changed." + notRecorded, 409),
             AdminGuardBusyException => new ConfigurationException("staff_login_busy",
                 "Another administrator change is in progress. Try again in a moment. Nothing was changed." + notRecorded, 409),
+            OwnerTransferRequiredException => new ConfigurationException(PracticeOwnerGuard.TransferRequired, PracticeOwnerGuard.InactivateMessage, 409),   // backstop only
             AccountTargetNotAllowedException => new ConfigurationException("staff_login_not_allowed",
                 "You may not disable this staff member's login, so the profile was not inactivated. Nothing was changed." + notRecorded, 403),
             _ => ex,                                                                                    // 500 with the correlation id from the error middleware

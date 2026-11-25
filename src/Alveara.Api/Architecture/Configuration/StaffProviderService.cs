@@ -68,6 +68,8 @@ public class StaffProviderService(AlveraDbContext db, IPracticeClock clock)
     {
         var staff = await db.StaffProfiles.SingleOrDefaultAsync(s => s.Id == id, ct) ?? throw PracticeConfigurationService.NotFound("Staff profile");
         if (staff.IsActive == active) return staff;
+        if (!active && await PracticeOwnerGuard.IsOwnerStaffAsync(db, id, ct))   // ALV-N030-C01 E4: transfer the designation first
+            throw new ConfigurationException(PracticeOwnerGuard.TransferRequired, PracticeOwnerGuard.InactivateMessage, 409);
         if (!active && await db.ProviderProfiles.AnyAsync(p => p.StaffProfileId == id && p.IsActive, ct))
             throw new ConfigurationException("staff_has_active_provider", "Inactivate this staff member's provider profile first.", 409);
         ConfigurationWrite.ApplyExpectedVersion(db, staff, rowVersion);

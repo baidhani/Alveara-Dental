@@ -320,6 +320,8 @@ public class StaffMemberAndOwnerTests : IAsyncLifetime
         Assert.Equal(JsonValueKind.Null, (await JsonAsync(await deploy.Client.GetAsync("/api/practice-owner"))).GetProperty("owner").ValueKind);
 
         Assert.Equal("confirmation_required", await ErrorAsync(await deploy.SendAsync(HttpMethod.Post, "/api/practice-owner/initial", new DesignatePracticeOwnerRequest(ownerStaff, false))));
+        // ALV-N030-C01 (brief 18.3 E1): an otherwise eligible staff member whose login is not an Administrator is refused
+        Assert.Equal("owner_must_be_administrator", await ErrorAsync(await deploy.SendAsync(HttpMethod.Post, "/api/practice-owner/initial", new DesignatePracticeOwnerRequest(ownerStaff, true))));
         Assert.Equal("owner_target_invalid", await ErrorAsync(await deploy.SendAsync(HttpMethod.Post, "/api/practice-owner/initial", new DesignatePracticeOwnerRequest(noLogin, true))));
         Assert.Equal("owner_target_invalid", await ErrorAsync(await deploy.SendAsync(HttpMethod.Post, "/api/practice-owner/initial", new DesignatePracticeOwnerRequest(inactiveStaff, true))));
         // A Deployment Administrator account can never be the owner, even if a profile pointed at it (a state no route creates).
@@ -333,7 +335,7 @@ public class StaffMemberAndOwnerTests : IAsyncLifetime
     public async Task The_first_designation_succeeds_and_any_second_one_is_refused()
     {
         await SeedAccountAsync("deploy.first", Role.Admin, AccountKind.DeploymentAdministrator);
-        var ownerAccount = await SeedAccountAsync("dr.first", Role.Dentist, staffName: "Dr First");
+        var ownerAccount = await SeedAccountAsync("dr.first", Role.Admin, staffName: "Dr First");   // ALV-N030-C01: the owner signs in as an Administrator
         var ownerStaff = await WithDbAsync(db => db.StaffProfiles.Where(s => s.UserAccountId == ownerAccount).Select(s => s.Id).SingleAsync());
         var otherAccount = await SeedAccountAsync("dr.second", Role.Dentist, staffName: "Dr Second");
         var otherStaff = await WithDbAsync(db => db.StaffProfiles.Where(s => s.UserAccountId == otherAccount).Select(s => s.Id).SingleAsync());
@@ -365,7 +367,7 @@ public class StaffMemberAndOwnerTests : IAsyncLifetime
     public async Task On_an_upgraded_install_an_active_administrator_designates_by_the_upgrade_transition()
     {
         await SeedAccountAsync("admin.upgrade", Role.Admin, staffName: "Admin Upgrade");
-        var ownerAccount = await SeedAccountAsync("dr.upgrade", Role.Dentist, staffName: "Dr Upgrade");
+        var ownerAccount = await SeedAccountAsync("dr.upgrade", Role.Admin, staffName: "Dr Upgrade");   // ALV-N030-C01: the owner signs in as an Administrator
         var ownerStaff = await WithDbAsync(db => db.StaffProfiles.Where(s => s.UserAccountId == ownerAccount).Select(s => s.Id).SingleAsync());
         var admin = await SignInAsync("admin.upgrade");
         var designated = await admin.SendAsync(HttpMethod.Post, "/api/practice-owner/initial", new DesignatePracticeOwnerRequest(ownerStaff, true));

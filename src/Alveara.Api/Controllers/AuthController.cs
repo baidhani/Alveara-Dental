@@ -283,6 +283,10 @@ public class AuthController(AccountService accountService, AlveraDbContext db, I
             var account = await accountService.ChangeRoleAsync(userId, newRole, performedByUserId, cancellationToken);
             return Ok(new AccountResponse(account.Id, account.Username, account.Role.ToString()));
         }
+        catch (OwnerTransferRequiredException ex)   // ALV-N030-C01 E3/E5
+        {
+            return Conflict(new { error = PracticeOwnerGuard.TransferRequired, message = ex.Message });
+        }
         catch (LastAdminException)
         {
             return Conflict(new { error = "last_admin", message = "At least one enabled administrator must remain." });
@@ -312,6 +316,10 @@ public class AuthController(AccountService accountService, AlveraDbContext db, I
         {
             var account = await accountService.SetAccountEnabledAsync(userId, request.Enabled, performedByUserId, cancellationToken);
             return Ok(new { account.Id, account.Username, account.IsDisabled });
+        }
+        catch (OwnerTransferRequiredException ex)   // ALV-N030-C01 E3/E5
+        {
+            return Conflict(new { error = PracticeOwnerGuard.TransferRequired, message = ex.Message });
         }
         catch (LastAdminException)
         {

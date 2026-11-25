@@ -573,6 +573,8 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
             var previousRole = account.Role;
             if (previousRole != newRole)
             {
+                if (previousRole == Role.Admin && newRole != Role.Admin)   // ALV-N030-C01 E3: the owner's login stays an Administrator until ownership is transferred
+                    await PracticeOwnerGuard.EnsureNotOwnerAccountAsync(db, account.Id, PracticeOwnerGuard.RoleChangeMessage, cancellationToken);
                 if (previousRole == Role.Admin && !account.IsDisabled) await AdminAvailabilityGuard.EnsureAnotherAsync(db, account.Id, cancellationToken);
                 account.Role = newRole;
                 BumpSecurityStamp(account);
@@ -585,7 +587,7 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
             await transaction.CommitAsync(cancellationToken);
             return account;
         }
-        catch (Exception ex) when (ex is LastAdminException or AdminGuardBusyException)
+        catch (Exception ex) when (ex is LastAdminException or AdminGuardBusyException or OwnerTransferRequiredException)
         {
             await RefuseAsync(transaction, performedByUserAccountId, targetUserAccountId, RuleOf(ex), cancellationToken);
             throw;
@@ -603,6 +605,7 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
 
             if (account.IsDisabled != !enabled)
             {
+                if (!enabled) await PracticeOwnerGuard.EnsureNotOwnerAccountAsync(db, account.Id, PracticeOwnerGuard.DisableMessage, cancellationToken);   // ALV-N030-C01 E5
                 if (!enabled && account.Role == Role.Admin) await AdminAvailabilityGuard.EnsureAnotherAsync(db, account.Id, cancellationToken);
                 account.IsDisabled = !enabled;
                 BumpSecurityStamp(account);
@@ -615,7 +618,7 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
             await transaction.CommitAsync(cancellationToken);
             return account;
         }
-        catch (Exception ex) when (ex is LastAdminException or AdminGuardBusyException or AccountTargetNotAllowedException)
+        catch (Exception ex) when (ex is LastAdminException or AdminGuardBusyException or AccountTargetNotAllowedException or OwnerTransferRequiredException)
         {
             await RefuseAsync(transaction, performedByUserAccountId, targetUserAccountId, RuleOf(ex), cancellationToken);
             throw;
@@ -637,6 +640,7 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
         var account = await LoadLockedAsync(accountId, cancellationToken);
         var actorNote = await ApplyTargetRulesAsync(performedByUserAccountId, account, AccountAction.Disable, cancellationToken);
         if (account.IsDisabled) return false;
+        await PracticeOwnerGuard.EnsureNotOwnerAccountAsync(db, account.Id, PracticeOwnerGuard.DisableMessage, cancellationToken);   // ALV-N030-C01 E5 (backstop for E4)
         if (account.Role == Role.Admin) await AdminAvailabilityGuard.EnsureAnotherAsync(db, account.Id, cancellationToken);
         account.IsDisabled = true;
         BumpSecurityStamp(account);
@@ -875,6 +879,7 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
         LastAdminException => "last_admin",
         AdminGuardBusyException => "admin_guard_busy",
         AccountTargetNotAllowedException t => t.Rule,
+        OwnerTransferRequiredException => PracticeOwnerGuard.TransferRequired,
         _ => "refused",
     };
 

@@ -3801,3 +3801,10 @@
   - What changed: brief status names R10 as the approved revision of section 18; review file BRIEFING-R10 committed
   - Verification: review .alveara/reviews/ACCT/BRIEFING-R10.md APPROVED_FOR_IMPLEMENTATION
   - Notes: C01 slice 1 starts on the owner's Go
+
+- [x] ALV-N030-C01 slice 1: Practice Owner invariant (E1, E1a, E3-E5) and lock order
+  - Date: 2026-11-25
+  - Session: CC-20261123-q4vn
+  - What changed: PracticeOwnerGuard (new); PracticeOwnerService initial designation requires an Admin target and an enabled-Admin actor checked inside the serializable transaction under the 18.3a lock order; AccountService refuses role change away from Admin and disable of the owner (owner_transfer_required); StaffInactivationService/StaffProviderService refuse inactivating the owner (audited ordinary refusal, no failure alert); AuthController maps the 409; tests PracticeOwnerInvariantTests (S11, S11b gap + live races, S26, S27, S28) and two StaffMemberAndOwnerTests owners made Administrators
+  - Verification: PracticeOwnerInvariantTests + StaffMemberAndOwnerTests 24/24 (1 m 44 s); AccountBootstrapMigrationTests + PasswordChangeGateTests 13/13 (1 m 12 s); test databases back to the 1 pre-existing
+  - Notes: ManageUsers is Administrator-only in this app, so S11b proves the actor refusal at the route (403) and in the service; AccountService.cs (906 lines, over the 500 ceiling) received only call lines, logic kept in PracticeOwnerGuard - disclosed
